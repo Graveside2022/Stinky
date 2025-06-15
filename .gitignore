@@ -237,3 +237,6 @@ _build/
 .vscode/settings.json
 .idea/workspace.xml
 profile_default/
+# Backup directories (large files)
+backups/
+cleanup-backups/

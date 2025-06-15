@@ -1,0 +1,239 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# C extensions
+*.so
+
+# Distribution / packaging
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+pip-wheel-metadata/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# PyInstaller
+*.manifest
+*.spec
+
+# Unit test / coverage reports
+htmlcov/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
+.hypothesis/
+.pytest_cache/
+
+# Virtual environments
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# OS generated files
+.directory
+.fuse_hidden*
+
+# Log files
+*.log
+logs/
+*.out
+
+# Runtime data
+pids/
+*.pid
+*.seed
+*.pid.lock
+
+# Coverage directory used by tools like istanbul
+coverage/
+
+# nyc test coverage
+.nyc_output
+
+# Dependency directories
+node_modules/
+
+# Optional npm cache directory
+.npm
+
+# Optional eslint cache
+.eslintcache
+
+# dotenv environment variables file
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Backup files
+*.backup
+*.backup-*
+*~
+
+# Temporary files
+tmp/
+temp/
+.tmp/
+
+# Project specific
+data/kismet/*
+!data/kismet/.gitkeep
+docker-backup/*.tar.gz
+openwebrx-hackrf-working.tar.gz
+
+# Local configuration files (keep templates)
+config.json
+!config.json.template
+*.conf
+!*.template.conf
+!config/templates/
+!config/examples/
+
+# Runtime directories
+/logs/*
+!/logs/.gitkeep
+/venv/
+/web/
+
+# System files
+.fuse_hidden*
+.nfs*
+
+# Compiled binaries
+*.o
+*.a
+*.so
+*.exe
+
+# Package files
+*.deb
+*.rpm
+*.tar.gz
+*.zip
+
+# Keys and certificates
+*.key
+*.pem
+*.crt
+*.p12
+
+# Local development
+local/
+.local/
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# pyenv
+.python-version
+
+# pipenv
+Pipfile.lock
+
+# PEP 582
+__pypackages__/
+
+# Celery stuff
+celerybeat-schedule
+celerybeat.pid
+
+# SageMath parsed files
+*.sage.py
+
+# Spyder project settings
+.spyderproject
+.spyproject
+
+# Rope project settings
+.ropeproject
+
+# mkdocs documentation
+/site
+
+# mypy
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# Pyre type checker
+.pyre/
+
+# GitHub and CI/CD
+.github/workflows/*.yml.backup
+.github/ISSUE_TEMPLATE/*.md.backup
+node_modules/
+*.npm-debug.log*
+coverage/
+.nyc_output/
+.coverage
+htmlcov/
+.tox/
+test-results/
+test-reports/
+*.junit.xml
+.hypothesis/
+
+# Additional Development Tools
+.pre-commit-config.yaml
+.editorconfig
+.flake8
+pyproject.toml
+setup.cfg
+.pytest_cache/
+
+# Additional Docker exclusions
+.dockerignore
+docker-compose.override.yml
+docker-compose.production.yml
+.docker-compose.env
+
+# Security and Secrets (additional)
+.env.backup
+.env.*.backup
+secrets/
+keys/
+certificates/
+
+# Documentation Build
+_build/
+.doctrees/
+.sass-cache/
+
+# IDE specific (additional)
+.vscode/settings.json
+.idea/workspace.xml
+profile_default/

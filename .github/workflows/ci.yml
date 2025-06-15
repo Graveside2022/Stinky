@@ -1,0 +1,388 @@
+name: Continuous Integration
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  code-quality:
+    name: Code Quality Checks
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.9'
+    
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install flake8 black isort bandit safety
+        if [ -f requirements-dev.txt ]; then pip install -r requirements-dev.txt; fi
+    
+    - name: Code formatting check (Black)
+      run: black --check --diff src/
+    
+    - name: Import sorting check (isort)
+      run: isort --check-only --diff src/
+    
+    - name: Lint with flake8
+      run: |
+        # Stop the build if there are Python syntax errors or undefined names
+        flake8 src/ --count --select=E9,F63,F7,F82 --show-source --statistics
+        # Exit-zero treats all errors as warnings
+        flake8 src/ --count --exit-zero --max-complexity=10 --max-line-length=88 --statistics
+    
+    - name: Security scan with Bandit
+      run: bandit -r src/ -f json -o bandit-report.json || true
+    
+    - name: Upload Bandit report
+      uses: actions/upload-artifact@v3
+      if: always()
+      with:
+        name: bandit-report
+        path: bandit-report.json
+
+  dependency-security:
+    name: Dependency Security Scan
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.9'
+    
+    - name: Install Safety
+      run: pip install safety
+    
+    - name: Check Python dependencies
+      run: |
+        for req_file in requirements*.txt; do
+          if [ -f "$req_file" ]; then
+            echo "Checking $req_file"
+            safety check -r "$req_file" --json --output safety-report-$(basename $req_file .txt).json || true
+          fi
+        done
+    
+    - name: Upload Safety reports
+      uses: actions/upload-artifact@v3
+      if: always()
+      with:
+        name: safety-reports
+        path: safety-report-*.json
+
+  unit-tests:
+    name: Unit Tests
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: [3.8, 3.9, '3.10', 3.11]
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ matrix.python-version }}
+    
+    - name: Install system dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y python3-dev build-essential
+    
+    - name: Install Python dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install pytest pytest-cov pytest-mock
+        if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+        if [ -f requirements-dev.txt ]; then pip install -r requirements-dev.txt; fi
+    
+    - name: Run unit tests
+      run: |
+        if [ -d "tests/" ]; then
+          pytest tests/ -v --cov=src --cov-report=xml --cov-report=html
+        else
+          echo "No tests directory found, skipping unit tests"
+        fi
+    
+    - name: Upload coverage reports
+      uses: codecov/codecov-action@v3
+      if: matrix.python-version == '3.9'
+      with:
+        file: ./coverage.xml
+        flags: unittests
+        name: codecov-umbrella
+
+  docker-build:
+    name: Docker Build Test
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+    
+    - name: Build OpenWebRX container
+      run: |
+        if [ -f "Dockerfile" ]; then
+          docker build -t stinkster-test .
+        else
+          echo "No Dockerfile found, skipping Docker build"
+        fi
+    
+    - name: Test Docker Compose
+      run: |
+        if [ -f "docker-compose.template.yml" ]; then
+          # Create a test docker-compose.yml from template
+          cp docker-compose.template.yml docker-compose.test.yml
+          # Test that it parses correctly
+          docker-compose -f docker-compose.test.yml config
+        else
+          echo "No docker-compose template found"
+        fi
+
+  documentation:
+    name: Documentation Check
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.9'
+    
+    - name: Install documentation tools
+      run: |
+        pip install markdown-link-check || echo "markdown-link-check not available"
+        npm install -g markdown-link-check || echo "npm not available"
+    
+    - name: Check Markdown files
+      run: |
+        # Find and check all markdown files
+        find . -name "*.md" -not -path "./node_modules/*" -not -path "./.git/*" | while read file; do
+          echo "Checking $file"
+          if command -v markdown-link-check > /dev/null; then
+            markdown-link-check "$file" || echo "Link check failed for $file"
+          else
+            echo "Skipping link check - markdown-link-check not available"
+          fi
+        done
+    
+    - name: Verify required documentation files
+      run: |
+        required_files=("README.md" "LICENSE" "CONTRIBUTING.md" "SECURITY.md")
+        for file in "${required_files[@]}"; do
+          if [ ! -f "$file" ]; then
+            echo "ERROR: Required file $file is missing"
+            exit 1
+          else
+            echo "✓ Found $file"
+          fi
+        done
+    
+    - name: Check for sensitive information
+      run: |
+        # Check for common patterns that shouldn't be in public repos
+        echo "Checking for sensitive information..."
+        
+        # Check for API keys, passwords, etc.
+        if grep -r -i "api[_-]key.*=" . --exclude-dir=.git --exclude="*.md" | grep -v "example\|template\|TODO\|FIXME"; then
+          echo "WARNING: Potential API keys found"
+        fi
+        
+        if grep -r -i "password.*=" . --exclude-dir=.git --exclude="*.md" | grep -v "example\|template\|TODO\|FIXME"; then
+          echo "WARNING: Potential passwords found"
+        fi
+        
+        # Check for IP addresses that might be sensitive
+        if grep -r -E '\b([0-9]{1,3}\.){3}[0-9]{1,3}\b' . --exclude-dir=.git --exclude="*.md" | grep -v "127.0.0.1\|0.0.0.0\|localhost\|example"; then
+          echo "INFO: IP addresses found (review for sensitivity)"
+        fi
+
+  license-compliance:
+    name: License Compliance Check
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.9'
+    
+    - name: Install license checking tools
+      run: |
+        pip install pip-licenses
+    
+    - name: Check Python package licenses
+      run: |
+        if [ -f requirements.txt ]; then
+          pip install -r requirements.txt
+          pip-licenses --format=json --output-file=python-licenses.json
+          pip-licenses --format=table
+        fi
+    
+    - name: Verify license compatibility
+      run: |
+        # Check for GPL/AGPL licenses that might conflict
+        if [ -f python-licenses.json ]; then
+          if grep -i "gpl\|agpl" python-licenses.json; then
+            echo "WARNING: GPL/AGPL licensed dependencies found"
+            echo "Review license compatibility with MIT license"
+          fi
+        fi
+    
+    - name: Upload license report
+      uses: actions/upload-artifact@v3
+      with:
+        name: license-report
+        path: python-licenses.json
+
+  security-scan:
+    name: Security Vulnerability Scan
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Run Trivy vulnerability scanner
+      uses: aquasecurity/trivy-action@master
+      with:
+        scan-type: 'fs'
+        scan-ref: '.'
+        format: 'sarif'
+        output: 'trivy-results.sarif'
+    
+    - name: Upload Trivy scan results
+      uses: github/codeql-action/upload-sarif@v2
+      if: always()
+      with:
+        sarif_file: 'trivy-results.sarif'
+
+  configuration-validation:
+    name: Configuration Validation
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Validate JSON configuration files
+      run: |
+        # Check all JSON files for valid syntax
+        find . -name "*.json" -not -path "./.git/*" | while read json_file; do
+          echo "Validating $json_file"
+          if ! python -m json.tool "$json_file" > /dev/null; then
+            echo "ERROR: Invalid JSON in $json_file"
+            exit 1
+          fi
+        done
+    
+    - name: Validate YAML configuration files
+      run: |
+        pip install pyyaml
+        # Check all YAML files for valid syntax
+        find . -name "*.yml" -o -name "*.yaml" | grep -v ".git" | while read yaml_file; do
+          echo "Validating $yaml_file"
+          python -c "import yaml; yaml.safe_load(open('$yaml_file'))" || {
+            echo "ERROR: Invalid YAML in $yaml_file"
+            exit 1
+          }
+        done
+    
+    - name: Check environment file template
+      run: |
+        if [ -f ".env.example" ]; then
+          echo "Checking .env.example for required variables"
+          # Basic check that common variables are present
+          required_vars=("HACKRF_ENABLED" "WIFI_INTERFACE" "LOG_LEVEL")
+          for var in "${required_vars[@]}"; do
+            if ! grep -q "^$var=" .env.example; then
+              echo "WARNING: $var not found in .env.example"
+            fi
+          done
+        fi
+
+  regulatory-compliance:
+    name: Regulatory Compliance Check
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Check for regulatory warnings
+      run: |
+        echo "Checking for appropriate regulatory warnings..."
+        
+        # Check that RF-related files have appropriate warnings
+        rf_files=$(find . -name "*.py" -o -name "*.sh" | xargs grep -l -i "hackrf\|sdr\|frequency\|transmit" | head -10)
+        
+        if [ -n "$rf_files" ]; then
+          echo "Found RF-related files, checking for warnings..."
+          for file in $rf_files; do
+            if grep -q -i "license\|legal\|regulatory\|compliance\|warning" "$file"; then
+              echo "✓ $file contains regulatory information"
+            else
+              echo "⚠ $file may need regulatory warnings"
+            fi
+          done
+        fi
+    
+    - name: Verify legal documentation
+      run: |
+        # Check that legal files exist and contain expected content
+        if [ -f "LICENSE" ]; then
+          if grep -q "MIT\|GPL\|Apache\|BSD" LICENSE; then
+            echo "✓ LICENSE file contains recognized license"
+          else
+            echo "WARNING: LICENSE file may not contain standard license"
+          fi
+        fi
+        
+        if [ -f "REGULATORY_COMPLIANCE.md" ]; then
+          echo "✓ Found regulatory compliance documentation"
+        else
+          echo "INFO: Consider adding REGULATORY_COMPLIANCE.md"
+        fi
+
+  build-summary:
+    name: Build Summary
+    needs: [code-quality, dependency-security, unit-tests, docker-build, documentation, license-compliance, security-scan, configuration-validation, regulatory-compliance]
+    runs-on: ubuntu-latest
+    if: always()
+    
+    steps:
+    - name: Check overall build status
+      run: |
+        echo "Build Summary:"
+        echo "============="
+        echo "Code Quality: ${{ needs.code-quality.result }}"
+        echo "Dependency Security: ${{ needs.dependency-security.result }}"
+        echo "Unit Tests: ${{ needs.unit-tests.result }}"
+        echo "Docker Build: ${{ needs.docker-build.result }}"
+        echo "Documentation: ${{ needs.documentation.result }}"
+        echo "License Compliance: ${{ needs.license-compliance.result }}"
+        echo "Security Scan: ${{ needs.security-scan.result }}"
+        echo "Configuration Validation: ${{ needs.configuration-validation.result }}"
+        echo "Regulatory Compliance: ${{ needs.regulatory-compliance.result }}"
+        
+        if [[ "${{ needs.code-quality.result }}" == "failure" || 
+              "${{ needs.unit-tests.result }}" == "failure" ||
+              "${{ needs.security-scan.result }}" == "failure" ]]; then
+          echo "❌ Critical checks failed"
+          exit 1
+        else
+          echo "✅ All critical checks passed"
+        fi

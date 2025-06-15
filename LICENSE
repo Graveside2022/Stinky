@@ -1,0 +1,145 @@
+MIT License
+
+Copyright (c) 2025 Stinkster Project
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+================================================================================
+                           MIXED LICENSE NOTICE
+================================================================================
+
+⚠️  CRITICAL: This project contains components under different licenses with 
+    varying legal requirements. The MIT license above applies ONLY to the 
+    original Stinkster Project code.
+
+THIRD-PARTY COMPONENT LICENSES:
+
+• WigleToTAK Component: GNU Affero General Public License v3 (AGPL v3)
+  Location: src/wigletotak/WigleToTAK/
+  Impact: Network service provision requires source code disclosure
+  
+• OpenWebRX: GNU Affero General Public License v3 (AGPL v3)
+  Location: Docker container (openwebrx-hackrf)
+  Impact: Network service provision requires source code disclosure
+  
+• Kismet: GNU General Public License v2 (GPL v2)
+  System package dependency
+  
+• HackRF Tools: GNU General Public License v2 (GPL v2)
+  System package dependencies
+
+See THIRD_PARTY_LICENSES.md for complete licensing information and compliance
+requirements for all components.
+
+AGPL v3 COMPLIANCE NOTICE:
+When operating network services using AGPL v3 components (WigleToTAK web 
+interface, OpenWebRX), you must provide source code access to users. Source
+code is available at: https://github.com/[repository]/stinkster
+
+================================================================================
+                         ENHANCED LEGAL DISCLAIMER
+================================================================================
+
+IMPORTANT LEGAL NOTICE - READ CAREFULLY:
+
+This software system combines Software Defined Radio (SDR), WiFi scanning, GPS
+tracking, and network communication capabilities. Users assume full legal and
+regulatory responsibility for all usage.
+
+REGULATORY COMPLIANCE REQUIREMENTS:
+
+1. RADIO FREQUENCY (RF) OPERATIONS:
+   • Amateur radio license may be required for transmission
+   • Comply with local frequency allocation and power limits
+   • Ensure SDR equipment meets local type approval requirements
+   • Respect international and domestic RF emission standards
+   • Import/export controls may apply to RF equipment and software
+
+2. WIRELESS NETWORK MONITORING:
+   • Comply with computer crime and communications laws
+   • Obtain necessary permissions for network scanning activities
+   • Respect privacy laws regarding network monitoring and data collection
+   • Follow applicable data protection and privacy regulations (GDPR, etc.)
+   • Some jurisdictions prohibit wireless monitoring without consent
+
+3. GPS AND LOCATION SERVICES:
+   • Comply with location privacy and data protection requirements
+   • Some GPS technologies may have export control restrictions
+   • Respect location-based privacy laws and regulations
+
+4. PENETRATION TESTING AND SECURITY RESEARCH:
+   • Obtain explicit written authorization before testing networks
+   • Comply with responsible disclosure practices
+   • Follow applicable cybersecurity and computer crime laws
+   • Respect terms of service and acceptable use policies
+
+PROHIBITED USES:
+The following uses are STRICTLY PROHIBITED and may violate laws:
+• Unauthorized network access or intrusion attempts
+• Interference with licensed radio communications
+• Privacy violations or unauthorized surveillance
+• Transmission on restricted or unlicensed frequencies
+• Circumvention of security measures without authorization
+• Any use that violates local, national, or international law
+
+TECHNICAL DISCLAIMERS:
+
+1. NO WARRANTY: This software is provided "AS IS" without warranty of any kind.
+   The authors disclaim all warranties, express or implied, including but not
+   limited to the implied warranties of merchantability and fitness for a 
+   particular purpose.
+
+2. LIMITATION OF LIABILITY: In no event shall the authors or copyright holders
+   be liable for any claim, damages, or other liability arising from the use
+   of this software, including but not limited to:
+   • Equipment damage or malfunction
+   • Legal consequences of improper use
+   • Data loss or corruption
+   • Service interruption or downtime
+   • Regulatory violations or fines
+
+3. USER RESPONSIBILITY: Users are solely responsible for:
+   • Ensuring legal compliance in their jurisdiction
+   • Obtaining necessary licenses and permissions
+   • Proper equipment operation and safety
+   • Data security and privacy protection
+   • Regular legal and regulatory compliance review
+
+4. EXPORT CONTROLS: This software may be subject to export control laws and
+   regulations. Users are responsible for compliance with applicable export
+   control requirements.
+
+EDUCATIONAL AND RESEARCH USE:
+This software is intended for educational, research, and authorized security
+testing purposes only. Commercial use may require additional licensing and
+compliance measures.
+
+UPDATES AND CHANGES:
+License terms and legal requirements may change. Users should regularly
+review documentation and consult with qualified legal counsel for compliance
+guidance.
+
+ACKNOWLEDGMENT:
+By using this software, you acknowledge that you have read, understood, and
+agree to comply with all applicable legal requirements and restrictions.
+
+USE AT YOUR OWN RISK AND RESPONSIBILITY.
+
+For questions regarding licensing or legal compliance, consult with qualified
+legal counsel familiar with telecommunications, cybersecurity, and technology law.

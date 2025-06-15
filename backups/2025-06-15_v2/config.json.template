@@ -1,0 +1,74 @@
+{
+  "kismet": {
+    "api": {
+      "url": "${KISMET_API_URL}",
+      "ip": "${KISMET_API_IP}",
+      "port": 2501,
+      "auth": {
+        "username": "${KISMET_USERNAME}",
+        "password": "${KISMET_PASSWORD}"
+      }
+    },
+    "config": {
+      "interface": "${NETWORK_INTERFACE}",
+      "hop_speed": "${NETWORK_HOP_SPEED}",
+      "autologin": true,
+      "enable_datasource": true
+    }
+  },
+  "wigletotak": {
+    "server": {
+      "ip": "${TAK_SERVER_IP}",
+      "port": "${TAK_SERVER_PORT}",
+      "multicast_group": "${TAK_MULTICAST_GROUP}"
+    },
+    "flask": {
+      "host": "0.0.0.0",
+      "port": "${WIGLETOTAK_FLASK_PORT}"
+    },
+    "directory": "${WIGLETOTAK_DIRECTORY}"
+  },
+  "gpsd": {
+    "host": "${GPSD_HOST}",
+    "port": "${GPSD_PORT}",
+    "reconnect": true,
+    "reconnect_wait": 5,
+    "retry": true,
+    "retry_time": 30
+  },
+  "paths": {
+    "logs": {
+      "dir": "${LOG_DIR}",
+      "webhook": "${WEBHOOK_LOG_PATH}",
+      "kismet": "${LOG_DIR}/kismet.log",
+      "wigletotak": "${LOG_DIR}/wigletotak.log",
+      "gps_kismet_wigle": "${LOG_DIR}/gps_kismet_wigle.log"
+    },
+    "pids": {
+      "dir": "${PID_DIR}",
+      "kismet": "${KISMET_PID_FILE}",
+      "wigletotak": "${WIGLETOTAK_PID_FILE}",
+      "script": "${SCRIPT_PID_FILE}",
+      "main": "${GPS_KISMET_WIGLE_PID_FILE}"
+    },
+    "operations": {
+      "kismet": "${KISMET_OPS_DIR}",
+      "scripts": "${SCRIPT_DIR}"
+    }
+  },
+  "webhook": {
+    "host": "0.0.0.0",
+    "port": "${WEBHOOK_PORT}",
+    "cors_enabled": true
+  },
+  "antenna_sensitivity": {
+    "default": "standard",
+    "factors": {
+      "standard": 1.0,
+      "alfa_card": 1.5,
+      "high_gain": 2.0,
+      "rpi_internal": 0.7,
+      "custom": 1.0
+    }
+  }
+}

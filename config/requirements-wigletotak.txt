@@ -1,0 +1,4 @@
+# WigleToTAK Component Requirements
+# Minimal dependencies for WiFi data conversion to TAK format
+
+Flask==3.0.2

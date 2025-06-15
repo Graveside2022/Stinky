@@ -1,0 +1,14 @@
+# Disabled - landing-server.py not found
+# [Unit]
+# Description=OpenWebRX Landing Page Server
+# After=network.target
+#
+# [Service]
+# Type=simple
+# User=pi
+# WorkingDirectory=/home/pi/projects/stinkster
+# ExecStart=/home/pi/projects/stinkster/web/venv/bin/python /home/pi/projects/stinkster/web/landing-server.py
+# Restart=always
+#
+# [Install]
+# WantedBy=multi-user.target

@@ -1,0 +1,12 @@
+# HackRF/Spectrum Analyzer Component Requirements
+# Dependencies for real-time spectrum analysis and SDR operations
+
+Flask==3.0.2
+Flask-SocketIO>=5.5.1
+numpy>=2.3.0
+websockets>=15.0.1
+requests>=2.32.3
+
+# Optional signal processing libraries
+# scipy>=1.14.1
+# matplotlib>=3.10.0

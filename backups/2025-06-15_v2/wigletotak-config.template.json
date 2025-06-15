@@ -1,0 +1,37 @@
+{
+  "server": {
+    "host": "0.0.0.0",
+    "port": 6969,
+    "debug": false
+  },
+  "tak": {
+    "server_ip": "YOUR_TAK_SERVER_IP",
+    "server_port": 8087,
+    "protocol": "tcp",
+    "callsign": "YOUR_CALLSIGN",
+    "uid": "YOUR_UNIQUE_ID",
+    "team": "Cyan",
+    "role": "Team Member"
+  },
+  "kismet": {
+    "data_dir": "${KISMET_DATA_DIR}",
+    "scan_interval": 60,
+    "file_pattern": "*.wiglecsv"
+  },
+  "gps": {
+    "gpsd_host": "localhost",
+    "gpsd_port": 2947,
+    "timeout": 5
+  },
+  "logging": {
+    "level": "INFO",
+    "file": "${LOG_DIR}/wigletotak.log",
+    "max_size": "10MB",
+    "backup_count": 3
+  },
+  "filters": {
+    "min_signal_strength": -80,
+    "ignore_ssids": ["_nomap", "xfinitywifi"],
+    "max_age_minutes": 30
+  }
+}

@@ -1,0 +1,155 @@
+{
+  "name": "stinkster",
+  "version": "1.0.0",
+  "description": "Raspberry Pi SDR & WiFi Intelligence Platform - A comprehensive platform combining Software Defined Radio, WiFi scanning, GPS tracking, and TAK integration",
+  "main": "index.js",
+  "scripts": {
+    "start": "./start-openwebrx.sh",
+    "setup": "./install.sh",
+    "dev": "./dev.sh",
+    "test": "./dev/test/run-all-tests.sh",
+    "test:unit": "./dev/test/run-unit-tests.sh",
+    "test:integration": "./dev/test/run-integration-tests.sh",
+    "build": "docker-compose build",
+    "up": "docker-compose up -d",
+    "down": "docker-compose down",
+    "logs": "docker-compose logs -f",
+    "health": "./dev/tools/health-check.sh",
+    "monitor": "./dev/tools/monitor.sh",
+    "lint": "echo 'Linting Python code...' && python -m flake8 src/",
+    "format": "echo 'Formatting Python code...' && python -m black src/",
+    "security": "echo 'Running security scan...' && python -m bandit -r src/",
+    "docs": "echo 'Building documentation...' && cd docs && make html",
+    "clean": "echo 'Cleaning up...' && docker system prune -f && rm -rf __pycache__ .pytest_cache",
+    "backup": "./create_backup.sh",
+    "validate-config": "./dev/tools/validate-config.sh",
+    "setup-venv": "./setup-venv-all.sh"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/username/stinkster.git"
+  },
+  "keywords": [
+    "raspberry-pi",
+    "sdr",
+    "software-defined-radio",
+    "hackrf",
+    "wifi-scanning",
+    "kismet",
+    "gps",
+    "tak",
+    "team-awareness-kit",
+    "spectrum-analysis",
+    "rf",
+    "radio-frequency",
+    "wireless",
+    "networking",
+    "security",
+    "monitoring",
+    "docker",
+    "flask",
+    "python",
+    "amateur-radio",
+    "tactical-networking",
+    "wigle",
+    "mavlink",
+    "gpsd",
+    "openwebrx"
+  ],
+  "author": "Stinkster Project Contributors",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/username/stinkster/issues"
+  },
+  "homepage": "https://github.com/username/stinkster#readme",
+  "engines": {
+    "node": ">=14.0.0",
+    "npm": ">=6.0.0"
+  },
+  "os": [
+    "linux"
+  ],
+  "cpu": [
+    "arm",
+    "arm64",
+    "x64"
+  ],
+  "devDependencies": {
+    "markdown-link-check": "^3.11.2"
+  },
+  "dependencies": {},
+  "peerDependencies": {
+    "docker": ">=20.0.0",
+    "docker-compose": ">=1.29.0"
+  },
+  "config": {
+    "platforms": {
+      "raspberry-pi": {
+        "recommended": "Raspberry Pi 4 Model B (4GB+)",
+        "minimum": "Raspberry Pi 3 Model B+",
+        "os": "Raspberry Pi OS Bullseye (64-bit)"
+      }
+    },
+    "hardware": {
+      "sdr": {
+        "supported": ["HackRF One", "RTL-SDR", "BladeRF"],
+        "recommended": "HackRF One"
+      },
+      "wifi": {
+        "requirements": "Monitor mode capable USB WiFi adapter",
+        "recommended": "Alfa AWUS036ACS"
+      },
+      "gps": {
+        "protocols": ["NMEA", "MAVLink"],
+        "interfaces": ["USB", "UART"]
+      }
+    },
+    "services": {
+      "ports": {
+        "openwebrx": 8073,
+        "spectrum-analyzer": 5000,
+        "wigletotak": 6969,
+        "landing-page": 8080
+      }
+    }
+  },
+  "funding": {
+    "type": "github",
+    "url": "https://github.com/sponsors/username"
+  },
+  "private": false,
+  "workspaces": [
+    "src/*"
+  ],
+  "directories": {
+    "doc": "docs",
+    "test": "dev/test",
+    "lib": "src"
+  },
+  "files": [
+    "src/",
+    "docs/",
+    "dev/",
+    "systemd/",
+    "*.sh",
+    "*.py",
+    "requirements*.txt",
+    "docker-compose.template.yml",
+    "Dockerfile",
+    "LICENSE",
+    "README.md",
+    "CONTRIBUTING.md",
+    "SECURITY.md",
+    "*.template.*"
+  ],
+  "publishConfig": {
+    "registry": "https://registry.npmjs.org/",
+    "access": "public"
+  },
+  "contributors": [
+    {
+      "name": "Community Contributors",
+      "url": "https://github.com/username/stinkster/graphs/contributors"
+    }
+  ]
+}

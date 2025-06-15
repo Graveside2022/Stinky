@@ -25,50 +25,54 @@ A comprehensive Raspberry Pi-based platform that combines Software Defined Radio
 
 ### Prerequisites
 
-- Raspberry Pi 4 (4GB+ recommended)
-- MicroSD card (32GB+ recommended)
+- Raspberry Pi 4 (4GB+ recommended) or Pi 3B+
+- MicroSD card (32GB+ recommended) 
 - HackRF One SDR device
 - USB WiFi adapter (monitoring mode capable)
 - GPS receiver (optional, for location services)
+- Internet connection for installation
 
 ### Installation
 
-1. **Clone the repository:**
+**One-command installation on Raspberry Pi:**
+
+```bash
+git clone https://github.com/your-username/stinkster.git
+cd stinkster
+./install.sh
+```
+
+That's it! The installer automatically:
+- ✅ Installs all system dependencies (Kismet, Docker, HackRF tools, GPSD)
+- ✅ Sets up Python virtual environments for all components  
+- ✅ Builds HackRF-optimized OpenWebRX Docker container with native driver
+- ✅ Creates systemd services for automatic startup
+- ✅ Applies working HackRF configuration with pre-tuned band profiles
+- ✅ **No manual JSON editing or SoapySDR troubleshooting required!**
+
+**🎉 Major improvement:** Previously required manual OpenWebRX configuration and SoapySDR debugging. Now everything works out-of-the-box!
+
+### Post-Installation
+
+After installation completes:
+
+1. **Review configuration files** (optional - defaults work for most setups):
    ```bash
-   git clone https://github.com/your-username/stinkster.git
-   cd stinkster
+   nano .env  # Update GPS device path, WiFi interface, etc.
    ```
 
-2. **Run the installer:**
+2. **Start the system:**
    ```bash
-   chmod +x install.sh
-   sudo ./install.sh
-   ```
-
-3. **Configure your environment:**
-   ```bash
-   cp .env.example .env
-   nano .env  # Fill in your specific values
-   ```
-
-4. **Start the services:**
-   ```bash
-   # Start GPS, Kismet, and WigleToTAK services
+   sudo systemctl start stinkster  # Start all services
+   # OR run manually:
    ./src/orchestration/gps_kismet_wigle.sh
-   
-   # Or start individual services:
-   ./start-openwebrx.sh        # SDR web interface
-   ./dev.sh                    # Development environment
    ```
 
-### Quick Configuration
-
-The installer will set up all dependencies, but you'll need to configure:
-
-- **GPS Device**: Set your GPS device path in `.env`
-- **WiFi Interface**: Configure monitoring interface (usually `wlan1` or `wlan2`)
-- **TAK Server**: If using TAK integration, set your server details
-- **OpenWebRX**: Access at `http://your-pi-ip:8073` (admin/password from .env)
+3. **Access web interfaces:**
+   - **OpenWebRX**: `http://your-pi-ip:8074` (admin/hackrf) - **HackRF support automatically configured**
+   - **Spectrum Analyzer**: `http://your-pi-ip:8092`
+   - **WigleToTAK**: `http://your-pi-ip:6969`
+   - **Kismet**: `http://your-pi-ip:2501`
 
 ## Architecture
 
@@ -119,9 +123,10 @@ stinkster/
 - Web interface at `http://localhost:2501`
 
 ### 2. SDR Operations (HackRF + OpenWebRX)
-- **OpenWebRX**: Full-featured web SDR at `http://localhost:8073`
+- **OpenWebRX**: Full-featured web SDR at `http://localhost:8074` - **HackRF automatically configured**
 - **Spectrum Analyzer**: Real-time FFT analysis at `http://localhost:8092`
 - **Signal Detection**: Automated signal classification
+- **Native HackRF Driver**: Optimized performance (no SoapySDR issues)
 
 ### 3. GPS Integration
 - MAVLink to GPSD bridge
@@ -187,7 +192,7 @@ LOG_DIR=/home/pi/tmp
 **Individual services:**
 ```bash
 # SDR operations
-./start-openwebrx.sh
+./scripts/maintenance/start-openwebrx.sh
 
 # Development mode (includes monitoring)
 ./dev.sh
@@ -218,7 +223,7 @@ docker logs openwebrx
 ```
 
 **Web interfaces:**
-- OpenWebRX: `http://your-pi:8073`
+- OpenWebRX: `http://your-pi:8074`
 - Kismet: `http://your-pi:2501`
 - WigleToTAK: `http://your-pi:6969`
 - Spectrum Analyzer: `http://your-pi:8092`
@@ -267,6 +272,11 @@ sudo ip link set wlan2 up
 
 ### HackRF Setup
 
+**HackRF support is now automatic!** The installer:
+- Installs HackRF tools and drivers
+- Configures OpenWebRX with native HackRF driver (not SoapySDR)
+- Sets up optimized band profiles for 2m, 70cm, airband, and marine VHF
+
 Verify HackRF detection:
 ```bash
 hackrf_info
@@ -297,8 +307,11 @@ timeout 5 cat /dev/ttyUSB0 | grep GPGGA
 
 **OpenWebRX container issues:**
 - Check Docker service: `sudo systemctl status docker`
-- Rebuild container: `./rebuild-openwebrx-docker.sh`
+- Rebuild container: `./manage-openwebrx.sh rebuild` (from openwebrx directory)
 - Check logs: `docker logs openwebrx`
+- **HackRF not detected**: Ensure device is connected before starting container
+- **HackRF shows but doesn't work**: Run `./ensure-hackrf-config.sh` to fix SoapySDR issues
+- **Manual config fix**: Run `./fix-openwebrx-hackrf.sh` for immediate configuration repair
 
 **WiFi scanning problems:**
 - Verify interface supports monitor mode
@@ -369,6 +382,47 @@ Please read [CONTRIBUTING.md](CONTRIBUTING.md) for details on our code of conduc
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## HackRF Integration
+
+**Automatic HackRF support** is now included with zero manual configuration required:
+
+### What's Automated
+- ✅ **Native HackRF driver** (bypasses SoapySDR compatibility issues)
+- ✅ **Optimized RF gain settings** for different bands
+- ✅ **Pre-configured band profiles**:
+  - 2m Amateur Band (145 MHz, NFM)
+  - 70cm Amateur Band (435 MHz, NFM)  
+  - Aircraft Band (125 MHz, AM)
+  - Marine VHF (157 MHz, NFM)
+  - Wide spectrum scanner mode
+- ✅ **Docker container with HackRF tools** pre-installed
+- ✅ **Proper USB device permissions** and udev rules
+
+### Access Your SDR
+- **Web Interface**: `http://your-pi-ip:8074`
+- **Default Login**: admin / hackrf
+- **Real-time Spectrum**: Available immediately after startup
+- **Multiple Band Profiles**: Select from dropdown in OpenWebRX interface
+
+### Management Commands
+```bash
+cd /home/pi/openwebrx
+./manage-openwebrx.sh start      # Start OpenWebRX
+./manage-openwebrx.sh stop       # Stop OpenWebRX  
+./manage-openwebrx.sh restart    # Restart services
+./manage-openwebrx.sh rebuild    # Rebuild with latest config
+./manage-openwebrx.sh hackrf-test # Test HackRF detection
+```
+
+### Configuration Management
+The system automatically ensures HackRF uses the native driver on startup:
+- **Auto-detection**: Checks configuration type on each start
+- **Auto-correction**: Switches from SoapySDR to native HackRF driver if needed
+- **Config persistence**: Maintains settings across container restarts
+- **Manual verification**: Run `./ensure-hackrf-config.sh` to check/fix configuration
+
+No more manual JSON editing or SoapySDR troubleshooting!
 
 ## Acknowledgments
 

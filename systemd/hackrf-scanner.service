@@ -13,7 +13,7 @@ Restart=always
 RestartSec=10
 Environment=NODE_ENV=production
 Environment=PORT=8090
-Environment=OPENWEBRX_URL=ws://localhost:8073/ws/
+Environment=OPENWEBRX_URL=ws://localhost:8074/ws/
 Environment=SAMPLE_RATE=2400000
 Environment=CENTER_FREQ=145000000
 Environment=FFT_SIZE=1024

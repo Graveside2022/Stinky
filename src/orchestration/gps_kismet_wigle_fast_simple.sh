@@ -290,13 +290,13 @@ cd ${KISMET_DATA_DIR:-/home/pi/projects/stinkster/data/kismet} || {
 }
 
 # Use the existing start_kismet.sh script
-if [ -x "/home/pi/projects/stinkster/scripts/start_kismet.sh" ]; then
+if [ -x "/home/pi/projects/stinkster/src/scripts/start_kismet.sh" ]; then
     log "Using start_kismet.sh script..."
-    nohup /home/pi/projects/stinkster/scripts/start_kismet.sh > ${LOG_DIR:-/home/pi/projects/stinkster/logs}/kismet.log 2>&1 &
+    nohup /home/pi/projects/stinkster/src/scripts/start_kismet.sh > ${LOG_DIR:-/home/pi/projects/stinkster/logs}/kismet.log 2>&1 &
     KISMET_SCRIPT_PID=$!
     log "Kismet launcher started with PID $KISMET_SCRIPT_PID"
 else
-    log "ERROR: /home/pi/projects/stinkster/scripts/start_kismet.sh not found or not executable"
+    log "ERROR: /home/pi/projects/stinkster/src/scripts/start_kismet.sh not found or not executable"
     exit 1
 fi
 

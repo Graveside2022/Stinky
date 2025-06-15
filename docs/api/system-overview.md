@@ -183,9 +183,11 @@ sequenceDiagram
 
 ### [SDR Subsystem](./subsystems/sdr-subsystem.md)
 - **Primary Function**: Software-defined radio operations and spectrum analysis
-- **Key Technologies**: HackRF, OpenWebRX, FFT processing, signal detection
+- **Key Technologies**: HackRF, OpenWebRX (Docker-automated), FFT processing, signal detection
 - **Integration Points**: Standalone operation with web visualization
 - **External Interfaces**: HackRF hardware, RF antennas, web browsers
+- **Deployment**: Automated Docker setup with native HackRF drivers
+- **Access**: Web interface at port 8073 with admin/hackrf credentials
 
 ### [TAK Subsystem](./subsystems/tak-subsystem.md)
 - **Primary Function**: Team Awareness Kit integration and tactical data conversion
@@ -209,10 +211,11 @@ sequenceDiagram
 
 ### Software Architecture
 - **Operating System**: Raspberry Pi OS (Debian-based)
-- **Container Platform**: Docker for service isolation
+- **Container Platform**: Docker for service isolation (automated OpenWebRX deployment)
 - **Programming Languages**: Python, Bash, JavaScript
-- **Web Technologies**: Flask, SocketIO, HTML5, CSS3
+- **Web Technologies**: Flask, SocketIO, HTML5, CSS3, OpenWebRX web interface
 - **Database**: SQLite for local data, file-based for configuration
+- **SDR Integration**: Native HackRF drivers with automated Docker orchestration
 
 ### Communication Protocols
 - **Internal**: REST APIs, WebSocket, Unix sockets, shared files

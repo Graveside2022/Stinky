@@ -1,0 +1,9 @@
+{
+    "version": 2,
+    "sdr_id": "hackrf",
+    "log_level": "INFO",
+    "receiver_name": "HackRF SDR",
+    "receiver_location": "Raspberry Pi",
+    "receiver_qra": "JO00aa",
+    "receiver_asl": 0
+}

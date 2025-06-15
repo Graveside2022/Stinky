@@ -25,7 +25,7 @@ Each component should have its own virtual environment. Use the automated setup 
 #### Automated Setup (Recommended)
 ```bash
 cd /home/pi/projects/stinkster
-source ./setup-env.sh  # Load environment variables
+source ./scripts/setup/setup-env.sh  # Load environment variables
 ./setup-venv-all.sh    # Set up all virtual environments
 ```
 
@@ -180,7 +180,7 @@ The installation script automatically creates the required directory structure. 
 ### Core Project Directories
 ```bash
 cd /home/pi/projects/stinkster
-source ./setup-env.sh  # Load environment variables
+source ./scripts/setup/setup-env.sh  # Load environment variables
 mkdir -p "${LOG_DIR}" "${KISMET_DATA_DIR}" "${HACKRF_DIR}" "${GPSMAV_DIR}" "${WIGLETOTAK_DIR}" "${WEB_DIR}"
 ```
 
@@ -253,14 +253,14 @@ lsusb | grep -E "(HackRF|GPS|0403:6001)"
 ### Automated Installation (Recommended)
 ```bash
 cd /home/pi/projects/stinkster
-./install.sh
+./scripts/setup/install.sh
 ```
 
 ### Manual Installation Steps
 1. Install system dependencies: `./system-dependencies.sh`
 2. Configure GPSD for your GPS device
 3. Set up Python virtual environments: `./setup-venv-all.sh`
-4. Configure application settings: `./setup-configs.sh`
+4. Configure application settings: `./scripts/setup/setup-configs.sh`
 5. Configure Kismet for your WiFi adapter
 6. Set up Docker and OpenWebRX (optional)
 7. Test each component individually

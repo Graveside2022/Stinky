@@ -142,14 +142,18 @@ graph TB
   - Mobile-responsive design
 
 #### OpenWebRX Interface
-- **Container**: Docker-based OpenWebRX
+- **Container**: Docker-based OpenWebRX (automated deployment)
 - **Port**: 8073
+- **Access**: http://localhost:8073 with admin/hackrf credentials
+- **Deployment**: Automated via `./build-openwebrx.sh deploy`
 - **Purpose**: Web-based SDR receiver interface
 - **Features**:
   - Real-time spectrum waterfall
   - Multiple demodulation modes
   - Band plan integration
   - Multi-user support
+  - Native HackRF driver integration
+  - Pre-configured frequency profiles
 
 #### Spectrum Analyzer UI
 - **File**: `/home/pi/projects/stinkster/src/hackrf/templates/spectrum.html`
@@ -506,7 +510,7 @@ graph LR
 
 ### Port Allocation
 - **8080**: Landing page and main navigation
-- **8073**: OpenWebRX SDR interface
+- **8073**: OpenWebRX SDR interface (automated Docker deployment, admin/hackrf)
 - **6969**: WigleToTAK dashboard
 - **5000**: Spectrum analyzer interface
 - **8081**: Webhook services
@@ -537,6 +541,10 @@ sudo netstat -tlnp | grep -E ':(8080|8073|6969|5000|8081)'
 
 # Test web connectivity
 curl -I http://localhost:8080
+
+# Test OpenWebRX automated deployment
+./build-openwebrx.sh status
+./build-openwebrx.sh logs
 
 # Monitor web application logs
 tail -f /home/pi/projects/stinkster/logs/web.log

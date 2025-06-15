@@ -1,0 +1,20 @@
+[Unit]
+Description=OpenWebRX Docker Container with HackRF
+After=docker.service
+Requires=docker.service
+
+[Service]
+Type=forking
+RemainAfterExit=yes
+User=pi
+Group=pi
+WorkingDirectory=/home/pi/projects/stinkster
+ExecStartPre=/bin/sleep 10
+ExecStart=/home/pi/projects/stinkster/start-openwebrx.sh
+ExecStop=/usr/bin/docker stop openwebrx
+ExecStopPost=/usr/bin/docker rm -f openwebrx
+Restart=on-failure
+RestartSec=30
+
+[Install]
+WantedBy=multi-user.target

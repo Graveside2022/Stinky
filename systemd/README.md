@@ -2,42 +2,82 @@
 
 This directory contains the systemd service files for the Stinkster project.
 
-## Service Files
+## Automated Installation
 
-### hackrf-scanner.service
-- **Description**: HackRF Scanner - Real-time Spectrum Analyzer
-- **Port**: 8090
-- **Dependencies**: OpenWebRX service
-- **Working Directory**: /home/pi/projects/hackrfscanner
-
-### openwebrx-landing.service
-- **Description**: OpenWebRX Landing Page Server
-- **Working Directory**: /home/pi
-- **Script**: /home/pi/landing-server.py
-
-## Installation
-
-To install these services on a new system:
+**⚡ For new installations, systemd services are automatically installed by the main installer:**
 
 ```bash
-# Copy service files to systemd directory
-sudo cp hackrf-scanner.service /etc/systemd/system/
-sudo cp openwebrx-landing.service /etc/systemd/system/
+git clone https://github.com/your-username/stinkster.git
+cd stinkster
+./install.sh
+```
 
-# Reload systemd daemon
-sudo systemctl daemon-reload
+The installer automatically:
+- ✅ Creates and installs `stinkster.service` for complete system management
+- ✅ Configures service dependencies (GPSD, Docker, network)
+- ✅ Enables automatic startup on boot
+- ✅ Sets proper permissions and working directories
 
-# Enable services to start on boot
-sudo systemctl enable hackrf-scanner.service
-sudo systemctl enable openwebrx-landing.service
+**No manual systemd configuration required!**
 
-# Start services
-sudo systemctl start hackrf-scanner.service
-sudo systemctl start openwebrx-landing.service
+## Main Service
+
+### stinkster.service
+- **Description**: Stinkster SDR/WiFi/GPS System
+- **Dependencies**: network.target, gpsd.service, docker.service
+- **Working Directory**: /home/pi/projects/stinkster
+- **Script**: /home/pi/projects/stinkster/src/orchestration/gps_kismet_wigle.sh
+
+The main service orchestrates all components:
+- GPS services (GPSD, MAVLink bridge)
+- WiFi scanning (Kismet)
+- SDR operations (OpenWebRX via Docker)
+- TAK integration (WigleToTAK)
+- Web interfaces
+
+## Service Management
+
+After installation, manage the system with:
+
+```bash
+# Start/stop all services
+sudo systemctl start stinkster
+sudo systemctl stop stinkster
 
 # Check service status
-sudo systemctl status hackrf-scanner.service
-sudo systemctl status openwebrx-landing.service
+systemctl status stinkster
+
+# View logs
+journalctl -u stinkster -f
+
+# Enable/disable automatic startup
+sudo systemctl enable stinkster   # Start on boot
+sudo systemctl disable stinkster  # Don't start on boot
+```
+
+## Legacy Service Files
+
+This directory also contains legacy service files for reference:
+
+### hackrf-scanner.service (Legacy)
+- **Description**: Individual HackRF Scanner service
+- **Port**: 8090
+- **Note**: Now integrated into main stinkster.service
+
+### openwebrx-landing.service (Legacy)
+- **Description**: Individual OpenWebRX Landing Page
+- **Note**: Now integrated into main stinkster.service
+
+## Manual Installation (Advanced)
+
+For custom installations or development, you can manually install services:
+
+```bash
+# Install main service (done automatically by install.sh)
+sudo cp stinkster.service /etc/systemd/system/
+sudo systemctl daemon-reload
+sudo systemctl enable stinkster.service
+sudo systemctl start stinkster.service
 ```
 
 ## Dependencies

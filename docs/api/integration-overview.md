@@ -433,7 +433,12 @@ graph TB
 
 ### Setup and Deployment
 - [HackRF Setup](../HACKRF_DOCKER_SETUP.md) - HackRF configuration procedures
-- [OpenWebRX Setup](../OPENWEBRX_SETUP.md) - OpenWebRX deployment guide
+- [OpenWebRX Setup](../OPENWEBRX_SETUP.md) - Automated OpenWebRX deployment guide
 - [Service Orchestration](../SERVICE_ORCHESTRATION_ANALYSIS.md) - Service management analysis
+
+### Automated Deployment
+- **OpenWebRX**: Fully automated Docker deployment with `./build-openwebrx.sh deploy`
+- **Default Access**: http://localhost:8073 with admin/hackrf credentials
+- **Native Drivers**: Optimized HackRF driver integration (not SoapySDR)
 
 This integration overview provides the foundation for understanding how all Stinkster components work together to provide comprehensive tactical intelligence capabilities.

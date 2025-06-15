@@ -1,0 +1,21 @@
+{
+    "version": 3,
+    "receiver_name": "OpenWebRX - HackRF",
+    "receiver_location": "Raspberry Pi",
+    "receiver_asl": 0,
+    "receiver_admin": "admin@localhost",
+    "receiver_gps": {
+        "lat": 0.0,
+        "lon": 0.0
+    },
+    "photo_title": "HackRF SDR Receiver",
+    "photo_desc": "HackRF One Software Defined Radio",
+    "waterfall_scheme": "GoogleTurboWaterfall",
+    "fft_fps": 25,
+    "audio_compression": "none",
+    "waterfall_levels": {
+        "min": -88.0,
+        "max": -20.0
+    },
+    "tuning_precision": 1
+}

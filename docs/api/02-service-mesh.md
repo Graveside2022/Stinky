@@ -33,10 +33,10 @@ graph TB
         DockerBridge[Docker Bridge<br/>172.18.0.0/16]
         
         %% OpenWebRX Container
-        subgraph "OpenWebRX Container"
-            OpenWebRX[OpenWebRX SDR<br/>Web Interface]
-            SoapySDR[SoapySDR Driver]
-            HackRFDriver[Native HackRF Driver]
+        subgraph "OpenWebRX Container (Automated)"
+            OpenWebRX[OpenWebRX SDR<br/>Web Interface<br/>admin/hackrf]
+            HackRFDriver[Native HackRF Driver<br/>Optimized Performance]
+            AutoConfig[Automated Configuration<br/>Pre-configured Profiles]
         end
     end
     

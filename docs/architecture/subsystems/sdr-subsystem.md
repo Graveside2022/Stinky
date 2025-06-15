@@ -168,13 +168,19 @@ graph TB
 
 #### OpenWebRX
 - **Purpose**: Web-based SDR receiver interface
-- **Technology**: Docker containerized application
+- **Technology**: Docker containerized application (automated deployment)
 - **Port**: 8073
+- **Access**: 
+  - URL: `http://<host>:8073`
+  - Default credentials: admin/hackrf
+  - Automated setup via `./build-openwebrx.sh deploy`
+- **Driver**: Native HackRF driver (optimized performance)
 - **Features**:
   - Multi-user web interface
   - Multiple demodulation modes
   - Waterfall display
   - Band plan integration
+  - Pre-configured frequency profiles
 
 #### Spectrum Web UI
 - **Purpose**: Custom spectrum analyzer web interface
@@ -393,6 +399,15 @@ tail -f /home/pi/projects/stinkster/logs/spectrum.log
 
 # Check OpenWebRX status
 docker ps | grep openwebrx
+
+# Deploy/manage OpenWebRX (automated)
+./build-openwebrx.sh deploy   # Full automated deployment
+./build-openwebrx.sh status   # Check container status
+./build-openwebrx.sh logs     # View container logs
+
+# Access OpenWebRX web interface
+# URL: http://localhost:8073
+# Login: admin/hackrf
 ```
 
 ## Related Documentation

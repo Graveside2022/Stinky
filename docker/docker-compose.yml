@@ -1,1 +1,27 @@
 version: '3.8'
+
+services:
+  openwebrx:
+    container_name: openwebrx-hackrf
+    image: openwebrx-hackrf-only:latest
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8073:8073"
+    devices:
+      - "/dev/bus/usb:/dev/bus/usb:rw"
+    volumes:
+      - "./config:/var/lib/openwebrx:rw"
+      - "./logs:/var/log/openwebrx:rw"
+    environment:
+      - OPENWEBRX_ADMIN_USER=admin
+      - OPENWEBRX_ADMIN_PASSWORD=hackrf
+    privileged: true
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8073/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s

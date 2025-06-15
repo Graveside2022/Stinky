@@ -2,11 +2,9 @@ version: '3.8'
 
 services:
   openwebrx:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    image: openwebrx-hackrf:latest
-    container_name: openwebrx-hackrf
+    # Use the official OpenWebRX image with native HackRF support
+    image: ${OPENWEBRX_IMAGE:-jketterl/openwebrx:latest}
+    container_name: openwebrx
     restart: ${DOCKER_RESTART_POLICY:-unless-stopped}
     
     # Network ports
@@ -20,8 +18,8 @@ services:
       # Configuration and data persistence
       - openwebrx-settings:/var/lib/openwebrx
       - openwebrx-config:/etc/openwebrx
-      # Optional: Mount custom config if you have one
-      # - ./openwebrx-hackrf-config.json:/var/lib/openwebrx/sdrs.json
+      # Mount working HackRF configuration - CRITICAL for native driver operation
+      - ./openwebrx-hackrf-config.json:/var/lib/openwebrx/sdrs.json:ro
     
     # Device access
     devices:

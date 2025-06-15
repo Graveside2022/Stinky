@@ -29,20 +29,54 @@ The HackRF Spectrum Analyzer component provides real-time spectrum analysis capa
 
 ## Installation
 
-### 1. Hardware Setup
+### Automated Installation (Recommended)
+
+The easiest way to set up the HackRF component is through the automated installer:
+
+```bash
+git clone https://github.com/your-username/stinkster.git
+cd stinkster
+./install.sh
+```
+
+The installer automatically:
+- ✅ Detects HackRF hardware and configures drivers
+- ✅ Creates Python virtual environment with all dependencies
+- ✅ Builds HackRF-optimized OpenWebRX Docker container
+- ✅ Sets up native HackRF driver configuration (not SoapySDR)
+- ✅ Configures USB permissions and udev rules
+- ✅ Creates working band profiles for spectrum analysis
+
+After installation, start the spectrum analyzer with:
+```bash
+# Start all services (includes HackRF spectrum analyzer)
+sudo systemctl start stinkster
+
+# Or start manually in development mode
+./dev.sh start hackrf
+```
+
+### Manual Installation (Advanced Users)
+
+For development or custom setups:
+
+#### 1. Hardware Setup
 ```bash
 # Connect HackRF to USB port
 # Verify device detection
 lsusb | grep HackRF
 # Should show: Bus XXX Device XXX: ID 1d50:6089 OpenMoko, Inc. HackRF One
+
+# Test HackRF directly
+hackrf_info
 ```
 
-### 2. Software Dependencies
+#### 2. Software Dependencies
 ```bash
 # Install from project root
 cd /home/pi/projects/stinkster
 
-# Create virtual environment
+# Create virtual environment (done by install.sh)
 python3 -m venv src/hackrf/venv
 source src/hackrf/venv/bin/activate
 
@@ -50,15 +84,16 @@ source src/hackrf/venv/bin/activate
 pip install -r requirements-hackrf.txt
 ```
 
-### 3. OpenWebRX Setup
+#### 3. OpenWebRX Setup
 The spectrum analyzer requires OpenWebRX for HackRF hardware interface:
 
 ```bash
-# Start OpenWebRX (via Docker)
+# Start OpenWebRX (via Docker - auto-configured by install.sh)
 docker-compose up -d openwebrx
 
-# Verify OpenWebRX is running
+# Verify OpenWebRX is running with HackRF support
 curl http://localhost:8073
+docker exec openwebrx hackrf_info
 ```
 
 ## Configuration

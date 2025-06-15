@@ -2,13 +2,15 @@ version: '3.8'
 
 services:
   openwebrx:
-    image: openwebrx-hackrf-only:latest
+    image: jketterl/openwebrx:latest
     container_name: openwebrx
     restart: unless-stopped
     ports:
-      - "8074:8073"
+      - "8073:8073"
     volumes:
       - /dev/bus/usb:/dev/bus/usb
+      # Mount working HackRF configuration directly (tested and verified)
+      - ./openwebrx-hackrf-config.json:/var/lib/openwebrx/sdrs.json:ro
       - openwebrx-settings:/var/lib/openwebrx
       - openwebrx-config:/etc/openwebrx
     devices:
@@ -17,6 +19,12 @@ services:
     environment:
       - OPENWEBRX_ADMIN_USER=admin
       - OPENWEBRX_ADMIN_PASSWORD=hackrf
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8073"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
     
 volumes:
   openwebrx-settings:

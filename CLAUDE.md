@@ -286,7 +286,7 @@ ls -l /dev/ttyUSB* /dev/ttyACM*
 ./dev.sh test integration
 
 # Web interface accessibility
-curl -s http://localhost:8074 >/dev/null && echo "OpenWebRX OK" || echo "OpenWebRX Failed"
+curl -s http://localhost:8073 >/dev/null && echo "OpenWebRX OK" || echo "OpenWebRX Failed"
 curl -s http://localhost:6969 >/dev/null && echo "WigleToTAK OK" || echo "WigleToTAK Failed"
 ```
 
@@ -327,37 +327,71 @@ source venv/bin/activate
 
 ## Docker and SDR Integration
 
-### HackRF/OpenWebRX Setup
-The system includes automated Docker setup for OpenWebRX:
+### ✅ HackRF/OpenWebRX Setup (Tested Working Method)
+The system uses the **official OpenWebRX image** with **native HackRF driver** configuration:
 
 ```bash
-# Start OpenWebRX via dev.sh
-./dev.sh start openwebrx
+# Quick start with verified working configuration
+./start-openwebrx.sh
 
-# Or manually via Docker Compose
-docker-compose up openwebrx
+# Or manually via Docker Compose (uses working config)
+docker-compose up -d
 
-# Check SDR configuration
-docker exec openwebrx cat /var/lib/openwebrx/sdrs.json
+# Verify HackRF detection (should work immediately)
+docker exec openwebrx hackrf_info
+```
+
+### ✅ Successful HackRF Configuration Method
+
+**The working solution uses:**
+1. **Official OpenWebRX image**: `jketterl/openwebrx:latest` (no custom builds needed)
+2. **Native HackRF driver**: `"type": "hackrf"` (not SoapySDR)
+3. **Direct config mount**: Mount working `openwebrx-hackrf-config.json` to `/var/lib/openwebrx/sdrs.json`
+4. **Proper USB access**: `--privileged` mode with `/dev/bus/usb` mount
+
+### Working Commands (Verified)
+```bash
+# Test HackRF detection on host first
+hackrf_info
+
+# Start OpenWebRX with working configuration
+docker-compose up -d
+
+# Verify HackRF works in container
+docker exec openwebrx hackrf_info
+
+# Access web interface
+# URL: http://localhost:8073 (updated port)
+# Login: admin / hackrf
 ```
 
 ### Troubleshooting HackRF Integration
-1. **Verify HackRF detection**:
-   ```bash
-   docker exec openwebrx SoapySDRUtil --find
-   # Should show: Found device 0, driver = hackrf
-   ```
 
-2. **Configuration management**:
-   - SDR configurations are managed via templates in `config/templates/`
-   - OpenWebRX configurations are automatically applied during container startup
-   - Use `config/examples/openwebrx-sdrs.json` as reference
+**Problem**: HackRF not detected in container
+```bash
+# Check host detection first
+lsusb | grep 1d50:6089
+hackrf_info
 
-3. **Access OpenWebRX**:
-   - URL: http://localhost:8074 (or your Pi's IP:8074)
-   - Default credentials configured in docker-compose.yml
+# Restart container to reestablish USB access
+docker restart openwebrx
+```
 
-### Working HackRF Configuration
+**Problem**: Web interface shows SoapySDR error
+```bash
+# Apply the working configuration fix
+./fix-openwebrx-hackrf.sh
+```
+
+**Quick diagnosis**:
+```bash
+# Check what driver is configured
+docker exec openwebrx cat /var/lib/openwebrx/sdrs.json | grep '"type"'
+# Should show: "type": "hackrf" (not "soapy")
+```
+
+### Working HackRF Configuration (Tested)
+File: `openwebrx-hackrf-config.json` (verified working)
 ```json
 {
     "version": 2,
@@ -368,14 +402,44 @@ docker exec openwebrx cat /var/lib/openwebrx/sdrs.json
             "ppm": 0,
             "profiles": {
                 "2m": {
-                    "name": "2m AFu Band",
-                    "center_freq": 145000000,  
+                    "name": "2m Amateur Band",
+                    "center_freq": 145000000,
                     "rf_gain": "VGA=35,LNA=40,AMP=0",
                     "samp_rate": 2400000,
                     "start_freq": 145700000,
                     "start_mod": "nfm",
                     "waterfall_min_level": -72,
                     "lfo_offset": 300
+                },
+                "70cm": {
+                    "name": "70cm Amateur Band",
+                    "center_freq": 435000000,
+                    "rf_gain": "VGA=35,LNA=40,AMP=0",
+                    "samp_rate": 2400000,
+                    "start_freq": 435000000,
+                    "start_mod": "nfm",
+                    "waterfall_min_level": -78,
+                    "lfo_offset": 300
+                },
+                "airband": {
+                    "name": "Airband",
+                    "center_freq": 124000000,
+                    "rf_gain": "VGA=30,LNA=32,AMP=0",
+                    "samp_rate": 2400000,
+                    "start_freq": 124000000,
+                    "start_mod": "am",
+                    "waterfall_min_level": -80,
+                    "lfo_offset": 0
+                },
+                "fm_broadcast": {
+                    "name": "FM Broadcast",
+                    "center_freq": 98000000,
+                    "rf_gain": "VGA=20,LNA=16,AMP=0",
+                    "samp_rate": 2400000,
+                    "start_freq": 98000000,
+                    "start_mod": "wfm",
+                    "waterfall_min_level": -65,
+                    "lfo_offset": 0
                 }
             }
         }
@@ -383,12 +447,13 @@ docker exec openwebrx cat /var/lib/openwebrx/sdrs.json
 }
 ```
 
-### Key Integration Features:
-- Native HackRF driver support (not SoapySDR)
-- Automated configuration deployment
-- Integrated spectrum analyzer at port 8092
-- WebSocket real-time data streaming
-- Multi-band profile support
+### Key Success Factors:
+- ✅ **Native HackRF driver** (`"type": "hackrf"`) - NOT SoapySDR
+- ✅ **Official OpenWebRX image** - No custom builds needed
+- ✅ **Direct configuration mount** - Bypasses initialization issues  
+- ✅ **Tested gain settings** - Optimized VGA/LNA/AMP values
+- ✅ **Multiple band profiles** - Ready-to-use frequency configurations
+- ✅ **Proper port configuration** - Uses standard port 8073
 
 ## Quick Reference Summary
 
@@ -401,7 +466,7 @@ git clone https://github.com/your-username/stinkster.git && cd stinkster && ./in
 sudo systemctl start stinkster
 
 # 3. Access web interfaces
-# - OpenWebRX: http://your-pi:8074 (admin/hackrf)
+# - OpenWebRX: http://your-pi:8073 (admin/hackrf)
 # - WigleToTAK: http://your-pi:6969
 # - Spectrum Analyzer: http://your-pi:8092
 # - Kismet: http://your-pi:2501
@@ -448,7 +513,7 @@ iw dev                        # WiFi interfaces
 docker ps                     # Container status
 
 # Service verification  
-curl -s http://localhost:8074 >/dev/null && echo "OpenWebRX OK"
+curl -s http://localhost:8073 >/dev/null && echo "OpenWebRX OK"
 ./dev.sh status               # All components
 ./dev/test/run-all-tests.sh   # Comprehensive testing
 ```

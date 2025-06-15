@@ -179,9 +179,9 @@ if [[ ! -f "$PID_FILE" ]]; then
 fi
 
 log "Starting Kismet on wlan2..."
-if [[ -x "/home/pi/projects/stinkster/scripts/start_kismet.sh" ]]; then
+if [[ -x "/home/pi/projects/stinkster/src/scripts/start_kismet.sh" ]]; then
     log "Found start_kismet.sh script"
-    nohup /home/pi/projects/stinkster/scripts/start_kismet.sh > ${LOG_DIR:-/home/pi/projects/stinkster/logs}/kismet.log 2>&1 &
+    nohup /home/pi/projects/stinkster/src/scripts/start_kismet.sh > ${LOG_DIR:-/home/pi/projects/stinkster/logs}/kismet.log 2>&1 &
     KISMET_SCRIPT_PID=$!
     sleep 5  # Give Kismet time to start
     

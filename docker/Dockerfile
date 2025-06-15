@@ -96,51 +96,68 @@ RUN /opt/openwebrx/venv/bin/pip install \
     numpy
 
 # Create necessary directories
-RUN mkdir -p /var/lib/openwebrx /etc/openwebrx /opt/openwebrx/config
+RUN mkdir -p /var/lib/openwebrx /etc/openwebrx /var/log/openwebrx
 
-# Copy HackRF configuration
-COPY <<'EOF' /opt/openwebrx/config/hackrf-config.json
+# Copy default configuration
+COPY <<'EOF' /var/lib/openwebrx/sdrs.json
 {
     "version": 2,
     "sdrs": {
         "hackrf": {
             "name": "HackRF One",
             "type": "hackrf",
+            "enabled": true,
             "ppm": 0,
-            "always-on": false,
             "profiles": {
                 "2m": {
-                    "name": "2m Amateur Band",
+                    "name": "2 Meter Band",
                     "center_freq": 145000000,
                     "rf_gain": "VGA=35,LNA=40,AMP=0",
-                    "samp_rate": 2400000,
-                    "start_freq": 145700000,
+                    "samp_rate": 2048000,
+                    "start_freq": 145500000,
                     "start_mod": "nfm",
-                    "waterfall_min_level": -72,
-                    "waterfall_max_level": -30,
+                    "waterfall_min_level": -78,
                     "lfo_offset": 300
                 },
                 "70cm": {
-                    "name": "70cm Amateur Band",
-                    "center_freq": 435000000,
+                    "name": "70cm Band", 
+                    "center_freq": 433000000,
                     "rf_gain": "VGA=35,LNA=40,AMP=0",
-                    "samp_rate": 2400000,
-                    "start_freq": 435000000,
+                    "samp_rate": 2048000,
+                    "start_freq": 433500000,
                     "start_mod": "nfm",
                     "waterfall_min_level": -78,
-                    "waterfall_max_level": -30,
                     "lfo_offset": 300
                 },
-                "airband": {
-                    "name": "Airband",
-                    "center_freq": 120000000,
-                    "rf_gain": "VGA=30,LNA=40,AMP=0",
+                "70cm_repeater": {
+                    "name": "70cm Repeater Output",
+                    "center_freq": 439000000,
+                    "rf_gain": "VGA=35,LNA=40,AMP=0",
                     "samp_rate": 2400000,
-                    "start_freq": 120000000,
-                    "start_mod": "am",
-                    "waterfall_min_level": -80,
-                    "waterfall_max_level": -20,
-                    "lfo_offset": 0
+                    "start_freq": 438675000,
+                    "start_mod": "nfm",
+                    "waterfall_min_level": -78,
+                    "lfo_offset": 300
+                },
+                "70cm_input": {
+                    "name": "70cm Repeater Input",
+                    "center_freq": 431000000,
+                    "rf_gain": "VGA=35,LNA=40,AMP=0",
+                    "samp_rate": 2400000,
+                    "start_freq": 431000000,
+                    "start_mod": "nfm",
+                    "waterfall_min_level": -78,
+                    "lfo_offset": 300
+                },
+                "70cm_ssb": {
+                    "name": "70cm SSB/CW/Beacon",
+                    "center_freq": 432600000,
+                    "rf_gain": "VGA=35,LNA=40,AMP=0",
+                    "samp_rate": 1024000,
+                    "start_freq": 432200000,
+                    "start_mod": "usb",
+                    "waterfall_min_level": -78,
+                    "lfo_offset": 300
                 },
                 "fm_broadcast": {
                     "name": "FM Broadcast",
@@ -150,7 +167,16 @@ COPY <<'EOF' /opt/openwebrx/config/hackrf-config.json
                     "start_freq": 100000000,
                     "start_mod": "wfm",
                     "waterfall_min_level": -70,
-                    "waterfall_max_level": -20,
+                    "lfo_offset": 0
+                },
+                "airband": {
+                    "name": "Airband",
+                    "center_freq": 120000000,
+                    "rf_gain": "VGA=30,LNA=40,AMP=0",
+                    "samp_rate": 2400000,
+                    "start_freq": 120000000,
+                    "start_mod": "am",
+                    "waterfall_min_level": -80,
                     "lfo_offset": 0
                 }
             }
@@ -159,7 +185,7 @@ COPY <<'EOF' /opt/openwebrx/config/hackrf-config.json
 }
 EOF
 
-# Create startup script
+# Create startup script with proper OpenWebRX execution
 COPY <<'EOF' /opt/openwebrx/startup.sh
 #!/bin/bash
 set -e
@@ -174,25 +200,16 @@ else
     echo "WARNING: No HackRF device detected"
 fi
 
-# Initialize configuration if not exists
-if [ ! -f /var/lib/openwebrx/sdrs.json ]; then
-    echo "Initializing HackRF configuration..."
-    cp /opt/openwebrx/config/hackrf-config.json /var/lib/openwebrx/sdrs.json
-fi
-
-# Ensure proper permissions
-chown -R openwebrx:openwebrx /var/lib/openwebrx /etc/openwebrx
-
 # Test SoapySDR
-echo "Testing SoapySDR..."
-SoapySDRUtil --info || true
-echo ""
-echo "Detecting devices..."
+echo "Testing SoapySDR device detection..."
 SoapySDRUtil --find || true
 
-# Start OpenWebRX
+# Ensure proper permissions
+chown -R openwebrx:openwebrx /var/lib/openwebrx /var/log/openwebrx
+
+# Switch to openwebrx user and start the application
 cd /opt/openwebrx
-exec /opt/openwebrx/venv/bin/openwebrx --config /etc/openwebrx
+exec sudo -u openwebrx /opt/openwebrx/venv/bin/python3 -m openwebrx
 EOF
 
 RUN chmod +x /opt/openwebrx/startup.sh
@@ -206,7 +223,10 @@ EOF
 RUN chmod +x /opt/openwebrx/healthcheck.sh
 
 # Set permissions
-RUN chown -R openwebrx:openwebrx /opt/openwebrx /var/lib/openwebrx /etc/openwebrx
+RUN chown -R openwebrx:openwebrx /opt/openwebrx /var/lib/openwebrx /var/log/openwebrx
+
+# Install sudo for user switching
+RUN apt-get update && apt-get install -y sudo && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Expose port
 EXPOSE 8073
@@ -214,12 +234,6 @@ EXPOSE 8073
 # Health check
 HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
     CMD /opt/openwebrx/healthcheck.sh
-
-# Switch to openwebrx user
-USER openwebrx
-
-# Set working directory
-WORKDIR /opt/openwebrx
 
 # Entry point
 ENTRYPOINT ["/opt/openwebrx/startup.sh"]

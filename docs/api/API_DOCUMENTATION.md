@@ -10,9 +10,17 @@ The system consists of multiple Python Flask applications running on different p
 
 - **WigleToTAK Interface**: Port 8000 (configurable via --flask-port)
 - **Spectrum Analyzer Interface**: Port 8092 (with WebSocket support)
-- **OpenWebRX SDR Interface**: Port 8073 (Docker container)
+- **OpenWebRX SDR Interface**: Port 8073 (Docker container, auto-deployed)
 - **GPSD Service**: Port 2947
 - **TAK Broadcasting**: Port 6969 (default, configurable)
+
+### OpenWebRX Automated Setup
+
+The OpenWebRX interface is automatically deployed via Docker with native HackRF support:
+- **Access URL**: `http://<host>:8073`
+- **Default Credentials**: admin/hackrf
+- **Deployment**: Automated via `./build-openwebrx.sh deploy`
+- **Driver**: Native HackRF driver (not SoapySDR) for optimal performance
 
 ## WigleToTAK Flask Interface (Port 8000)
 
@@ -302,9 +310,13 @@ const socket = io('http://<host>:8092');
 ## Security Considerations
 
 ### Authentication
-- **Current State**: None of the interfaces implement authentication
-- **Risk Level**: HIGH - All endpoints are publicly accessible
-- **Recommendation**: Implement API key authentication or IP whitelisting
+- **Current State**: 
+  - WigleToTAK and Spectrum Analyzer: No authentication
+  - OpenWebRX: Default credentials (admin/hackrf)
+- **Risk Level**: HIGH - Most endpoints are publicly accessible
+- **Recommendation**: 
+  - Implement API key authentication or IP whitelisting for Flask interfaces
+  - Change OpenWebRX default credentials in production deployments
 
 ### Input Validation
 - **WigleToTAK**: Basic validation on enum values (analysis_mode, antenna_sensitivity)
@@ -424,6 +436,14 @@ socket.on('fft_data', function(data) {
 socket.on('status', function(data) {
     console.log('Status:', data);
 });
+```
+
+### OpenWebRX Web Interface Access
+```javascript
+// OpenWebRX is accessed directly via web browser
+// URL: http://localhost:8073
+// Default login: admin/hackrf
+// No API endpoints - web interface only
 ```
 
 ## Error Handling

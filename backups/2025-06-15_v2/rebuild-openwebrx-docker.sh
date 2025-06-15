@@ -114,7 +114,7 @@ docker rmi jketterl/openwebrx:stable 2>/dev/null || true
 # Create Dockerfile for custom build
 step "Creating custom Dockerfile..."
 cat > "${SCRIPT_DIR}/Dockerfile.openwebrx" << 'EOF'
-FROM jketterl/openwebrx:stable
+FROM openwebrx-hackrf-only:latest
 
 # Install additional tools for debugging
 RUN apt-get update && apt-get install -y \

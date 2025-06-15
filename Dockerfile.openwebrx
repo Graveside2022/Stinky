@@ -1,0 +1,28 @@
+# Use the HackRF-only image that properly supports HackRF One
+FROM openwebrx-hackrf-only:latest
+
+# The HackRF-only image already includes all necessary HackRF support
+# No need to install additional packages
+
+# Set environment variables
+ENV OPENWEBRX_ADMIN_USER=admin
+ENV OPENWEBRX_ADMIN_PASSWORD=hackrf
+
+# Create directory for custom configs
+RUN mkdir -p /custom-config
+
+# Copy working HackRF configuration
+COPY openwebrx-hackrf-config.json /custom-config/sdrs.json
+
+# Script to apply custom config on startup
+RUN echo '#!/bin/bash\n\
+if [ ! -f /var/lib/openwebrx/.configured ]; then\n\
+    echo "First run detected, applying custom configuration..."\n\
+    cp /custom-config/sdrs.json /var/lib/openwebrx/sdrs.json\n\
+    touch /var/lib/openwebrx/.configured\n\
+    echo "Custom configuration applied."\n\
+fi\n\
+exec /opt/openwebrx/docker/scripts/run.sh' > /custom-start.sh && \
+    chmod +x /custom-start.sh
+
+ENTRYPOINT ["/custom-start.sh"]

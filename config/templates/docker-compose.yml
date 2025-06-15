@@ -5,7 +5,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    image: openwebrx-hackrf:latest
+    image: openwebrx-hackrf-only:latest
     container_name: openwebrx-hackrf
     restart: ${DOCKER_RESTART_POLICY:-unless-stopped}
     
@@ -20,8 +20,8 @@ services:
       # Configuration and data persistence
       - openwebrx-settings:/var/lib/openwebrx
       - openwebrx-config:/etc/openwebrx
-      # Optional: Mount custom config if you have one
-      # - ./openwebrx-hackrf-config.json:/var/lib/openwebrx/sdrs.json
+      # Mount HackRF configuration - REQUIRED for proper HackRF operation
+      - ./openwebrx-hackrf-config.json:/var/lib/openwebrx/sdrs.json:ro
     
     # Device access
     devices:

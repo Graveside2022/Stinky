@@ -16,7 +16,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 BACKUP_DIR="${BACKUP_DIR:-${OPENWEBRX_DIR:-/home/pi/projects/stinkster/openwebrx}-backups}"
 OPENWEBRX_DIR="${OPENWEBRX_DIR:-/home/pi/projects/stinkster/openwebrx}"
 CONTAINER_NAME="openwebrx"
-IMAGE_NAME="jketterl/openwebrx:stable"
+IMAGE_NAME="openwebrx-hackrf-only:latest"
 LOG_FILE="${LOG_DIR:-/home/pi/projects/stinkster/logs}/openwebrx-restore.log"
 
 # Colors for output
@@ -234,7 +234,7 @@ version: '3.8'
 
 services:
   openwebrx:
-    image: jketterl/openwebrx:stable
+    image: openwebrx-hackrf-only:latest
     container_name: openwebrx
     restart: unless-stopped
     devices:
@@ -243,6 +243,7 @@ services:
       - "8073:8073"
     volumes:
       - /var/lib/openwebrx:/var/lib/openwebrx
+      - ./openwebrx-hackrf-config.json:/var/lib/openwebrx/sdrs.json
     environment:
       - OPENWEBRX_ADMIN_PASSWORD=hackrf
 EOF

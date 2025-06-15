@@ -42,7 +42,7 @@ jobs:
       run: bandit -r src/ -f json -o bandit-report.json || true
     
     - name: Upload Bandit report
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       if: always()
       with:
         name: bandit-report
@@ -73,7 +73,7 @@ jobs:
         done
     
     - name: Upload Safety reports
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       if: always()
       with:
         name: safety-reports
@@ -246,7 +246,7 @@ jobs:
         fi
     
     - name: Upload license report
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: license-report
         path: python-licenses.json

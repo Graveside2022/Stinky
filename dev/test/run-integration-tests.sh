@@ -162,7 +162,7 @@ run_service_tests() {
     fi
     
     # Test port availability
-    local ports=("2501:Kismet API" "8074:OpenWebRX" "2947:GPSD")
+    local ports=("2501:Kismet API" "8073:OpenWebRX" "2947:GPSD")
     for port_info in "${ports[@]}"; do
         port=${port_info%:*}
         service=${port_info#*:}

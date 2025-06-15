@@ -1,0 +1,21 @@
+{
+    "version": 2,
+    "general": {
+        "receiver_name": "HackRF SDR Receiver",
+        "receiver_location": "Raspberry Pi",
+        "receiver_admin": "admin@localhost", 
+        "receiver_gps": {"lat": 0.0, "lon": 0.0},
+        "photo_title": "HackRF One",
+        "photo_desc": "Software Defined Radio"
+    },
+    "web": {
+        "port": 8073,
+        "max_clients": 10
+    },
+    "sdr": {
+        "client_audio_buffer_size": 5
+    },
+    "waterfall": {
+        "scheme": "GoogleTurboWaterfall"
+    }
+}

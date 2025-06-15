@@ -69,7 +69,7 @@ After installation completes:
    ```
 
 3. **Access web interfaces:**
-   - **OpenWebRX**: `http://your-pi-ip:8074` (admin/hackrf) - **HackRF support automatically configured**
+   - **OpenWebRX**: `http://your-pi-ip:8073` (admin/hackrf) - **HackRF support automatically configured**
    - **Spectrum Analyzer**: `http://your-pi-ip:8092`
    - **WigleToTAK**: `http://your-pi-ip:6969`
    - **Kismet**: `http://your-pi-ip:2501`
@@ -123,7 +123,7 @@ stinkster/
 - Web interface at `http://localhost:2501`
 
 ### 2. SDR Operations (HackRF + OpenWebRX)
-- **OpenWebRX**: Full-featured web SDR at `http://localhost:8074` - **HackRF automatically configured**
+- **OpenWebRX**: Full-featured web SDR at `http://localhost:8073` - **HackRF automatically configured**
 - **Spectrum Analyzer**: Real-time FFT analysis at `http://localhost:8092`
 - **Signal Detection**: Automated signal classification
 - **Native HackRF Driver**: Optimized performance (no SoapySDR issues)
@@ -223,7 +223,7 @@ docker logs openwebrx
 ```
 
 **Web interfaces:**
-- OpenWebRX: `http://your-pi:8074`
+- OpenWebRX: `http://your-pi:8073`
 - Kismet: `http://your-pi:2501`
 - WigleToTAK: `http://your-pi:6969`
 - Spectrum Analyzer: `http://your-pi:8092`
@@ -400,7 +400,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - ✅ **Proper USB device permissions** and udev rules
 
 ### Access Your SDR
-- **Web Interface**: `http://your-pi-ip:8074`
+- **Web Interface**: `http://your-pi-ip:8073`
 - **Default Login**: admin / hackrf
 - **Real-time Spectrum**: Available immediately after startup
 - **Multiple Band Profiles**: Select from dropdown in OpenWebRX interface

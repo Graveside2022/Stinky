@@ -1,9 +1,10 @@
 {
     "version": 2,
-    "sdr_id": "hackrf",
-    "log_level": "INFO",
-    "receiver_name": "HackRF SDR",
-    "receiver_location": "Raspberry Pi",
-    "receiver_qra": "JO00aa",
-    "receiver_asl": 0
+    "general": {
+        "receiver_name": "HackRF SDR",
+        "receiver_location": "Raspberry Pi",
+        "receiver_admin": "admin@localhost",
+        "receiver_gps": {"lat": 0.0, "lon": 0.0}
+    },
+    "debug": true
 }

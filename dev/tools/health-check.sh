@@ -165,7 +165,7 @@ check_connectivity() {
     local services=(
         "2501:Kismet API"
         "6969:WigleToTAK"
-        "8074:OpenWebRX"
+        "8073:OpenWebRX"
         "2947:GPSD"
     )
     

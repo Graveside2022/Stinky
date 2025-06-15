@@ -153,7 +153,7 @@ sleep 10
 # Show container status
 docker ps --filter name=openwebrx
 
-echo "OpenWebRX should be available at http://localhost:8074"
+echo "OpenWebRX should be available at http://localhost:8073"
 EOF
 
     # Make all component scripts executable

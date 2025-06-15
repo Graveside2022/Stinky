@@ -106,7 +106,7 @@
     },
     "services": {
       "ports": {
-        "openwebrx": 8074,
+        "openwebrx": 8073,
         "spectrum-analyzer": 5000,
         "wigletotak": 6969,
         "landing-page": 8080

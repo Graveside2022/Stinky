@@ -1,0 +1,37 @@
+{
+    "version": 2,
+    "sdrs": {
+        "hackrf": {
+            "name": "HackRF One",
+            "type": "hackrf",
+            "ppm": 0,
+            "always-on": true,
+            "profiles": {
+                "2m": {
+                    "name": "2m Band",
+                    "center_freq": 145000000,
+                    "rf_gain": "VGA=35,LNA=40,AMP=0",
+                    "samp_rate": 2400000,
+                    "start_freq": 145700000,
+                    "start_mod": "nfm"
+                },
+                "fm": {
+                    "name": "FM Broadcast",
+                    "center_freq": 100000000,
+                    "rf_gain": "VGA=20,LNA=16,AMP=0",
+                    "samp_rate": 2400000,
+                    "start_freq": 100000000,
+                    "start_mod": "wfm"
+                },
+                "airband": {
+                    "name": "Airband",
+                    "center_freq": 124000000,
+                    "rf_gain": "VGA=30,LNA=32,AMP=0",
+                    "samp_rate": 2400000,
+                    "start_freq": 124000000,
+                    "start_mod": "am"
+                }
+            }
+        }
+    }
+}

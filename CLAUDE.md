@@ -47,7 +47,7 @@ sudo systemctl start stinkster
 ./src/orchestration/gps_kismet_wigle.sh
 
 # 3. Access web interfaces at:
-# - OpenWebRX (HackRF): http://your-pi:8074 (admin/hackrf)
+# - OpenWebRX (HackRF): http://your-pi:8073 (admin/hackrf)
 # - Spectrum Analyzer: http://your-pi:8092
 # - WigleToTAK: http://your-pi:6969
 # - Kismet: http://your-pi:2501
@@ -225,14 +225,14 @@ sudo ip link set wlan2 up
 - 2947: GPSD service
 - 6969: TAK broadcasting (default, configurable)
 - 8000: WigleToTAK Flask web interface (configurable via --flask-port)
-- 8074: OpenWebRX SDR interface (Docker container)
+- 8073: OpenWebRX SDR interface (Docker container)
 - 8092: Spectrum Analyzer web interface with WebSocket support
 - 14550: MAVProxy connection
 
 ### Web Applications
 - **WigleToTak2.py**: Flask app at port 8000 (configurable) for WiFi device tracking and TAK conversion
 - **spectrum_analyzer.py**: Flask/SocketIO app at port 8092 for real-time spectrum analysis with OpenWebRX integration
-- **OpenWebRX**: Docker-based SDR web interface at port 8074
+- **OpenWebRX**: Docker-based SDR web interface at port 8073
 - **v2WigleToTak2.py**: Enhanced version with antenna sensitivity compensation and improved features
 
 **📋 See [docs/api/API_DOCUMENTATION.md](docs/api/API_DOCUMENTATION.md) for comprehensive REST API and WebSocket interface documentation.**

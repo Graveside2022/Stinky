@@ -2,9 +2,10 @@
     "version": 2,
     "sdrs": {
         "hackrf": {
-            "name": "HackRF",
+            "name": "HackRF One",
             "type": "hackrf",
             "ppm": 0,
+            "always-on": true,
             "profiles": {
                 "2m": {
                     "name": "2m Amateur Band",
@@ -13,18 +14,24 @@
                     "samp_rate": 2400000,
                     "start_freq": 145700000,
                     "start_mod": "nfm",
-                    "waterfall_min_level": -72,
-                    "lfo_offset": 300
+                    "waterfall_colors": 1,
+                    "waterfall_min_level": -88,
+                    "waterfall_max_level": -20,
+                    "waterfall_auto_level_margin": {"min": 3, "max": 10, "min_range": 50},
+                    "lfo_offset": 0
                 },
                 "70cm": {
-                    "name": "70cm Amateur Band",
+                    "name": "70cm Amateur Band", 
                     "center_freq": 435000000,
                     "rf_gain": "VGA=35,LNA=40,AMP=0",
                     "samp_rate": 2400000,
                     "start_freq": 435000000,
                     "start_mod": "nfm",
-                    "waterfall_min_level": -78,
-                    "lfo_offset": 300
+                    "waterfall_colors": 1,
+                    "waterfall_min_level": -88,
+                    "waterfall_max_level": -20,
+                    "waterfall_auto_level_margin": {"min": 3, "max": 10, "min_range": 50},
+                    "lfo_offset": 0
                 },
                 "airband": {
                     "name": "Airband",
@@ -33,7 +40,10 @@
                     "samp_rate": 2400000,
                     "start_freq": 124000000,
                     "start_mod": "am",
-                    "waterfall_min_level": -80,
+                    "waterfall_colors": 1,
+                    "waterfall_min_level": -88,
+                    "waterfall_max_level": -20,
+                    "waterfall_auto_level_margin": {"min": 3, "max": 10, "min_range": 50},
                     "lfo_offset": 0
                 },
                 "fm_broadcast": {
@@ -43,7 +53,10 @@
                     "samp_rate": 2400000,
                     "start_freq": 98000000,
                     "start_mod": "wfm",
-                    "waterfall_min_level": -65,
+                    "waterfall_colors": 1,
+                    "waterfall_min_level": -75,
+                    "waterfall_max_level": -25,
+                    "waterfall_auto_level_margin": {"min": 3, "max": 10, "min_range": 50},
                     "lfo_offset": 0
                 }
             }

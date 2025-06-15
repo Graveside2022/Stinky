@@ -33,7 +33,7 @@ start_component() {
     fi
     
     # Start the container
-    docker-compose up -d openwebrx
+    docker compose up -d openwebrx
     
     # Get container PID for tracking
     CONTAINER_ID=$(docker ps -q -f name=openwebrx-hackrf)
@@ -76,7 +76,7 @@ stop_component() {
     echo "Stopping OpenWebRX..."
     
     cd "$PROJECT_ROOT/docker"
-    docker-compose stop openwebrx
+    docker compose stop openwebrx
     
     # Stop log streaming
     pkill -f "docker logs.*openwebrx-hackrf" 2>/dev/null || true
@@ -95,7 +95,7 @@ restart_component() {
 status_component() {
     cd "$PROJECT_ROOT/docker"
     
-    if docker-compose ps openwebrx | grep -q "Up"; then
+    if docker compose ps openwebrx | grep -q "Up"; then
         echo "OpenWebRX: Running ✅"
         echo "  Container: $(docker ps -f name=openwebrx-hackrf --format 'table {{.Names}}\t{{.Status}}\t{{.Ports}}')"
         echo "  Web interface: http://localhost:8073"
@@ -124,10 +124,10 @@ logs_component() {
     
     if [ "$1" = "-f" ]; then
         echo "Streaming OpenWebRX logs (Ctrl+C to stop)..."
-        docker-compose logs -f openwebrx
+        docker compose logs -f openwebrx
     else
         echo "Recent OpenWebRX logs:"
-        docker-compose logs --tail=50 openwebrx
+        docker compose logs --tail=50 openwebrx
     fi
 }
 

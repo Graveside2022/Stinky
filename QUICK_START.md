@@ -113,7 +113,7 @@ sudo systemctl start stinkster
 
 Open these URLs in your browser (replace `192.168.1.100` with your Pi's IP):
 
-- **OpenWebRX (SDR):** http://192.168.1.100:8074
+- **OpenWebRX (SDR):** http://192.168.1.100:8073
   - Login: `admin` / `YourPassword`
   - HackRF-optimized with multiple band profiles
 
@@ -389,7 +389,7 @@ echo "   Docker: $(docker ps -q | grep -q . && echo "✓ Running" || echo "✗ N
 
 # 3. Web interfaces
 echo "3. Web Interface Accessibility:"
-for port in 8074 2501 6969 8092; do
+for port in 8073 2501 6969 8092; do
     echo "   Port $port: $(curl -s --connect-timeout 3 http://localhost:$port >/dev/null && echo "✓ Accessible" || echo "✗ Not responding")"
 done
 

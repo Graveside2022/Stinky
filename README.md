@@ -37,7 +37,7 @@ A comprehensive Raspberry Pi-based platform that combines Software Defined Radio
 **One-command installation on Raspberry Pi:**
 
 ```bash
-git clone https://github.com/your-username/stinkster.git
+git clone https://github.com/Graveside2022/stinkster.git
 cd stinkster
 ./install.sh
 ```
@@ -434,9 +434,9 @@ No more manual JSON editing or SoapySDR troubleshooting!
 
 ## Support
 
-- **Issues**: [GitHub Issues](https://github.com/your-username/stinkster/issues)
-- **Discussions**: [GitHub Discussions](https://github.com/your-username/stinkster/discussions)
-- **Documentation**: [Wiki](https://github.com/your-username/stinkster/wiki)
+- **Issues**: [GitHub Issues](https://github.com/Graveside2022/stinkster/issues)
+- **Discussions**: [GitHub Discussions](https://github.com/Graveside2022/stinkster/discussions)
+- **Documentation**: [Wiki](https://github.com/Graveside2022/stinkster/wiki)
 
 ---
 

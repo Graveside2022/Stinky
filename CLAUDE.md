@@ -1,525 +1,517 @@
-# CLAUDE.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+# CLAUDE.md - PROJECT CONFIGURATION
 
-## Project Overview
+## PROJECT IDENTITY
 
-This is a Raspberry Pi-based system that combines Software Defined Radio (SDR), WiFi scanning, and GPS tracking capabilities with TAK (Team Awareness Kit) integration. The system consists of several interconnected components:
+Project Name: [PROJECT NAME] 
+User: Christian 
+Project Type: [Detected: Python/Node.js/etc.] 
+Created: [DATE]
 
-- **HackRF SDR Operations**: Web-based SDR receiver and spectrum analyzer
-- **WiFi Scanning**: Kismet-based network scanning with real-time tracking
-- **GPS Integration**: MAVLink to GPSD bridge for location services
-- **TAK Integration**: Converts WiFi scan data to TAK format for mapping
+**This file takes precedence over global CLAUDE.md**
 
-## Installation and Setup
+---
 
-### Automated Installation (Recommended)
+## PROJECT AUTO-INITIALIZATION
 
-**One-command installation on fresh Raspberry Pi:**
-
-```bash
-git clone https://github.com/your-username/stinkster.git
-cd stinkster
-./install.sh
-```
-
-The installer automatically:
-- ✅ Validates hardware (HackRF, GPS, WiFi adapters)
-- ✅ Installs system dependencies (Kismet, Docker, HackRF tools, GPSD)
-- ✅ Sets up Python virtual environments for all components
-- ✅ Builds HackRF-optimized OpenWebRX Docker container
-- ✅ Creates systemd services for automatic startup
-- ✅ Configures all templates with working defaults
-
-**Installation time:** 10-15 minutes
-
-### Post-Installation Setup
-
-After automated installation:
+When this CLAUDE.md is detected, automatically create required structure:
 
 ```bash
-# 1. Review/edit configuration (optional - defaults work)
-nano .env
-
-# 2. Start all services
-sudo systemctl start stinkster
-# OR start manually:
-./src/orchestration/gps_kismet_wigle.sh
-
-# 3. Access web interfaces at:
-# - OpenWebRX (HackRF): http://your-pi:8073 (admin/hackrf)
-# - Spectrum Analyzer: http://your-pi:8092
-# - WigleToTAK: http://your-pi:6969
-# - Kismet: http://your-pi:2501
-```
-
-### Development Environment Setup
-
-For active development (after installation):
-
-```bash
-# Set up development tools
-./dev.sh setup
-
-# Start all services in development mode  
-./dev.sh start
-```
-
-### Configuration Management
-The project uses a template-based configuration system:
-- Templates are stored in `/config/templates/`
-- Automated installer creates all configurations from templates
-- Manual setup: `./setup-configs.sh` to create configuration files
-- Edit `.env` file for environment-specific settings
-- Component-specific configs: `gpsmav-config.json`, `spectrum-analyzer-config.json`, etc.
-
-## Common Commands
-
-### Service Management (New Unified System)
-
-Start all services:
-```bash
-./dev.sh start
-```
-
-Start individual components:
-```bash
-./dev.sh start gpsmav      # GPS MAVLink bridge
-./dev.sh start hackrf      # HackRF spectrum analyzer
-./dev.sh start wigletotak  # WiFi to TAK converter
-./dev.sh start kismet      # WiFi scanner
-./dev.sh start openwebrx   # Web SDR interface
-```
-
-Stop services:
-```bash
-./dev.sh stop              # Stop all components
-./dev.sh stop kismet       # Stop specific component
-```
-
-Check service status:
-```bash
-./dev.sh status
-```
-
-Restart services:
-```bash
-./dev.sh restart           # Restart all
-./dev.sh restart hackrf    # Restart specific component
-```
-
-### Monitoring and Logs
-
-View logs:
-```bash
-./dev.sh logs              # Show all component logs
-./dev.sh logs wigletotak   # Show specific component logs
-./dev.sh logs kismet       # Show Kismet logs
-```
-
-Direct log file access:
-```bash
-tail -f dev/logs/gpsmav.log
-tail -f dev/logs/hackrf.log
-tail -f dev/logs/wigletotak.log
-tail -f dev/logs/kismet.log
-tail -f dev/logs/openwebrx.log
-```
-
-### Development Environment
-
-Enable hot reload for development:
-```bash
-./dev.sh hot-reload
-```
-
-Run tests:
-```bash
-./dev.sh test              # Run all tests
-./dev.sh test unit         # Run unit tests
-./dev.sh test integration  # Run integration tests
-```
-
-Clean up environment:
-```bash
-./dev.sh clean             # Clean logs and PID files
-```
-
-### Legacy Service Commands (For Reference)
-
-Individual service testing:
-```bash
-# GPS services
-sudo systemctl restart gpsd
-gpspipe -w -n 1  # Test GPS
-
-# Legacy orchestration scripts (now managed by dev.sh)
-src/orchestration/gps_kismet_wigle.sh
-src/orchestration/v2gps_kismet_wigle.sh
-
-# Direct script access
-src/scripts/start_kismet.sh
-src/scripts/start_mediamtx.sh
-```
-
-### Python Virtual Environments
-
-The new system uses a unified project-level virtual environment:
-```bash
-# Activate main project environment
-source venv/bin/activate
-
-# Component-specific environments are still available:
-# GPSmav
-source src/gpsmav/venv/bin/activate
-cd src/gpsmav && python3 mavgps.py
-
-# WigleToTAK
-cd src/wigletotak/WigleToTAK/TheStinkToTAK
-source venv/bin/activate
-python3 WigleToTak2.py
-
-# HackRF spectrum analyzer
-cd src/hackrf
-source venv/bin/activate  
-python3 spectrum_analyzer.py
-```
-
-### Network Interface Configuration
-
-Configure WiFi adapter for monitoring:
-```bash
-# Put in monitor mode
-sudo ip link set wlan2 down
-sudo iw dev wlan2 set monitor none
-sudo ip link set wlan2 up
-
-# Reset to managed mode
-sudo ip link set wlan2 down
-sudo iw dev wlan2 set type managed
-sudo ip link set wlan2 up
-```
-
-## Code Architecture
-
-### Directory Structure (Updated)
-- `src/gpsmav/`: MAVLink to GPSD bridge - converts drone GPS to standard format
-- `src/wigletotak/`: Web dashboard for converting Kismet WiFi scans to TAK format
-- `src/hackrf/`: SDR tools including spectrum analyzer and signal processing
-- `src/orchestration/`: Service coordination scripts
-- `src/scripts/`: Individual service startup scripts
-- `dev/`: Development environment with component wrappers and tools
-- `config/`: Configuration templates and examples
-- `docker/`: Docker configurations
-- `docs/`: API documentation and system guides
-- `logs/`: Runtime logs (created during execution)
-- `data/`: Persistent data storage (Kismet captures, etc.)
-- `external/`: Git submodules for external components
-
-### Key Integration Points
-1. **GPS Flow**: MAVLink device → mavgps.py → GPSD (port 2947) → Kismet
-2. **WiFi Scanning**: Kismet → .wiglecsv files → WigleToTAK → TAK server
-3. **Service Coordination**: dev.sh manages all processes with PID tracking and logging
-
-### Important Ports
-- 2947: GPSD service
-- 6969: TAK broadcasting (default, configurable)
-- 8000: WigleToTAK Flask web interface (configurable via --flask-port)
-- 8073: OpenWebRX SDR interface (Docker container)
-- 8092: Spectrum Analyzer web interface with WebSocket support
-- 14550: MAVProxy connection
-
-### Web Applications
-- **WigleToTak2.py**: Flask app at port 8000 (configurable) for WiFi device tracking and TAK conversion
-- **spectrum_analyzer.py**: Flask/SocketIO app at port 8092 for real-time spectrum analysis with OpenWebRX integration
-- **OpenWebRX**: Docker-based SDR web interface at port 8073
-- **v2WigleToTak2.py**: Enhanced version with antenna sensitivity compensation and improved features
-
-**📋 See [docs/api/API_DOCUMENTATION.md](docs/api/API_DOCUMENTATION.md) for comprehensive REST API and WebSocket interface documentation.**
-
-## Development Notes
-
-### Testing Commands
-
-**Post-Installation Verification:**
-```bash
-# Quick system health check (from install.sh)
-./dev/tools/health-check.sh
-
-# Comprehensive verification
-./dev/test/run-all-tests.sh
-
-# Check installation status
-systemctl status stinkster
-```
-
-**Automated Development Testing:**
-```bash
-./dev.sh test unit         # Unit tests
-./dev.sh test integration  # Integration tests  
-./dev.sh test all          # All tests
-```
-
-**Manual Hardware Testing:**
-```bash
-# Test HackRF
-hackrf_info
-lsusb | grep 1d50:6089
-
-# Test GPS connection  
-gpspipe -w -n 1
-timeout 5 cat /dev/ttyUSB0 | grep GPGGA
-
-# Test WiFi interfaces
-iw dev | grep Interface
-iwconfig
-
-# Check USB devices
-lsusb
-ls -l /dev/ttyUSB* /dev/ttyACM*
-```
-
-**Service Testing:**
-```bash
-# Test individual components
-./dev.sh status
-./dev.sh test integration
-
-# Web interface accessibility
-curl -s http://localhost:8073 >/dev/null && echo "OpenWebRX OK" || echo "OpenWebRX Failed"
-curl -s http://localhost:6969 >/dev/null && echo "WigleToTAK OK" || echo "WigleToTAK Failed"
-```
-
-### Process Management
-The new development system (`dev.sh`) handles:
-- Unified component lifecycle management
-- Health monitoring and automatic restart capabilities
-- Centralized logging to `dev/logs/`
-- PID tracking in `dev/pids/`
-- Hot reload support for development
-- Clean shutdown with signal handling
-
-### Configuration Files
-Template-based configuration system:
-- **Templates**: `config/templates/*.template.*`
-- **Generated configs**: Project root (`.env`, `*.json`, `*.conf`)
-- **Component configs**: Component-specific JSON files
-- **Docker**: `docker-compose.yml` from template
-- **Environment**: `.env` file for sensitive settings
-
-### Python Dependencies
-Unified dependency management:
-- **Main project**: `requirements.txt` and `venv/`
-- **Component-specific**: Each component maintains its own `requirements.txt` and `venv/`
-- **Configuration files**: `config/requirements-*.txt` for different component groups
-
-Use project virtual environment when possible:
-```bash
-source venv/bin/activate
-```
-
-### Development Workflow
-1. **Setup**: `./setup-configs.sh` then `./dev.sh setup`
-2. **Development**: `./dev.sh start` and `./dev.sh hot-reload`
-3. **Testing**: `./dev.sh test`
-4. **Monitoring**: `./dev.sh logs` and `./dev.sh status`
-5. **Cleanup**: `./dev.sh clean`
-
-## Docker and SDR Integration
-
-### ✅ HackRF/OpenWebRX Setup (Tested Working Method)
-The system uses the **official OpenWebRX image** with **native HackRF driver** configuration:
-
-```bash
-# Quick start with verified working configuration
-./start-openwebrx.sh
-
-# Or manually via Docker Compose (uses working config)
-docker-compose up -d
-
-# Verify HackRF detection (should work immediately)
-docker exec openwebrx hackrf_info
-```
-
-### ✅ Successful HackRF Configuration Method
-
-**The working solution uses:**
-1. **Official OpenWebRX image**: `jketterl/openwebrx:latest` (no custom builds needed)
-2. **Native HackRF driver**: `"type": "hackrf"` (not SoapySDR)
-3. **Direct config mount**: Mount working `openwebrx-hackrf-config.json` to `/var/lib/openwebrx/sdrs.json`
-4. **Proper USB access**: `--privileged` mode with `/dev/bus/usb` mount
-
-### Working Commands (Verified)
-```bash
-# Test HackRF detection on host first
-hackrf_info
-
-# Start OpenWebRX with working configuration
-docker-compose up -d
-
-# Verify HackRF works in container
-docker exec openwebrx hackrf_info
-
-# Access web interface
-# URL: http://localhost:8073 (updated port)
-# Login: admin / hackrf
-```
-
-### Troubleshooting HackRF Integration
-
-**Problem**: HackRF not detected in container
-```bash
-# Check host detection first
-lsusb | grep 1d50:6089
-hackrf_info
-
-# Restart container to reestablish USB access
-docker restart openwebrx
-```
-
-**Problem**: Web interface shows SoapySDR error
-```bash
-# Apply the working configuration fix
-./fix-openwebrx-hackrf.sh
-```
-
-**Quick diagnosis**:
-```bash
-# Check what driver is configured
-docker exec openwebrx cat /var/lib/openwebrx/sdrs.json | grep '"type"'
-# Should show: "type": "hackrf" (not "soapy")
-```
-
-### Working HackRF Configuration (Tested)
-File: `openwebrx-hackrf-config.json` (verified working)
-```json
-{
-    "version": 2,
-    "sdrs": {
-        "hackrf": {
-            "name": "HackRF",
-            "type": "hackrf",
-            "ppm": 0,
-            "profiles": {
-                "2m": {
-                    "name": "2m Amateur Band",
-                    "center_freq": 145000000,
-                    "rf_gain": "VGA=35,LNA=40,AMP=0",
-                    "samp_rate": 2400000,
-                    "start_freq": 145700000,
-                    "start_mod": "nfm",
-                    "waterfall_min_level": -72,
-                    "lfo_offset": 300
-                },
-                "70cm": {
-                    "name": "70cm Amateur Band",
-                    "center_freq": 435000000,
-                    "rf_gain": "VGA=35,LNA=40,AMP=0",
-                    "samp_rate": 2400000,
-                    "start_freq": 435000000,
-                    "start_mod": "nfm",
-                    "waterfall_min_level": -78,
-                    "lfo_offset": 300
-                },
-                "airband": {
-                    "name": "Airband",
-                    "center_freq": 124000000,
-                    "rf_gain": "VGA=30,LNA=32,AMP=0",
-                    "samp_rate": 2400000,
-                    "start_freq": 124000000,
-                    "start_mod": "am",
-                    "waterfall_min_level": -80,
-                    "lfo_offset": 0
-                },
-                "fm_broadcast": {
-                    "name": "FM Broadcast",
-                    "center_freq": 98000000,
-                    "rf_gain": "VGA=20,LNA=16,AMP=0",
-                    "samp_rate": 2400000,
-                    "start_freq": 98000000,
-                    "start_mod": "wfm",
-                    "waterfall_min_level": -65,
-                    "lfo_offset": 0
-                }
-            }
-        }
+# Auto-initialization function (runs on first interaction)
+initialize_project_structure() {
+    echo "=== Initializing Project Structure for Christian ==="
+    
+    # Create pattern directories if missing
+    [ ! -d "patterns" ] && {
+        mkdir -p patterns/{bug_fixes,generation,refactoring,architecture}
+        echo "✓ Created patterns/ directory structure"
+        
+        # Create initial README for patterns
+        cat > patterns/README.md << 'EOF'
+# Pattern Library
+
+This directory contains reusable solutions organized by category:
+
+- **bug_fixes/**: Known bug patterns and their solutions
+- **generation/**: Code generation templates
+- **refactoring/**: Clean code transformation patterns
+- **architecture/**: Architecture decision patterns
+
+Each pattern should follow the template in ../CLAUDE.md
+EOF
     }
+    
+    # Create memory directory if missing
+    [ ! -d "memory" ] && {
+        mkdir -p memory
+        
+        # Initialize learning archive
+        cat > memory/learning_archive.md << 'EOF'
+# Learning Archive
+Created: $(date -u +%Y-%m-%dT%H:%M:%SZ)
+User: Christian
+
+## Efficiency Metrics
+- Patterns created: 0
+- Patterns reused: 0
+- TDD applications: 0
+- Direct implementations: 0
+- Average complexity handled: 0
+- Average time saved: 0 minutes
+- Common problems solved: []
+EOF
+        
+        # Initialize error patterns
+        cat > memory/error_patterns.md << 'EOF'
+# Error Patterns Log
+Created: $(date -u +%Y-%m-%dT%H:%M:%SZ)
+User: Christian
+
+## Recurring Errors
+<!-- Document patterns of errors that occur multiple times -->
+EOF
+        
+        # Initialize side effects log
+        cat > memory/side_effects_log.md << 'EOF'
+# Side Effects Log
+Created: $(date -u +%Y-%m-%dT%H:%M:%SZ)
+User: Christian
+
+## Known Side Effects
+<!-- Document unexpected consequences of changes -->
+EOF
+        
+        echo "✓ Created memory/ directory and tracking files"
+    }
+    
+    # Create SESSION_CONTINUITY.md if missing
+    [ ! -f "SESSION_CONTINUITY.md" ] && {
+        cat > SESSION_CONTINUITY.md << 'EOF'
+# SESSION CONTINUITY LOG
+Created: $(date -u +%Y-%m-%dT%H:%M:%SZ)
+User: Christian
+Project: [AUTO-DETECTED]
+
+## Initial Setup - $(date -u +%Y-%m-%dT%H:%M:%SZ)
+
+### Current Status
+- **Task**: Project initialization
+- **Progress**: Created memory system structure
+- **Pattern Match**: N/A - Initial setup
+- **Testing Approach**: To be determined
+- **Next Step**: Await first task from user
+
+### Files Modified
+- SESSION_CONTINUITY.md: Created initial file
+- patterns/: Created directory structure
+- memory/: Created tracking files
+
+### Testing Decision
+- **Complexity Score**: N/A
+- **TDD Required**: N/A
+- **Tests Written**: None yet
+
+### Patterns Used/Created
+- **Applied**: None yet
+- **Created**: None yet
+
+### Decisions & Rationale
+- Initialized project memory system for pattern recognition and learning
+
+### Time Saved
+- Pattern reuse saved: 0 minutes (initial setup)
+EOF
+        echo "✓ Created SESSION_CONTINUITY.md"
+    }
+    
+    # Create tests directory if missing (common need)
+    [ ! -d "tests" ] && {
+        mkdir -p tests
+        echo "✓ Created tests/ directory"
+    }
+    
+    # Create docs directory if missing
+    [ ! -d "docs" ] && {
+        mkdir -p docs
+        echo "✓ Created docs/ directory"
+    }
+    
+    # Create src directory if missing and no other source directory exists
+    if [ ! -d "src" ] && [ ! -d "app" ] && [ ! -d "lib" ]; then
+        mkdir -p src
+        echo "✓ Created src/ directory"
+    fi
+    
+    echo "✓ Project structure initialized for Christian"
+    echo ""
+}
+
+# Run initialization on every interaction
+initialize_project_structure
+```
+
+---
+
+## PERSISTENT MEMORY SYSTEM
+
+### Pattern Recognition Protocol
+
+**CRITICAL**: Before ANY implementation, check patterns/ directory (10 second limit)
+
+```python
+patterns/
+├── bug_fixes/        # Known bug patterns and solutions
+├── generation/       # Code generation templates
+├── refactoring/      # Clean code patterns
+└── architecture/     # Architecture decision patterns
+```
+
+If pattern match found (>80% confidence) → Skip investigation → Apply immediately
+
+### Memory Files to Maintain
+
+**UPDATE AFTER EVERY SIGNIFICANT ACTION:**
+
+- `SESSION_CONTINUITY.md` - Track all actions, decisions, patterns used
+- `patterns/*/*.md` - Capture successful patterns for reuse
+- `memory/learning_archive.md` - Document what worked/didn't work
+- `memory/error_patterns.md` - Track recurring errors
+- `memory/side_effects_log.md` - Document known side effects
+
+---
+
+## TESTING DECISION PROTOCOL (SELECTIVE TDD)
+
+Before writing any code whatsoever, you must first execute the complete Testing Decision Protocol to determine the appropriate testing strategy. This protocol consists of seven sequential steps that must be followed exactly.
+
+### Step 1: Identify Code Purpose
+
+Determine the purpose of the code you are about to write:
+
+- If creating a **quick utility or automation script** → Proceed to Step 6
+- If building a **learning exercise or tutorial** → Proceed to Step 6
+- If writing **throwaway code to test a concept** → Proceed to Step 6
+- If modifying **example code or snippets** → Proceed to Step 6
+- For all other code → Continue to Step 2
+
+### Step 2: Analyze Code Complexity
+
+Count decision points to determine cyclomatic complexity:
+
+- Each `if` statement = 1 point
+- Each `case` in switch statement = 1 point
+- Each loop = 1 point
+- Each logical AND (`&&`) or OR (`||`) = 1 point
+
+**Total complexity ≥ 7** → Proceed to Step 3 (TDD Required)  
+**Total complexity < 7** → Continue to Step 4
+
+### Step 3: Test-Driven Development (Complex Code)
+
+For complex code, you MUST follow strict TDD:
+
+1) Write **failing tests** that define expected behavior BEFORE any implementation
+2) Implement **minimal code** to make tests pass
+3) Run all tests to verify they pass
+4) **Refactor** while keeping tests green
+5) If complexity > 10 → Split into smaller functions and repeat TDD for each
+6) Once complete → Proceed to Step 7
+
+### Step 4: Check Significance Triggers
+
+Even if complexity is low, check for these mandatory TDD triggers:
+
+- Building a **reusable library/module** → Return to Step 3
+- Code will be **shared on GitHub** → Return to Step 3
+- Implementing an **algorithm for future reference** → Return to Step 3
+- Working with **complex data structures** → Return to Step 3
+- None apply → Continue to Step 5
+
+### Step 5: AI-Generated Code Validation
+
+For AI-generated code:
+
+1) Verify compilation and execution without errors
+2) Count complexity using Step 2 method
+3) If complexity > 5 → Write at least ONE comprehensive test
+4) Check for over-engineering (AI often creates complex solutions for simple problems)
+5) If you'll maintain/extend this code → Return to Step 3
+6) Otherwise → Proceed to Step 6
+
+### Step 6: Direct Implementation (No Formal Tests)
+
+When tests are not required:
+
+1) Write code without formal test suites
+2) Verify through manual testing or print statements
+3) Run multiple times under different conditions
+4) Add detailed comments for non-obvious logic
+5) Proceed to Step 7
+
+### Step 7: Final Validation
+
+Regardless of path taken:
+
+- Ensure all code runs without errors/warnings
+- For tested code: Verify tests demonstrate core functionality
+- For untested code: Ensure you understand every part
+- If bugs appear later in untested code → Return to Step 3 immediately
+- Save/commit with clear documentation of what changed and why
+
+---
+
+## PROJECT-SPECIFIC PARALLEL TASK CONFIGURATION
+
+### Phase 0: Pattern Check (EXECUTE FIRST)
+
+```bash
+# Before launching parallel tasks
+check_existing_patterns() {
+    echo "Checking patterns/ for existing solutions…"
+    # Search patterns for similar problem
+    # Time limit: 10 seconds
+    # If match >80%: Report and skip to implementation
 }
 ```
 
-### Key Success Factors:
-- ✅ **Native HackRF driver** (`"type": "hackrf"`) - NOT SoapySDR
-- ✅ **Official OpenWebRX image** - No custom builds needed
-- ✅ **Direct configuration mount** - Bypasses initialization issues  
-- ✅ **Tested gain settings** - Optimized VGA/LNA/AMP values
-- ✅ **Multiple band profiles** - Ready-to-use frequency configurations
-- ✅ **Proper port configuration** - Uses standard port 8073
+### Customized 7-Agent Workflow
 
-## Quick Reference Summary
+1) **Component**: Create main component with pattern check
+2) **Styles**: Apply project style patterns
+3) **Tests**: Use Testing Decision Protocol to determine approach
+4) **Types**: Generate types/interfaces
+5) **Utilities**: Check for existing utils before creating
+6) **Integration**: Update imports/exports
+7) **Documentation**: Update docs + capture new patterns
+8) **Validation**: Verify all tests pass + update SESSION_CONTINUITY.md
 
-### New User - Complete Setup
+### Clean Code Integration
+
+Each task includes clean code checks:
+
+- Functions must be <20 lines (split if larger)
+- Apply DRY principle (check patterns first)
+- Single responsibility per component
+- Maximum 3 levels of nesting
+- Early returns over complex conditionals
+
+---
+
+## ENHANCED BACKUP PROCEDURES
+
+### Project-Specific Backup Triggers
+
+In addition to global 30-minute backups, create backups when:
+
+- Pattern successfully captured → `create_backup "pattern_captured"`
+- Before major refactoring → `create_backup "pre_refactor"`
+- After clean code improvements → `create_backup "clean_code_applied"`
+- Complex feature completed → `create_backup "feature_complete"`
+
+### Extended Backup Function
+
 ```bash
-# 1. One-command installation (recommended)
-git clone https://github.com/your-username/stinkster.git && cd stinkster && ./install.sh
-
-# 2. Start services
-sudo systemctl start stinkster
-
-# 3. Access web interfaces
-# - OpenWebRX: http://your-pi:8073 (admin/hackrf)
-# - WigleToTAK: http://your-pi:6969
-# - Spectrum Analyzer: http://your-pi:8092
-# - Kismet: http://your-pi:2501
+# Project-specific backup enhancements
+create_project_backup() {
+    # Call global backup function
+    create_backup "$1"
+    
+    # Additionally backup patterns and memory
+    backup_dir="backups/$(date +%Y-%m-%d)_v$(ls -d backups/$(date +%Y-%m-%d)_v* 2>/dev/null | wc -l | xargs expr 1 +)"
+    
+    # Copy pattern library
+    [ -d "patterns" ] && cp -r "patterns" "$backup_dir/"
+    [ -d "memory" ] && cp -r "memory" "$backup_dir/"
+    [ -f "SESSION_CONTINUITY.md" ] && cp "SESSION_CONTINUITY.md" "$backup_dir/"
+    
+    # Update backup info with pattern stats
+    echo "Patterns captured: $(find patterns -name "*.md" 2>/dev/null | wc -l)" >> "$backup_dir/backup_info.txt"
+    echo "Memory files: $(find memory -name "*.md" 2>/dev/null | wc -l)" >> "$backup_dir/backup_info.txt"
+}
 ```
 
-### Developer - Development Workflow
-```bash
-# After installation, set up development environment
-./dev.sh setup
+---
 
-# Start development mode with hot reload
-./dev.sh start
+## SESSION CONTINUITY TEMPLATE
 
-# View logs and monitor
-./dev.sh logs
-./dev.sh status
+Update SESSION_CONTINUITY.md after EVERY action:
 
-# Run tests
-./dev.sh test
+```markdown
+## [Timestamp] - [Action Type]
+
+### Current Status
+- **Task**: [What you're working on]
+- **Progress**: [What's been completed]
+- **Pattern Match**: [If pattern was found/used]
+- **Testing Approach**: [TDD/Direct/None based on protocol]
+- **Next Step**: [What needs to be done next]
+
+### Files Modified
+- [filename]: [what changed and why]
+
+### Testing Decision
+- **Complexity Score**: [If calculated]
+- **TDD Required**: [Yes/No and why]
+- **Tests Written**: [List test files if any]
+
+### Patterns Used/Created
+- **Applied**: [pattern_name from patterns/]
+- **Created**: [new_pattern_name if captured]
+
+### Decisions & Rationale
+- [Key decision]: [Why this approach]
+
+### Time Saved
+- Pattern reuse saved: [estimated minutes]
 ```
 
-### System Administration
-```bash
-# Service management
-sudo systemctl start/stop/restart stinkster
-systemctl status stinkster
+---
 
-# Health monitoring
-./dev/tools/health-check.sh
+## PATTERN CAPTURE TEMPLATE
 
-# Configuration validation
-./dev/tools/validate-config.sh
+When capturing new patterns, create in patterns/[category]/[descriptive_name].md:
 
-# View system logs
-journalctl -u stinkster -f
+```markdown
+# Pattern: [Descriptive Name]
+
+## Problem
+[Clear problem description this pattern solves]
+
+## Solution
+[Step-by-step approach]
+
+## Code Template
+```[language]
+[Reusable code template]
 ```
 
-### Troubleshooting Quick Checks
-```bash
-# Hardware verification
-hackrf_info                    # HackRF detection
-gpspipe -w -n 1               # GPS data
-iw dev                        # WiFi interfaces
-docker ps                     # Container status
+## Testing Requirements
 
-# Service verification  
-curl -s http://localhost:8073 >/dev/null && echo "OpenWebRX OK"
-./dev.sh status               # All components
-./dev/test/run-all-tests.sh   # Comprehensive testing
+- Complexity score: [number]
+- TDD used: [Yes/No]
+- Test pattern: [If applicable]
+
+## When to Use
+
+- [Condition 1]
+- [Condition 2]
+
+## Time Saved
+
+Estimated: [X minutes per use]
+
+Actual uses: [Track each use]
+
+```python
+
+---
+
+## PROJECT STRUCTURE
+
+```python
+project-root/
+├── src/                    # Source code
+├── tests/                  # Test files
+├── docs/                   # Documentation
+├── CLAUDE.md              # This file
+├── TODO.md                # Task tracking (30-min updates)
+├── SESSION_CONTINUITY.md  # Memory persistence
+├── patterns/              # Reusable solutions
+│   ├── README.md
+│   ├── bug_fixes/
+│   ├── generation/
+│   ├── refactoring/
+│   └── architecture/
+├── memory/                # Learning archive
+│   ├── learning_archive.md
+│   ├── error_patterns.md
+│   └── side_effects_log.md
+├── backups/               # Versioned backups
+│   ├── YYYY-MM-DD_v1/
+│   ├── YYYY-MM-DD_v2/
+│   └── backup_log.txt
+└── .project_context       # Auto-generated
 ```
 
-For detailed documentation, see:
-- **[QUICK_START.md](QUICK_START.md)** - Complete installation and setup guide
-- **[README.md](README.md)** - Project overview and architecture
-- **[dev/DEVELOPMENT_GUIDE.md](dev/DEVELOPMENT_GUIDE.md)** - Development environment details
-- **[docs/api/API_DOCUMENTATION.md](docs/api/API_DOCUMENTATION.md)** - API reference
+---
+
+## HANDOFF ENHANCEMENT
+
+When generating handoff files, include pattern and testing statistics:
+
+```bash
+generate_project_handoff() {
+    # Call global handoff generation
+    generate_handoff_files
+    
+    # Add project-specific information
+    cat >> HANDOFF_SUMMARY.md << EOF
+## PATTERN LIBRARY STATUS
+- Bug fixes: $(find patterns/bug_fixes -name "*.md" 2>/dev/null | wc -l) patterns
+- Generation: $(find patterns/generation -name "*.md" 2>/dev/null | wc -l) patterns
+- Refactoring: $(find patterns/refactoring -name "*.md" 2>/dev/null | wc -l) patterns
+- Architecture: $(find patterns/architecture -name "*.md" 2>/dev/null | wc -l) patterns
+
+## TESTING METRICS
+- Files with TDD: $(grep -l "TDD Required: Yes" SESSION_CONTINUITY.md | wc -l)
+- Direct implementations: $(grep -l "TDD Required: No" SESSION_CONTINUITY.md | wc -l)
+- Average complexity: $(grep "Complexity Score:" SESSION_CONTINUITY.md | awk '{sum+=$3; count++} END {print sum/count}')
+
+## MEMORY STATUS
+- Total sessions tracked: $(grep -c "^##" SESSION_CONTINUITY.md 2>/dev/null || echo "0")
+- Patterns applied: $(grep -c "Applied:" SESSION_CONTINUITY.md 2>/dev/null || echo "0")
+- Time saved: $(grep "saved:" SESSION_CONTINUITY.md | awk '{sum+=$4} END {print sum}') minutes
+
+## RECOMMENDED PATTERNS TO CHECK
+[List patterns relevant to current work]
+EOF
+}
+```
+
+---
+
+## WORKFLOW SUMMARY
+
+1) **Start**: Check project CLAUDE.md (this file) + auto-initialize if needed
+2) **Pattern Check**: Search patterns/ before any implementation (10s)
+3) **If Match**: Apply pattern immediately (80% time saved)
+4) **If No Match**: Execute Testing Decision Protocol
+5) **Based on Protocol**: Either TDD or direct implementation
+6) **During Work**: Update SESSION_CONTINUITY.md continuously
+7) **After Success**: Capture as new pattern
+8) **Every 30min**: TODO update + backup (includes patterns)
+9) **At 90% Context**: Full backup + handoff with pattern/test stats
+
+---
+
+## EFFICIENCY METRICS
+
+Track in memory/learning_archive.md:
+
+- Patterns created: [count]
+- Patterns reused: [count]
+- TDD applications: [count]
+- Direct implementations: [count]
+- Average complexity handled: [number]
+- Average time saved: [minutes]
+- Common problems solved: [list]
+
+**Goals:**
+
+- 80% of repeated tasks should use existing patterns
+- TDD for all complex code (complexity ≥ 7)
+- Clean code principles in every implementation
+
+---
+
+## CRITICAL PROJECT RULES
+
+1) **Pattern First**: ALWAYS check patterns/ before writing new code
+2) **Testing Protocol**: ALWAYS run 7-step decision before coding
+3) **Memory Persistence**: Update SESSION_CONTINUITY.md after EVERY action
+4) **Capture Success**: Turn successful implementations into patterns
+5) **Clean Code**: Enforce during implementation, not after
+6) **Parallel Execution**: Use 7 agents for investigation, testing, validation
+7) **Sequential Implementation**: Code changes must be sequential
+8) **Inherit Global**: All global rules apply unless overridden here
+9) **Auto-Initialize**: Run structure initialization on every first interaction

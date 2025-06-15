@@ -1,7 +1,0 @@
-{
-    "version": 2,
-    "general": {
-        "receiver_name": "HackRF SDR Receiver",
-        "receiver_location": "Raspberry Pi"
-    }
-}

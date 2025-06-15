@@ -1,0 +1,174 @@
+{
+    "version": 2,
+    "sdrs": {
+        "hackrf": {
+            "name": "HackRF Auto-Listening",
+            "type": "hackrf",
+            "ppm": 0,
+            "always_on": true,
+            "auto_start": true,
+            "enabled": true,
+            "device": "0",
+            "services": {
+                "enabled": true
+            },
+            "profiles": {
+                "fm_broadcast": {
+                    "name": "FM Broadcast Auto-Listen",
+                    "center_freq": 98000000,
+                    "rf_gain": "VGA=25,LNA=20,AMP=0",
+                    "samp_rate": 2400000,
+                    "start_freq": 98000000,
+                    "start_mod": "wfm",
+                    "waterfall_min_level": -65,
+                    "waterfall_max_level": -25,
+                    "lfo_offset": 0,
+                    "initial_squelch_level": -150,
+                    "auto_squelch": false,
+                    "squelch_auto_margin": 0,
+                    "services": true,
+                    "enabled": true,
+                    "auto_start": true
+                },
+                "2m": {
+                    "name": "2m Amateur Band Auto",
+                    "center_freq": 145000000,
+                    "rf_gain": "VGA=35,LNA=40,AMP=0",
+                    "samp_rate": 2400000,
+                    "start_freq": 145700000,
+                    "start_mod": "nfm",
+                    "waterfall_min_level": -72,
+                    "waterfall_max_level": -32,
+                    "lfo_offset": 300,
+                    "initial_squelch_level": -150,
+                    "auto_squelch": false,
+                    "squelch_auto_margin": 0,
+                    "services": true,
+                    "enabled": true
+                },
+                "70cm": {
+                    "name": "70cm Amateur Band Auto",
+                    "center_freq": 435000000,
+                    "rf_gain": "VGA=35,LNA=40,AMP=0",
+                    "samp_rate": 2400000,
+                    "start_freq": 435000000,
+                    "start_mod": "nfm",
+                    "waterfall_min_level": -78,
+                    "waterfall_max_level": -38,
+                    "lfo_offset": 300,
+                    "initial_squelch_level": -150,
+                    "auto_squelch": false,
+                    "squelch_auto_margin": 0,
+                    "services": true,
+                    "enabled": true
+                },
+                "airband": {
+                    "name": "Airband Auto-Listen",
+                    "center_freq": 124000000,
+                    "rf_gain": "VGA=30,LNA=32,AMP=0",
+                    "samp_rate": 2400000,
+                    "start_freq": 124000000,
+                    "start_mod": "am",
+                    "waterfall_min_level": -80,
+                    "waterfall_max_level": -40,
+                    "lfo_offset": 0,
+                    "initial_squelch_level": -150,
+                    "auto_squelch": false,
+                    "squelch_auto_margin": 0,
+                    "services": true,
+                    "enabled": true
+                },
+                "noaa_weather": {
+                    "name": "NOAA Weather Radio",
+                    "center_freq": 162475000,
+                    "rf_gain": "VGA=30,LNA=35,AMP=0",
+                    "samp_rate": 2400000,
+                    "start_freq": 162475000,
+                    "start_mod": "nfm",
+                    "waterfall_min_level": -75,
+                    "waterfall_max_level": -35,
+                    "lfo_offset": 0,
+                    "initial_squelch_level": -150,
+                    "auto_squelch": false,
+                    "squelch_auto_margin": 0,
+                    "services": true,
+                    "enabled": true
+                },
+                "pmr446": {
+                    "name": "PMR446 Auto-Monitor",
+                    "center_freq": 446050000,
+                    "rf_gain": "VGA=35,LNA=40,AMP=0",
+                    "samp_rate": 2400000,
+                    "start_freq": 446050000,
+                    "start_mod": "nfm",
+                    "waterfall_min_level": -78,
+                    "waterfall_max_level": -38,
+                    "lfo_offset": 0,
+                    "initial_squelch_level": -150,
+                    "auto_squelch": false,
+                    "squelch_auto_margin": 0,
+                    "services": true,
+                    "enabled": true
+                },
+                "marine_vhf": {
+                    "name": "Marine VHF Auto",
+                    "center_freq": 156800000,
+                    "rf_gain": "VGA=32,LNA=38,AMP=0",
+                    "samp_rate": 2400000,
+                    "start_freq": 156800000,
+                    "start_mod": "nfm",
+                    "waterfall_min_level": -75,
+                    "waterfall_max_level": -35,
+                    "lfo_offset": 0,
+                    "initial_squelch_level": -150,
+                    "auto_squelch": false,
+                    "squelch_auto_margin": 0,
+                    "services": true,
+                    "enabled": true
+                },
+                "cb_radio": {
+                    "name": "CB Radio Auto-Monitor",
+                    "center_freq": 27125000,
+                    "rf_gain": "VGA=28,LNA=30,AMP=0",
+                    "samp_rate": 2400000,
+                    "start_freq": 27125000,
+                    "start_mod": "am",
+                    "waterfall_min_level": -82,
+                    "waterfall_max_level": -42,
+                    "lfo_offset": 0,
+                    "initial_squelch_level": -150,
+                    "auto_squelch": false,
+                    "squelch_auto_margin": 0,
+                    "services": true,
+                    "enabled": true
+                }
+            },
+            "initial_profile": "fm_broadcast"
+        }
+    },
+    "global": {
+        "core": {
+            "fft_size": 4096,
+            "fft_fps": 9,
+            "fft_voverlap_factor": 0.3,
+            "waterfall_colors": {
+                "scheme": "turbo"
+            },
+            "waterfall_auto_level_default_mode": "continuous"
+        },
+        "services": {
+            "enabled": true,
+            "decoders": true
+        },
+        "audio": {
+            "device": "default",
+            "allowed_sample_rates": [44100, 48000],
+            "buffer_size": 512
+        },
+        "web": {
+            "auto_play": true,
+            "initial_volume": 0.7,
+            "remember_settings": true
+        }
+    }
+}

@@ -1,5 +1,0 @@
-# GPSmav Component Requirements
-# Minimal dependencies for GPS/MAVLink bridge functionality
-
-pymavlink>=2.4.33
-pyserial>=3.5

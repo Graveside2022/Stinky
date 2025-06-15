@@ -113,7 +113,7 @@ sudo systemctl start stinkster
 
 Open these URLs in your browser (replace `192.168.1.100` with your Pi's IP):
 
-- **OpenWebRX (SDR):** http://192.168.1.100:8073
+- **OpenWebRX (SDR):** http://192.168.1.100:8074
   - Login: `admin` / `YourPassword`
   - HackRF-optimized with multiple band profiles
 
@@ -142,7 +142,14 @@ Open these URLs in your browser (replace `192.168.1.100` with your Pi's IP):
    # Should show: Found HackRF, Serial number: 0x...
    ```
 3. **Attach antenna** (appropriate for your target frequencies)
-4. **Test in OpenWebRX** - HackRF should appear automatically
+4. **Quick automated setup:**
+   ```bash
+   # Complete HackRF OpenWebRX setup with one command
+   ./hackrf-quick-start.sh
+   
+   # Test reception is working
+   ./hackrf-test-reception.sh
+   ```
 
 ### WiFi Adapter Setup
 
@@ -305,14 +312,21 @@ docker ps | grep openwebrx
 
 **OpenWebRX HackRF issues:**
 ```bash
-# Verify HackRF in container
-docker exec openwebrx hackrf_info
+# Quick automated fix
+./ensure-hackrf-config.sh
 
-# Check container logs
+# Complete rebuild if needed
+./build-openwebrx-hackrf-only.sh
+
+# Validate configuration
+./validate-hackrf-config.sh
+
+# Manual verification
+docker exec openwebrx hackrf_info
 docker logs openwebrx
 
-# Rebuild optimized container
-./rebuild-openwebrx-docker.sh
+# Check web interface
+curl -I http://localhost:8073
 ```
 
 **No web interface access:**
@@ -321,8 +335,10 @@ docker logs openwebrx
 sudo ufw status
 
 # Verify ports are listening
-netstat -tlnp | grep :8073
-netstat -tlnp | grep :2501
+netstat -tlnp | grep :8073  # OpenWebRX
+netstat -tlnp | grep :2501  # Kismet
+netstat -tlnp | grep :6969  # WigleToTAK
+netstat -tlnp | grep :8092  # Spectrum Analyzer
 
 # Check Pi's IP address
 ip addr show | grep inet
@@ -373,7 +389,7 @@ echo "   Docker: $(docker ps -q | grep -q . && echo "✓ Running" || echo "✗ N
 
 # 3. Web interfaces
 echo "3. Web Interface Accessibility:"
-for port in 8073 2501 6969 8092; do
+for port in 8074 2501 6969 8092; do
     echo "   Port $port: $(curl -s --connect-timeout 3 http://localhost:$port >/dev/null && echo "✓ Accessible" || echo "✗ Not responding")"
 done
 
@@ -389,11 +405,20 @@ echo "=== Verification Complete ==="
 
 **HackRF Test:**
 ```bash
-# Basic detection
+# Complete validation test
+./validate-hackrf-config.sh
+
+# Manual hardware test
 hackrf_info
 
-# Spectrum sweep test
+# Spectrum sweep test (FM band)
 hackrf_sweep -f 88:108 -w 100000 -l 32 -g 16 -1 | head -5
+
+# Container integration test
+docker exec openwebrx hackrf_info
+
+# Web interface test
+curl -I http://localhost:8073
 ```
 
 **GPS Test:**

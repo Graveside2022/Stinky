@@ -1,8 +1,0 @@
-# Web Services Component Requirements
-# Dependencies for webhook and web interface services
-
-Flask==3.0.2
-Flask-CORS>=6.0.1
-psutil>=7.0.0
-requests>=2.32.3
-python-dotenv>=1.0.0

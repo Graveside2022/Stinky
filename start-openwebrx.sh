@@ -1,1 +1,0 @@
-scripts/maintenance/start-openwebrx.sh

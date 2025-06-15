@@ -1,0 +1,58 @@
+{
+    "version": 2,
+    "sdrs": {
+        "hackrf": {
+            "name": "HackRF One",
+            "type": "hackrf",
+            "ppm": 0,
+            "enabled": true,
+            "always_on": true,
+            "profiles": {
+                "fm_broadcast": {
+                    "name": "FM Broadcast Band",
+                    "center_freq": 98000000,
+                    "rf_gain": "VGA=20,LNA=16,AMP=0",
+                    "samp_rate": 2400000,
+                    "start_freq": 98000000,
+                    "start_mod": "wfm",
+                    "waterfall_colors": 4,
+                    "waterfall_min_level": -65,
+                    "waterfall_max_level": -5
+                },
+                "2m": {
+                    "name": "2m Amateur Band",
+                    "center_freq": 145000000,
+                    "rf_gain": "VGA=35,LNA=40,AMP=0",
+                    "samp_rate": 2400000,
+                    "start_freq": 145700000,
+                    "start_mod": "nfm",
+                    "waterfall_colors": 4,
+                    "waterfall_min_level": -72,
+                    "waterfall_max_level": -10
+                },
+                "70cm": {
+                    "name": "70cm Amateur Band",
+                    "center_freq": 435000000,
+                    "rf_gain": "VGA=35,LNA=40,AMP=0",
+                    "samp_rate": 2400000,
+                    "start_freq": 435000000,
+                    "start_mod": "nfm",
+                    "waterfall_colors": 4,
+                    "waterfall_min_level": -78,
+                    "waterfall_max_level": -10
+                },
+                "airband": {
+                    "name": "Airband",
+                    "center_freq": 124000000,
+                    "rf_gain": "VGA=30,LNA=32,AMP=0",
+                    "samp_rate": 2400000,
+                    "start_freq": 124000000,
+                    "start_mod": "am",
+                    "waterfall_colors": 4,
+                    "waterfall_min_level": -80,
+                    "waterfall_max_level": -10
+                }
+            }
+        }
+    }
+}

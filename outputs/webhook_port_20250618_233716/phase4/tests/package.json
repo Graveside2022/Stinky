@@ -1,0 +1,53 @@
+{
+  "name": "webhook-service-tests",
+  "version": "1.0.0",
+  "description": "Comprehensive test suite for Stinkster Webhook Service",
+  "main": "test-runner.js",
+  "scripts": {
+    "test": "node test-runner.js",
+    "test:unit": "jest unit/*.test.js",
+    "test:integration": "jest integration/*.test.js",
+    "test:e2e": "jest e2e/*.test.js",
+    "test:performance": "jest performance/*.test.js",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage",
+    "test:debug": "node --inspect-brk node_modules/.bin/jest --runInBand"
+  },
+  "keywords": [
+    "testing",
+    "webhook",
+    "jest",
+    "integration-testing",
+    "e2e-testing"
+  ],
+  "author": "Stinkster Team",
+  "license": "MIT",
+  "devDependencies": {
+    "jest": "^29.7.0",
+    "supertest": "^6.3.3",
+    "socket.io-client": "^4.6.1",
+    "@types/jest": "^29.5.11"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "axios": "^1.6.2",
+    "tree-kill": "^1.2.2"
+  },
+  "jest": {
+    "testEnvironment": "node",
+    "coverageDirectory": "./coverage",
+    "collectCoverageFrom": [
+      "../../../phase3/webhook_implementation/**/*.js",
+      "!../../../phase3/webhook_implementation/test*.js",
+      "!../../../phase3/webhook_implementation/**/*.test.js"
+    ],
+    "testMatch": [
+      "**/*.test.js"
+    ],
+    "verbose": true,
+    "testTimeout": 30000,
+    "detectOpenHandles": true,
+    "forceExit": true,
+    "setupFilesAfterEnv": ["./jest.setup.js"]
+  }
+}

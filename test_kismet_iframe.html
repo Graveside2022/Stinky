@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Kismet Iframe Test</title>
+</head>
+<body>
+    <h1>Testing Kismet Iframe Loading</h1>
+    <p>This page tests iframe loading from different origins</p>
+    
+    <h2>Direct Iframe to Kismet (http://localhost:2501)</h2>
+    <iframe 
+        src="http://localhost:2501" 
+        width="800" 
+        height="400" 
+        style="border: 2px solid red;"
+        onload="console.log('Kismet iframe loaded successfully')"
+        onerror="console.error('Kismet iframe failed to load')">
+    </iframe>
+    
+    <h2>Browser Console Tests</h2>
+    <button onclick="testFetch()">Test Fetch API</button>
+    <button onclick="testXHR()">Test XMLHttpRequest</button>
+    
+    <div id="results"></div>
+    
+    <script>
+        // Monitor iframe messages
+        window.addEventListener('message', (event) => {
+            console.log('Received message from iframe:', event);
+        });
+        
+        // Test fetch API
+        async function testFetch() {
+            try {
+                const response = await fetch('http://localhost:2501');
+                const text = await response.text();
+                document.getElementById('results').innerHTML += '<p>Fetch successful: ' + response.status + '</p>';
+                console.log('Fetch headers:', response.headers);
+            } catch (error) {
+                document.getElementById('results').innerHTML += '<p>Fetch error: ' + error.message + '</p>';
+                console.error('Fetch error:', error);
+            }
+        }
+        
+        // Test XMLHttpRequest
+        function testXHR() {
+            const xhr = new XMLHttpRequest();
+            xhr.open('GET', 'http://localhost:2501', true);
+            xhr.onload = function() {
+                document.getElementById('results').innerHTML += '<p>XHR successful: ' + xhr.status + '</p>';
+                console.log('XHR response headers:', xhr.getAllResponseHeaders());
+            };
+            xhr.onerror = function() {
+                document.getElementById('results').innerHTML += '<p>XHR error</p>';
+                console.error('XHR error');
+            };
+            xhr.send();
+        }
+        
+        // Check iframe accessibility
+        setTimeout(() => {
+            const iframe = document.querySelector('iframe');
+            try {
+                const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
+                console.log('Iframe document accessible:', !!iframeDoc);
+            } catch (e) {
+                console.error('Cannot access iframe document:', e.message);
+            }
+        }, 2000);
+    </script>
+</body>
+</html>

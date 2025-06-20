@@ -1,0 +1,24 @@
+# Allow pi user to run kismet orchestration scripts without password
+pi ALL=(ALL) NOPASSWD: /home/pi/projects/stinkster_malone/stinkster/src/orchestration/gps_kismet_wigle.sh
+pi ALL=(ALL) NOPASSWD: /home/pi/projects/stinkster_malone/stinkster/src/scripts/start_kismet.sh
+pi ALL=(ALL) NOPASSWD: /usr/bin/systemctl start gpsd
+pi ALL=(ALL) NOPASSWD: /usr/bin/systemctl stop gpsd
+pi ALL=(ALL) NOPASSWD: /usr/bin/systemctl restart gpsd
+pi ALL=(ALL) NOPASSWD: /usr/bin/systemctl start gpsd.socket
+pi ALL=(ALL) NOPASSWD: /usr/bin/systemctl stop gpsd.socket
+pi ALL=(ALL) NOPASSWD: /usr/bin/systemctl restart gpsd.socket
+pi ALL=(ALL) NOPASSWD: /usr/bin/killall gpsd
+pi ALL=(ALL) NOPASSWD: /usr/bin/killall gpsdctl
+pi ALL=(ALL) NOPASSWD: /usr/bin/pkill -f kismet
+pi ALL=(ALL) NOPASSWD: /usr/bin/pkill -f WigleToTak2
+pi ALL=(ALL) NOPASSWD: /usr/bin/pkill -f mavgps
+pi ALL=(ALL) NOPASSWD: /usr/bin/pkill -f gps_kismet_wigle
+pi ALL=(ALL) NOPASSWD: /usr/bin/stty -F /dev/ttyUSB* *
+pi ALL=(ALL) NOPASSWD: /sbin/ip link set wlan2 down
+pi ALL=(ALL) NOPASSWD: /sbin/iw dev wlan2 set type managed
+pi ALL=(ALL) NOPASSWD: /sbin/ip link set wlan2 up
+pi ALL=(ALL) NOPASSWD: /usr/bin/systemctl restart networking
+pi ALL=(ALL) NOPASSWD: /usr/bin/tailscale up
+pi ALL=(ALL) NOPASSWD: /usr/bin/lsof -i\:6969
+pi ALL=(ALL) NOPASSWD: /home/pi/projects/stinkster_malone/stinkster/src/orchestration/smart_restart.sh
+pi ALL=(ALL) NOPASSWD: /home/pi/projects/stinkster_malone/stinkster/src/orchestration/stop_and_restart_services.sh

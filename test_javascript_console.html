@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JavaScript Console Test for Kismet Operations</title>
+    <style>
+        body {
+            font-family: 'Courier New', monospace;
+            background-color: #0a192f;
+            color: #00d2ff;
+            padding: 20px;
+            margin: 0;
+        }
+        .test-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: rgba(12, 22, 48, 0.85);
+            border: 1px solid rgba(0, 190, 215, 0.35);
+            border-radius: 8px;
+            padding: 20px;
+        }
+        .test-section {
+            margin-bottom: 30px;
+            padding: 15px;
+            border: 1px solid rgba(0, 190, 215, 0.2);
+            border-radius: 4px;
+        }
+        button {
+            background: linear-gradient(90deg, #00d2ff 0%, #222 100%);
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            padding: 12px 20px;
+            font-size: 1em;
+            cursor: pointer;
+            margin: 5px;
+            transition: all 0.3s ease;
+        }
+        button:hover {
+            background: linear-gradient(90deg, #222 0%, #00d2ff 100%);
+            transform: translateY(-2px);
+        }
+        .log {
+            background-color: rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(0, 190, 215, 0.3);
+            border-radius: 4px;
+            padding: 10px;
+            margin-top: 10px;
+            max-height: 200px;
+            overflow-y: auto;
+            font-family: monospace;
+            font-size: 0.9em;
+        }
+        .success { color: #44ff44; }
+        .error { color: #ff4444; }
+        .info { color: #00d2ff; }
+        .warning { color: #ffaa00; }
+        #status-indicators {
+            display: flex;
+            gap: 20px;
+            margin: 10px 0;
+        }
+        .status-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #ff4444;
+            display: inline-block;
+            margin-right: 8px;
+        }
+        .status-dot.active {
+            background: #44ff44;
+            box-shadow: 0 0 10px #44ff44;
+        }
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(12, 22, 48, 0.95);
+            border: 1px solid rgba(0, 220, 255, 0.4);
+            color: #00d2ff;
+            padding: 15px 30px;
+            border-radius: 8px;
+            font-size: 1em;
+            z-index: 1000;
+            display: none;
+            box-shadow: 0 0 20px rgba(0, 220, 255, 0.2);
+        }
+        .notification.show { display: block; }
+        .notification.success {
+            border-color: rgba(68, 255, 68, 0.4);
+            color: #44ff44;
+            box-shadow: 0 0 20px rgba(68, 255, 68, 0.2);
+        }
+        .notification.error {
+            border-color: rgba(255, 68, 68, 0.4);
+            color: #ff4444;
+            box-shadow: 0 0 20px rgba(255, 68, 68, 0.2);
+        }
+    </style>
+</head>
+<body>
+    <div id="notification" class="notification"></div>
+    
+    <div class="test-container">
+        <h1>🧪 JavaScript Console Test - Kismet Operations</h1>
+        <p>This page tests the JavaScript functionality for button clicks and API calls used in the Kismet Operations Center interface.</p>
+        
+        <div class="test-section">
+            <h2>📡 Service Status Indicators</h2>
+            <div id="status-indicators">
+                <div>
+                    <span class="status-dot" id="kismet-status"></span>Kismet Service
+                </div>
+                <div>
+                    <span class="status-dot" id="wigle-status"></span>WigleToTak Service
+                </div>
+                <div>
+                    <span class="status-dot" id="gps-status"></span>GPS Service
+                </div>
+            </div>
+            <button onclick="updateServiceStatus()">Refresh Status</button>
+            <div id="status-log" class="log"></div>
+        </div>
+
+        <div class="test-section">
+            <h2>🔘 Button Actions</h2>
+            <button onclick="startKismet()">Start Kismet Services</button>
+            <button onclick="stopKismet()">Stop Kismet Services</button>
+            <button onclick="addLoadProfile()">Add Load Profile</button>
+            <button onclick="hackRFSweep()">HackRF Sweep</button>
+            <div id="button-log" class="log"></div>
+        </div>
+
+        <div class="test-section">
+            <h2>📊 System Information</h2>
+            <button onclick="fetchSystemInfo()">Get System Info</button>
+            <button onclick="fetchKismetData()">Get Kismet Data</button>
+            <button onclick="testHealthEndpoint()">Test Health Endpoint</button>
+            <div id="system-log" class="log"></div>
+        </div>
+
+        <div class="test-section">
+            <h2>🔗 Navigation Tests</h2>
+            <button onclick="testExternalLinks()">Test External Links</button>
+            <button onclick="testMinimizeFunction()">Test Minimize Function</button>
+            <div id="navigation-log" class="log"></div>
+        </div>
+
+        <div class="test-section">
+            <h2>🐛 JavaScript Error Monitor</h2>
+            <p>Any JavaScript errors will appear below:</p>
+            <div id="error-log" class="log"></div>
+        </div>
+    </div>
+
+    <script>
+        // Global error handler to catch JavaScript errors
+        window.onerror = function(msg, url, lineNo, columnNo, error) {
+            logToConsole('error-log', `JavaScript Error: ${msg} at line ${lineNo}:${columnNo}`, 'error');
+            return false;
+        };
+
+        window.addEventListener('unhandledrejection', function(event) {
+            logToConsole('error-log', `Unhandled Promise Rejection: ${event.reason}`, 'error');
+        });
+
+        function logToConsole(containerId, message, type = 'info') {
+            const container = document.getElementById(containerId);
+            const timestamp = new Date().toLocaleTimeString();
+            const logEntry = document.createElement('div');
+            logEntry.className = type;
+            logEntry.innerHTML = `[${timestamp}] ${message}`;
+            container.appendChild(logEntry);
+            container.scrollTop = container.scrollHeight;
+            
+            // Also log to browser console
+            console.log(`[${type.toUpperCase()}] ${message}`);
+        }
+
+        function showNotification(message, type = 'info') {
+            const notification = document.getElementById('notification');
+            notification.textContent = message;
+            notification.className = `notification show ${type}`;
+            
+            // Hide notification after 5 seconds
+            setTimeout(() => {
+                notification.className = 'notification';
+            }, 5000);
+            
+            logToConsole('button-log', `Notification: ${message}`, type);
+        }
+
+        // Test functions that replicate the actual interface functionality
+
+        async function updateServiceStatus() {
+            logToConsole('status-log', 'Fetching service status...', 'info');
+            
+            try {
+                const response = await fetch('/script-status');
+                const data = await response.json();
+                
+                logToConsole('status-log', `Status response: ${JSON.stringify(data)}`, 'info');
+                
+                // Update status indicators
+                const kismetStatus = document.getElementById('kismet-status');
+                const wigleStatus = document.getElementById('wigle-status');
+                const gpsStatus = document.getElementById('gps-status');
+                
+                if (data.kismet_running === true) {
+                    kismetStatus.classList.add('active');
+                    logToConsole('status-log', 'Kismet: RUNNING', 'success');
+                } else {
+                    kismetStatus.classList.remove('active');
+                    logToConsole('status-log', 'Kismet: STOPPED', 'warning');
+                }
+
+                if (data.wigle_running === true) {
+                    wigleStatus.classList.add('active');
+                    logToConsole('status-log', 'WigleToTak: RUNNING', 'success');
+                } else {
+                    wigleStatus.classList.remove('active');
+                    logToConsole('status-log', 'WigleToTak: STOPPED', 'warning');
+                }
+
+                if (data.gps_running === true) {
+                    gpsStatus.classList.add('active');
+                    logToConsole('status-log', 'GPS: RUNNING', 'success');
+                } else {
+                    gpsStatus.classList.remove('active');
+                    logToConsole('status-log', 'GPS: STOPPED', 'warning');
+                }
+                
+            } catch (error) {
+                logToConsole('status-log', `Error fetching status: ${error.message}`, 'error');
+            }
+        }
+
+        async function startKismet() {
+            logToConsole('button-log', 'Starting Kismet services...', 'info');
+            showNotification('Starting Kismet services...', 'info');
+            
+            try {
+                const response = await fetch('/run-script', { method: 'POST' });
+                const data = await response.json();
+                
+                logToConsole('button-log', `Start response: ${JSON.stringify(data)}`, 'info');
+                
+                if (data.status === 'success') {
+                    showNotification('Kismet services started successfully!', 'success');
+                    // Update status after a delay
+                    setTimeout(updateServiceStatus, 2000);
+                } else {
+                    showNotification(`Error: ${data.message || 'Failed to start Kismet'}`, 'error');
+                }
+            } catch (error) {
+                logToConsole('button-log', `Error starting Kismet: ${error.message}`, 'error');
+                showNotification('Failed to start Kismet services. Please try again.', 'error');
+            }
+        }
+
+        async function stopKismet() {
+            logToConsole('button-log', 'Stopping Kismet services...', 'info');
+            showNotification('Stopping Kismet services...', 'info');
+            
+            try {
+                const response = await fetch('/stop-script', { method: 'POST' });
+                const data = await response.json();
+                
+                logToConsole('button-log', `Stop response: ${JSON.stringify(data)}`, 'info');
+                
+                if (data.status === 'success') {
+                    showNotification('Kismet services stopped successfully!', 'success');
+                    updateServiceStatus();
+                } else {
+                    showNotification(`Error: ${data.message || 'Failed to stop Kismet'}`, 'error');
+                }
+            } catch (error) {
+                logToConsole('button-log', `Error stopping Kismet: ${error.message}`, 'error');
+                showNotification('Failed to stop Kismet services. Please try again.', 'error');
+            }
+        }
+
+        function addLoadProfile() {
+            logToConsole('button-log', 'Add Load Profile button clicked', 'info');
+            showNotification('Add Load Profile functionality not yet implemented', 'info');
+        }
+
+        function hackRFSweep() {
+            logToConsole('button-log', 'HackRF Sweep button clicked', 'info');
+            showNotification('HackRF Sweep functionality not yet implemented', 'info');
+        }
+
+        async function fetchSystemInfo() {
+            logToConsole('system-log', 'Fetching system information...', 'info');
+            
+            try {
+                const response = await fetch('/info');
+                const data = await response.json();
+                
+                logToConsole('system-log', `System info: ${JSON.stringify(data, null, 2)}`, 'success');
+                
+            } catch (error) {
+                logToConsole('system-log', `Error fetching system info: ${error.message}`, 'error');
+            }
+        }
+
+        async function fetchKismetData() {
+            logToConsole('system-log', 'Fetching Kismet data...', 'info');
+            
+            try {
+                const response = await fetch('/kismet-data');
+                const data = await response.json();
+                
+                logToConsole('system-log', `Kismet data: ${JSON.stringify(data, null, 2)}`, 'success');
+                
+            } catch (error) {
+                logToConsole('system-log', `Error fetching Kismet data: ${error.message}`, 'error');
+            }
+        }
+
+        async function testHealthEndpoint() {
+            logToConsole('system-log', 'Testing health endpoint...', 'info');
+            
+            try {
+                const response = await fetch('/health');
+                const data = await response.json();
+                
+                logToConsole('system-log', `Health check: ${JSON.stringify(data, null, 2)}`, 'success');
+                
+            } catch (error) {
+                logToConsole('system-log', `Error testing health endpoint: ${error.message}`, 'error');
+            }
+        }
+
+        function testExternalLinks() {
+            logToConsole('navigation-log', 'Testing external link configurations...', 'info');
+            
+            // Test Kismet Web UI link
+            logToConsole('navigation-log', 'Kismet Web UI: http://localhost:2501', 'info');
+            
+            // Test WigleToTak link  
+            logToConsole('navigation-log', 'WigleToTak: http://localhost:8000', 'info');
+            
+            logToConsole('navigation-log', 'Note: These are external services and may not be accessible from this test page', 'warning');
+        }
+
+        function testMinimizeFunction() {
+            logToConsole('navigation-log', 'Testing minimize function (simulated)...', 'info');
+            
+            // Simulate the minimize function from the main interface
+            const testDiv = document.createElement('div');
+            testDiv.id = 'test-grid-item';
+            testDiv.className = 'grid-item';
+            
+            try {
+                // Test toggle minimize
+                testDiv.classList.toggle('minimized');
+                const isMinimized = testDiv.classList.contains('minimized');
+                
+                logToConsole('navigation-log', `Minimize toggle test: ${isMinimized ? 'minimized' : 'expanded'}`, 'success');
+                
+            } catch (error) {
+                logToConsole('navigation-log', `Error testing minimize function: ${error.message}`, 'error');
+            }
+        }
+
+        // Auto-update status on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            logToConsole('system-log', 'Page loaded, initializing tests...', 'info');
+            updateServiceStatus();
+            
+            // Test periodic updates (like the real interface)
+            setInterval(updateServiceStatus, 10000); // Update every 10 seconds
+            
+            logToConsole('system-log', 'Automatic status updates enabled (every 10 seconds)', 'success');
+        });
+
+        // Test console logging
+        console.log('🧪 JavaScript Console Test Page Loaded');
+        console.log('📊 Available test functions:');
+        console.log('  - updateServiceStatus(): Check service status');
+        console.log('  - startKismet(): Start Kismet services');
+        console.log('  - stopKismet(): Stop Kismet services');
+        console.log('  - fetchSystemInfo(): Get system information');
+        console.log('  - fetchKismetData(): Get Kismet data feed');
+        console.log('❗ Check this console for any JavaScript errors');
+    </script>
+</body>
+</html>

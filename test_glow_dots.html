@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Glow Dot Status Test</title>
+    <style>
+        body {
+            background-color: #1a1a1a;
+            color: #00ff00;
+            font-family: 'Courier New', monospace;
+            padding: 20px;
+        }
+        .status-container {
+            display: flex;
+            align-items: center;
+            margin: 20px 0;
+            gap: 20px;
+        }
+        .status-dot {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            transition: all 0.3s ease;
+        }
+        .label {
+            font-size: 18px;
+        }
+        button {
+            background-color: #333;
+            color: #00ff00;
+            border: 1px solid #00ff00;
+            padding: 10px 20px;
+            cursor: pointer;
+            font-family: inherit;
+            margin: 10px;
+        }
+        button:hover {
+            background-color: #444;
+        }
+        .info {
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #222;
+            border: 1px solid #444;
+            border-radius: 5px;
+        }
+        .red { background: #ff4444; }
+        .yellow { background: #ffaa00; box-shadow: 0 0 10px #ffaa00; }
+        .green { background: #44ff44; box-shadow: 0 0 10px #44ff44; }
+    </style>
+</head>
+<body>
+    <h1>Glow Dot Status Test</h1>
+    
+    <div class="status-container">
+        <div id="kismet-dot" class="status-dot red"></div>
+        <span class="label">Kismet Status</span>
+    </div>
+    
+    <div class="status-container">
+        <div id="wigle-dot" class="status-dot red"></div>
+        <span class="label">WigleToTAK Status</span>
+    </div>
+    
+    <div>
+        <button onclick="simulateStartup()">Simulate Startup</button>
+        <button onclick="checkActualStatus()">Check Actual Status</button>
+        <button onclick="resetDots()">Reset to Red</button>
+    </div>
+    
+    <div class="info">
+        <h3>Status Timeline:</h3>
+        <div id="timeline"></div>
+    </div>
+    
+    <script>
+        let timeline = document.getElementById('timeline');
+        
+        function log(message) {
+            const time = new Date().toLocaleTimeString();
+            timeline.innerHTML += `${time}: ${message}<br>`;
+        }
+        
+        function setDotStatus(dotId, status) {
+            const dot = document.getElementById(dotId);
+            dot.className = 'status-dot ' + status;
+            log(`${dotId} set to ${status}`);
+        }
+        
+        function simulateStartup() {
+            log('=== Starting simulation ===');
+            
+            // Immediately set to yellow
+            setDotStatus('kismet-dot', 'yellow');
+            setDotStatus('wigle-dot', 'yellow');
+            
+            // Simulate GPS startup (10 seconds)
+            setTimeout(() => {
+                log('GPS acquired fix');
+            }, 10000);
+            
+            // Simulate Kismet startup (30 seconds)
+            setTimeout(() => {
+                log('Kismet started');
+                setDotStatus('kismet-dot', 'green');
+            }, 30000);
+            
+            // Simulate WigleToTAK startup (53 seconds)
+            setTimeout(() => {
+                log('WigleToTAK started');
+                setDotStatus('wigle-dot', 'green');
+                log('=== All services running ===');
+            }, 53000);
+        }
+        
+        async function checkActualStatus() {
+            try {
+                const response = await fetch('/script-status');
+                const data = await response.json();
+                
+                log('=== Actual Status Check ===');
+                log(`Kismet: ${data.kismet_running ? 'Running' : 'Not Running'}`);
+                log(`WigleToTAK: ${data.wigle_running ? 'Running' : 'Not Running'}`);
+                
+                // Update dots based on actual status
+                setDotStatus('kismet-dot', data.kismet_running ? 'green' : 'red');
+                setDotStatus('wigle-dot', data.wigle_running ? 'green' : 'red');
+            } catch (error) {
+                log(`Error checking status: ${error.message}`);
+            }
+        }
+        
+        function resetDots() {
+            setDotStatus('kismet-dot', 'red');
+            setDotStatus('wigle-dot', 'red');
+            log('=== Reset to not running ===');
+        }
+        
+        // Initial log
+        log('Page loaded - dots should be red');
+    </script>
+</body>
+</html>

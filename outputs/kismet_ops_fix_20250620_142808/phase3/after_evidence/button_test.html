@@ -1,0 +1,45 @@
+<\!DOCTYPE html>
+<html>
+<head>
+    <title>Button Test</title>
+</head>
+<body>
+    <h1>Testing Kismet Operations Center Buttons</h1>
+    <button id="testStart">Test Start</button>
+    <button id="testStop">Test Stop</button>
+    <div id="result"></div>
+    
+    <script>
+        const result = document.getElementById('result');
+        
+        document.getElementById('testStart').addEventListener('click', async () => {
+            try {
+                const response = await fetch('http://localhost:8002/run-script', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ script: 'kismet' })
+                });
+                const data = await response.json();
+                result.innerHTML += '<p>Start Result: ' + JSON.stringify(data) + '</p>';
+            } catch (e) {
+                result.innerHTML += '<p>Start Error: ' + e.message + '</p>';
+            }
+        });
+        
+        document.getElementById('testStop').addEventListener('click', async () => {
+            try {
+                const response = await fetch('http://localhost:8002/stop-script', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({})
+                });
+                const data = await response.json();
+                result.innerHTML += '<p>Stop Result: ' + JSON.stringify(data) + '</p>';
+            } catch (e) {
+                result.innerHTML += '<p>Stop Error: ' + e.message + '</p>';
+            }
+        });
+    </script>
+</body>
+</html>
+EOF < /dev/null

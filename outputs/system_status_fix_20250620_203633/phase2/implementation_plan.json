@@ -1,0 +1,427 @@
+{
+  "implementation_metadata": {
+    "timestamp": "2025-06-20T20:48:00Z",
+    "agent": "Agent G - Root Cause Analyst",
+    "objective": "Surgical implementation plan for system status box fix",
+    "total_fixes": 7,
+    "phases": 3,
+    "estimated_time": "3.5 hours total (5 min quick fix)"
+  },
+
+  "root_cause_analysis": {
+    "primary_root_cause": "Architectural disconnect between frontend expectations and backend implementation",
+    "secondary_causes": [
+      "Incomplete implementation left in TODO state",
+      "Frontend-backend API contract mismatch",
+      "Missing GPSD integration despite available infrastructure"
+    ],
+    "cascade_effect": "GPS data available → Backend ignores it → Frontend calls wrong endpoint → No data displayed",
+    "fix_strategy": "Bottom-up approach: Fix display first (immediate), then connect real data (proper fix)"
+  },
+
+  "phase1_immediate_fixes": {
+    "name": "Quick Display Fix (5 minutes)",
+    "objective": "Get hardcoded data displaying immediately",
+    "fixes": [
+      {
+        "id": "FIX-001",
+        "title": "Correct Frontend API Endpoint",
+        "priority": 1,
+        "risk": "NONE",
+        "file": "/home/pi/projects/stinkster_malone/stinkster/src/nodejs/kismet-operations/public/js/kismet-operations.js",
+        "line": 72,
+        "current_code": "const response = await fetch('/api/status', {",
+        "new_code": "const response = await fetch('/info', {",
+        "verification": {
+          "command": "curl http://localhost:3000/info | jq '.gps'",
+          "expected": "Should return GPS object with lat, lon fields"
+        },
+        "rationale": "Frontend is calling spectrum analyzer endpoint instead of GPS endpoint"
+      },
+      {
+        "id": "FIX-002",
+        "title": "Add MGRS DOM Update",
+        "priority": 2,
+        "risk": "NONE",
+        "file": "/home/pi/projects/stinkster_malone/stinkster/src/nodejs/kismet-operations/public/js/kismet-operations.js",
+        "after_line": 86,
+        "add_code": "                document.getElementById('gps-mgrs').textContent = gps.mgrs ?? '--';",
+        "context": "Add after the gps-time update line",
+        "verification": {
+          "browser_check": "MGRS field should show '--' instead of 'Loading...'",
+          "console_test": "document.getElementById('gps-mgrs').textContent"
+        },
+        "rationale": "MGRS update line is completely missing from the JavaScript"
+      }
+    ],
+    "test_commands": [
+      "# Test backend endpoint",
+      "curl http://localhost:3000/info | jq",
+      "# Restart service",
+      "sudo systemctl restart kismet-operations-center",
+      "# Check browser at http://localhost:3000",
+      "# GPS should show: 37.7749, -122.4194 (hardcoded San Francisco)"
+    ],
+    "expected_result": "System status box displays hardcoded GPS data and '--' for MGRS"
+  },
+
+  "phase2_gpsd_integration": {
+    "name": "Real GPS Data Integration (2 hours)",
+    "objective": "Connect to GPSD for live GPS data",
+    "prerequisites": [
+      {
+        "check": "Verify GPSD is running",
+        "command": "systemctl status gpsd && gpspipe -w -n 1",
+        "expected": "Active (running) and GPS NMEA sentences"
+      }
+    ],
+    "fixes": [
+      {
+        "id": "FIX-003",
+        "title": "Install GPSD Node.js Client",
+        "priority": 3,
+        "risk": "LOW",
+        "commands": [
+          "cd /home/pi/projects/stinkster_malone/stinkster/src/nodejs/kismet-operations",
+          "npm install node-gpsd --save"
+        ],
+        "verification": "Check package.json includes node-gpsd dependency"
+      },
+      {
+        "id": "FIX-004",
+        "title": "Implement GPSD Client in Backend",
+        "priority": 4,
+        "risk": "MEDIUM",
+        "file": "/home/pi/projects/stinkster_malone/stinkster/src/nodejs/kismet-operations/server.js",
+        "changes": [
+          {
+            "location": "After line 9 (imports section)",
+            "add": "const gpsd = require('node-gpsd');"
+          },
+          {
+            "location": "After line 34 (global variables)",
+            "add": [
+              "// GPSD client for real GPS data",
+              "let gpsData = {",
+              "  lat: null,",
+              "  lon: null,",
+              "  alt: null,",
+              "  time: null,",
+              "  satellites: 0,",
+              "  fix: false",
+              "};",
+              "",
+              "// Initialize GPSD listener",
+              "const gpsListener = new gpsd.Listener({",
+              "  port: 2947,",
+              "  hostname: 'localhost',",
+              "  parse: true",
+              "});",
+              "",
+              "gpsListener.on('TPV', (tpv) => {",
+              "  if (tpv.mode >= 2) {  // 2D or 3D fix",
+              "    gpsData.lat = tpv.lat;",
+              "    gpsData.lon = tpv.lon;",
+              "    gpsData.alt = tpv.alt || 0;",
+              "    gpsData.time = tpv.time;",
+              "    gpsData.fix = true;",
+              "  }",
+              "});",
+              "",
+              "gpsListener.on('SKY', (sky) => {",
+              "  gpsData.satellites = sky.satellites ? sky.satellites.filter(s => s.used).length : 0;",
+              "});",
+              "",
+              "gpsListener.on('error', (err) => {",
+              "  logger.error('GPSD connection error:', err);",
+              "  gpsData.fix = false;",
+              "});",
+              "",
+              "// Connect to GPSD",
+              "gpsListener.connect(() => {",
+              "  logger.info('Connected to GPSD');",
+              "  gpsListener.watch();",
+              "});"
+            ]
+          },
+          {
+            "location": "Replace /info endpoint handler (around line 640)",
+            "old_code": [
+              "app.get('/info', (req, res) => {",
+              "    const systemInfo = {",
+              "        // ... existing code ...",
+              "        gps: {",
+              "            status: 'connected',  // TODO: Get real GPS status",
+              "            lat: 37.7749,         // TODO: Get real GPS coordinates",
+              "            lon: -122.4194,",
+              "            alt: 0,",
+              "            time: new Date().toISOString()"
+            ],
+            "new_code": [
+              "app.get('/info', (req, res) => {",
+              "    const systemInfo = {",
+              "        // ... existing code ...",
+              "        gps: {",
+              "            status: gpsData.fix ? 'connected' : 'disconnected',",
+              "            lat: gpsData.lat || 0,",
+              "            lon: gpsData.lon || 0,",
+              "            alt: gpsData.alt || 0,",
+              "            time: gpsData.time || new Date().toISOString(),",
+              "            satellites: gpsData.satellites,",
+              "            fix: gpsData.fix"
+            ]
+          }
+        ],
+        "error_handling": [
+          "Add try-catch around GPSD operations",
+          "Fallback to null values if GPSD unavailable",
+          "Log connection errors but don't crash"
+        ],
+        "verification": {
+          "commands": [
+            "# Check GPSD connection in logs",
+            "sudo journalctl -u kismet-operations-center -f",
+            "# Test endpoint with real GPS",
+            "curl http://localhost:3000/info | jq '.gps'"
+          ],
+          "expected": "Real GPS coordinates from your location"
+        }
+      }
+    ],
+    "test_scenarios": [
+      {
+        "scenario": "GPS has fix",
+        "test": "gpspipe -w -n 1 | grep TPV",
+        "expected": "lat/lon values update in UI"
+      },
+      {
+        "scenario": "GPS loses fix",
+        "test": "Cover GPS antenna",
+        "expected": "Status changes to 'disconnected'"
+      },
+      {
+        "scenario": "GPSD service down",
+        "test": "sudo systemctl stop gpsd",
+        "expected": "Graceful degradation, no crash"
+      }
+    ]
+  },
+
+  "phase3_complete_feature": {
+    "name": "MGRS and Polish (1.5 hours)",
+    "objective": "Add MGRS conversion and real-time updates",
+    "fixes": [
+      {
+        "id": "FIX-005",
+        "title": "Add MGRS Calculation",
+        "priority": 5,
+        "risk": "LOW",
+        "option_a_backend": {
+          "description": "Calculate MGRS on backend (recommended)",
+          "install": "cd /home/pi/projects/stinkster_malone/stinkster/src/nodejs/kismet-operations && npm install mgrs --save",
+          "file": "server.js",
+          "changes": [
+            {
+              "location": "After gpsd import",
+              "add": "const mgrs = require('mgrs');"
+            },
+            {
+              "location": "In /info endpoint, after GPS object",
+              "add": [
+                "// Calculate MGRS if we have coordinates",
+                "if (gpsData.lat && gpsData.lon) {",
+                "    try {",
+                "        systemInfo.gps.mgrs = mgrs.forward([gpsData.lon, gpsData.lat]);",
+                "    } catch (err) {",
+                "        systemInfo.gps.mgrs = 'Invalid';",
+                "        logger.error('MGRS conversion error:', err);",
+                "    }",
+                "} else {",
+                "    systemInfo.gps.mgrs = '--';",
+                "}"
+              ]
+            }
+          ]
+        },
+        "option_b_frontend": {
+          "description": "Use existing latLonToMGRS function",
+          "file": "public/js/kismet-operations.js",
+          "changes": [
+            {
+              "location": "After line 86",
+              "add": [
+                "// Calculate and display MGRS",
+                "if (gps.lat && gps.lon) {",
+                "    const mgrsValue = latLonToMGRS(gps.lat, gps.lon);",
+                "    document.getElementById('gps-mgrs').textContent = mgrsValue || '--';",
+                "} else {",
+                "    document.getElementById('gps-mgrs').textContent = '--';",
+                "}"
+              ]
+            }
+          ]
+        },
+        "verification": "MGRS grid reference displays (e.g., '11SMS1234567890')"
+      },
+      {
+        "id": "FIX-006",
+        "title": "Implement WebSocket GPS Updates",
+        "priority": 6,
+        "risk": "MEDIUM",
+        "rationale": "Replace 5-second polling with real-time updates",
+        "file": "server.js",
+        "changes": [
+          {
+            "location": "In GPSD TPV handler",
+            "add": [
+              "// Broadcast GPS updates to all connected clients",
+              "if (io) {",
+              "    io.emit('gps-update', {",
+              "        lat: gpsData.lat,",
+              "        lon: gpsData.lon,",
+              "        alt: gpsData.alt,",
+              "        time: gpsData.time,",
+              "        satellites: gpsData.satellites,",
+              "        fix: gpsData.fix,",
+              "        mgrs: gpsData.lat && gpsData.lon ? mgrs.forward([gpsData.lon, gpsData.lat]) : '--'",
+              "    });",
+              "}"
+            ]
+          }
+        ],
+        "frontend_changes": {
+          "file": "public/js/kismet-operations.js",
+          "location": "In initializeWebSocket() function",
+          "add": [
+            "// Listen for real-time GPS updates",
+            "socket.on('gps-update', (gps) => {",
+            "    updateGPSDisplay(gps);",
+            "});"
+          ]
+        }
+      },
+      {
+        "id": "FIX-007",
+        "title": "Add Error Recovery",
+        "priority": 7,
+        "risk": "LOW",
+        "description": "Retry logic for transient failures",
+        "changes": [
+          {
+            "backend": "Auto-reconnect to GPSD on disconnect",
+            "frontend": "Exponential backoff for failed fetches",
+            "ui": "Show connection status indicator"
+          }
+        ]
+      }
+    ]
+  },
+
+  "testing_strategy": {
+    "unit_tests": [
+      "Test MGRS conversion with known coordinates",
+      "Test error handling for invalid GPS data",
+      "Test WebSocket message formatting"
+    ],
+    "integration_tests": [
+      "Full data flow: GPS device → GPSD → Backend → Frontend → Display",
+      "Service restart resilience",
+      "Network interruption handling"
+    ],
+    "manual_tests": [
+      {
+        "test": "Visual inspection",
+        "steps": [
+          "Open http://localhost:3000",
+          "Verify all fields populate",
+          "Check coordinates match gpspipe output"
+        ]
+      },
+      {
+        "test": "Movement test",
+        "steps": [
+          "Move GPS antenna",
+          "Verify coordinates update within 5 seconds",
+          "Check MGRS grid changes appropriately"
+        ]
+      }
+    ]
+  },
+
+  "rollback_procedures": {
+    "phase1_rollback": {
+      "risk": "NONE",
+      "procedure": "Git revert the 2 line changes"
+    },
+    "phase2_rollback": {
+      "risk": "LOW",
+      "procedure": [
+        "Comment out GPSD client code",
+        "Restore hardcoded values",
+        "npm uninstall node-gpsd"
+      ]
+    },
+    "emergency_rollback": {
+      "command": "cd /home/pi/projects/stinkster_malone/stinkster && git checkout -- src/nodejs/kismet-operations/",
+      "service": "sudo systemctl restart kismet-operations-center"
+    }
+  },
+
+  "success_criteria": {
+    "immediate": [
+      "System status box shows data instead of 'Loading...'",
+      "No console errors in browser",
+      "GPS coordinates visible (even if hardcoded)"
+    ],
+    "complete": [
+      "Real GPS coordinates from GPSD",
+      "MGRS grid reference displayed",
+      "Live updates as GPS moves",
+      "Graceful handling of GPS signal loss",
+      "IP address shows actual system IP"
+    ]
+  },
+
+  "implementation_commands": {
+    "quick_fix_script": [
+      "#!/bin/bash",
+      "# Quick fix for immediate display (Phase 1)",
+      "cd /home/pi/projects/stinkster_malone/stinkster",
+      "",
+      "# Fix 1: Change API endpoint",
+      "sed -i \"s|fetch('/api/status',|fetch('/info',|\" src/nodejs/kismet-operations/public/js/kismet-operations.js",
+      "",
+      "# Fix 2: Add MGRS update (line 87)",
+      "sed -i '/gps-time.*textContent/a\\                document.getElementById(\"gps-mgrs\").textContent = gps.mgrs ?? \"--\";' src/nodejs/kismet-operations/public/js/kismet-operations.js",
+      "",
+      "# Restart service",
+      "sudo systemctl restart kismet-operations-center",
+      "",
+      "echo 'Quick fixes applied. Check http://localhost:3000'"
+    ]
+  },
+
+  "post_implementation_monitoring": {
+    "logs_to_watch": [
+      "sudo journalctl -u kismet-operations-center -f",
+      "sudo journalctl -u gpsd -f"
+    ],
+    "metrics_to_track": [
+      "GPS update frequency",
+      "WebSocket connection stability",
+      "Memory usage of GPSD client"
+    ],
+    "alerts_to_configure": [
+      "GPS fix lost for > 5 minutes",
+      "GPSD connection failures",
+      "High latency in GPS updates"
+    ]
+  },
+
+  "conclusion": {
+    "summary": "The system status box failure stems from architectural disconnects rather than broken components. All infrastructure works correctly - the pieces just aren't connected. A 5-minute fix will restore display functionality, while a 3-hour implementation will provide full real-time GPS integration.",
+    "quick_win": "Two single-line changes will immediately show GPS data",
+    "long_term": "GPSD integration provides sustainable real-time GPS tracking",
+    "recommendation": "Implement Phase 1 immediately for user satisfaction, then proceed with Phase 2-3 for proper functionality"
+  }
+}

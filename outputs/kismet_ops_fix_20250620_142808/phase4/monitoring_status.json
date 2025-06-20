@@ -1,0 +1,16 @@
+{
+  "timestamp": "2025-06-20T12:53:32Z",
+  "services": {
+    "kismet-operations-center": false,
+    "gpsd": true
+  },
+  "processes": {
+    "orchestration": true,
+    "kismet": true,
+    "wigletotak": true
+  },
+  "endpoints": {
+    "operations_center": false,
+    "kismet_proxy": false
+  }
+}

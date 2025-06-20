@@ -1,0 +1,254 @@
+{
+  "project": "Kismet Operations Center Fix",
+  "timestamp": "2025-06-20T08:00:00Z",
+  "consolidated_findings": {
+    "critical_issues": [
+      {
+        "id": "API_ENDPOINT_MISMATCH",
+        "severity": "CRITICAL",
+        "description": "Frontend calls wrong API endpoints",
+        "details": {
+          "current": {
+            "start": "/api/start-script",
+            "stop": "/api/stop-script",
+            "body_param": "scriptName"
+          },
+          "expected": {
+            "start": "/run-script",
+            "stop": "/stop-script",
+            "body_param": "script"
+          }
+        },
+        "affected_files": [
+          {
+            "path": "/src/nodejs/kismet-operations/views/hi.html",
+            "lines": [1673, 1678, 1812, 1817]
+          }
+        ],
+        "fix_time": "5 minutes",
+        "impact": "Complete button functionality failure"
+      },
+      {
+        "id": "SERVICE_STARTUP_CHAIN",
+        "severity": "HIGH",
+        "description": "60+ second sequential startup with blocking GPS wait",
+        "details": {
+          "sequence": [
+            {"service": "GPS Detection", "time": "3-5s", "blocking": true},
+            {"service": "GPSD", "time": "5s", "blocking": true},
+            {"service": "GPS Fix", "time": "30s", "blocking": true},
+            {"service": "Kismet Setup", "time": "10s", "blocking": true},
+            {"service": "Kismet Start", "time": "15s", "blocking": true},
+            {"service": "WigleToTAK", "time": "5s", "blocking": true}
+          ],
+          "total_time": "68-70 seconds typical"
+        },
+        "bottlenecks": [
+          "GPS fix wait blocks all services",
+          "No parallel initialization",
+          "No service health checks"
+        ]
+      },
+      {
+        "id": "IFRAME_INTEGRATION",
+        "severity": "MEDIUM",
+        "description": "Kismet iframe blocked by CORS and authentication",
+        "details": {
+          "issues": [
+            "Direct iframe to localhost:2501 fails remotely",
+            "Basic auth credentials needed",
+            "CORS headers missing"
+          ],
+          "solution": "Implement proxy middleware"
+        }
+      }
+    ],
+    "service_dependencies": {
+      "gpsd": {
+        "port": 2947,
+        "depends_on": ["GPS device at /dev/ttyUSB0"],
+        "required_by": ["kismet"],
+        "startup_time": "5s",
+        "health_check": "gpspipe -w -n 1"
+      },
+      "kismet": {
+        "port": 2501,
+        "depends_on": ["gpsd", "wlan2 in monitor mode"],
+        "required_by": ["wigletotak", "operations-center"],
+        "startup_time": "15s",
+        "health_check": "curl http://localhost:2501/system/status.json"
+      },
+      "wigletotak": {
+        "port": 6969,
+        "flask_port": 8000,
+        "depends_on": ["kismet"],
+        "required_by": [],
+        "startup_time": "5s",
+        "health_check": "lsof -i:6969"
+      },
+      "operations_center": {
+        "port": 8002,
+        "depends_on": ["all services for full functionality"],
+        "required_by": [],
+        "startup_time": "immediate",
+        "health_check": "curl http://localhost:8002/health"
+      }
+    }
+  },
+  "prioritized_fix_list": [
+    {
+      "priority": 1,
+      "task": "Fix API endpoint URLs",
+      "effort": "5 minutes",
+      "impact": "Restores button functionality",
+      "changes": [
+        {
+          "file": "hi.html",
+          "line": 1673,
+          "change": "'/api/start-script' → '/run-script'"
+        },
+        {
+          "file": "hi.html",
+          "line": 1678,
+          "change": "scriptName: 'gps_kismet_wigle.sh' → script: 'kismet'"
+        },
+        {
+          "file": "hi.html",
+          "line": 1812,
+          "change": "'/api/stop-script' → '/stop-script'"
+        },
+        {
+          "file": "hi.html",
+          "line": 1817,
+          "change": "script: 'gps_kismet_wigle' → script: 'kismet'"
+        }
+      ]
+    },
+    {
+      "priority": 2,
+      "task": "Add Kismet proxy for iframe",
+      "effort": "20 minutes",
+      "impact": "Enables Kismet UI embedding",
+      "implementation": "Add http-proxy-middleware for /kismet route"
+    },
+    {
+      "priority": 3,
+      "task": "Implement service readiness checks",
+      "effort": "30 minutes",
+      "impact": "Prevents premature API calls",
+      "implementation": "Add health check loops before reporting ready"
+    },
+    {
+      "priority": 4,
+      "task": "Make GPS non-blocking",
+      "effort": "45 minutes",
+      "impact": "Reduces startup time when GPS not available",
+      "implementation": "Background GPS fix check with status updates"
+    },
+    {
+      "priority": 5,
+      "task": "Refactor service management",
+      "effort": "2 hours",
+      "impact": "Enables granular control and partial restarts",
+      "implementation": "Individual service endpoints with dependency tracking"
+    }
+  ],
+  "implementation_sequence": {
+    "phase1_immediate": {
+      "duration": "30 minutes",
+      "tasks": [
+        "Fix API endpoints in hi.html",
+        "Test button functionality",
+        "Verify service start/stop"
+      ],
+      "deliverable": "Working start/stop buttons"
+    },
+    "phase2_integration": {
+      "duration": "1 hour",
+      "tasks": [
+        "Install http-proxy-middleware",
+        "Add Kismet proxy route",
+        "Fix iframe URL to use proxy",
+        "Test iframe loading"
+      ],
+      "deliverable": "Embedded Kismet UI"
+    },
+    "phase3_reliability": {
+      "duration": "2 hours",
+      "tasks": [
+        "Add service health checks",
+        "Implement readiness probes",
+        "Non-blocking GPS mode",
+        "Enhanced error handling"
+      ],
+      "deliverable": "Robust service management"
+    }
+  },
+  "risk_assessment": {
+    "high_risk": [
+      {
+        "risk": "API changes break existing UI",
+        "likelihood": "Certain (already broken)",
+        "mitigation": "Fix immediately with proper testing"
+      }
+    ],
+    "medium_risk": [
+      {
+        "risk": "Service startup timeouts",
+        "likelihood": "High",
+        "mitigation": "Implement configurable timeouts"
+      },
+      {
+        "risk": "GPS blocks all services",
+        "likelihood": "Medium",
+        "mitigation": "Non-blocking GPS mode"
+      }
+    ],
+    "low_risk": [
+      {
+        "risk": "Network connectivity issues",
+        "likelihood": "Low",
+        "mitigation": "Retry mechanisms and fallbacks"
+      }
+    ]
+  },
+  "testing_strategy": {
+    "unit_tests": [
+      "API endpoint responses",
+      "Service manager functions",
+      "Health check accuracy"
+    ],
+    "integration_tests": [
+      "Full service chain startup",
+      "Button to service interaction",
+      "Iframe proxy functionality"
+    ],
+    "validation_commands": [
+      "curl -X POST http://localhost:8002/run-script -H 'Content-Type: application/json' -d '{\"script\":\"kismet\"}'",
+      "curl -X POST http://localhost:8002/stop-script -H 'Content-Type: application/json' -d '{\"script\":\"kismet\"}'",
+      "curl http://localhost:8002/script-status"
+    ]
+  },
+  "success_criteria": {
+    "immediate": [
+      "Start button launches all services",
+      "Stop button terminates all services",
+      "Status correctly reflects service state"
+    ],
+    "short_term": [
+      "Kismet iframe loads in UI",
+      "Services start within 70 seconds",
+      "Graceful handling of GPS timeout"
+    ],
+    "long_term": [
+      "Individual service control",
+      "Parallel service startup where possible",
+      "Comprehensive error recovery"
+    ]
+  },
+  "estimated_completion": {
+    "minimal_fix": "30 minutes",
+    "full_integration": "2 hours",
+    "complete_refactor": "4 hours"
+  }
+}

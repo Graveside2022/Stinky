@@ -1,0 +1,397 @@
+{
+  "migration_inventory": {
+    "version": "1.0.0",
+    "created_date": "2025-06-15T23:00:00Z",
+    "services": {
+      "spectrum_analyzer": {
+        "current_implementation": "Flask + Flask-SocketIO",
+        "target_implementation": "Express.js + Socket.IO",
+        "current_port": 8092,
+        "target_port": 8092,
+        "base_path": "/src/hackrf/spectrum_analyzer.py",
+        "endpoints": {
+          "GET /": {
+            "description": "Serve main spectrum analyzer HTML interface",
+            "request_params": "None",
+            "response_format": "text/html",
+            "response_example": "spectrum.html template",
+            "authentication": false,
+            "migration_priority": "high",
+            "compatibility_test": "verify HTML rendering and asset loading"
+          },
+          "GET /api/status": {
+            "description": "Get system status and connection information",
+            "request_params": "None",
+            "response_format": "application/json",
+            "response_example": {
+              "openwebrx_connected": true,
+              "real_data": true,
+              "fft_buffer_size": 150,
+              "config": {
+                "fft_size": 1024,
+                "center_freq": 145000000,
+                "samp_rate": 2400000
+              },
+              "mode": "REAL DATA MODE"
+            },
+            "authentication": false,
+            "migration_priority": "critical",
+            "compatibility_test": "verify exact JSON structure and data types"
+          },
+          "GET /api/scan/<profile_id>": {
+            "description": "Scan for signals using specified profile",
+            "request_params": {
+              "profile_id": "string (vhf|uhf|ism)"
+            },
+            "response_format": "application/json",
+            "response_example": {
+              "profile": {
+                "name": "VHF Amateur (144-148 MHz)",
+                "ranges": [[144.0, 148.0]],
+                "step": 25
+              },
+              "signals": [
+                {
+                  "id": "real-1671234567890-123",
+                  "frequency": "145.500",
+                  "strength": "-65.2",
+                  "bandwidth": "12.5",
+                  "confidence": 0.85,
+                  "type": "unknown"
+                }
+              ],
+              "scan_time": 1671234567890,
+              "real_data": true
+            },
+            "authentication": false,
+            "migration_priority": "critical",
+            "compatibility_test": "verify signal detection algorithm accuracy"
+          },
+          "GET /api/profiles": {
+            "description": "Get available scanning profiles",
+            "request_params": "None",
+            "response_format": "application/json",
+            "response_example": {
+              "vhf": {
+                "name": "VHF Amateur (144-148 MHz)",
+                "ranges": [[144.0, 148.0]],
+                "step": 25,
+                "description": "VHF Amateur Radio Band"
+              },
+              "uhf": {
+                "name": "UHF Amateur (420-450 MHz)",
+                "ranges": [[420.0, 450.0]],
+                "step": 25,
+                "description": "UHF Amateur Radio Band"
+              },
+              "ism": {
+                "name": "ISM Band (2.4 GHz)",
+                "ranges": [[2400.0, 2485.0]],
+                "step": 1000,
+                "description": "Industrial, Scientific, Medical Band"
+              }
+            },
+            "authentication": false,
+            "migration_priority": "high",
+            "compatibility_test": "verify profile data structure and frequency ranges"
+          }
+        },
+        "websocket_events": {
+          "connect": {
+            "direction": "client_to_server",
+            "description": "Initial WebSocket connection",
+            "data_format": "None",
+            "response": {
+              "status": {
+                "connected": true,
+                "openwebrx_status": true
+              }
+            },
+            "migration_priority": "critical"
+          },
+          "fft_data": {
+            "direction": "server_to_client",
+            "description": "Real-time FFT data stream",
+            "data_format": {
+              "data": "array of float",
+              "center_freq": "number",
+              "samp_rate": "number",
+              "timestamp": "number"
+            },
+            "frequency": "~10Hz",
+            "migration_priority": "critical"
+          },
+          "status": {
+            "direction": "server_to_client",
+            "description": "Connection status updates",
+            "data_format": {
+              "connected": "boolean",
+              "openwebrx_status": "boolean"
+            },
+            "migration_priority": "high"
+          }
+        }
+      },
+      "wigle_to_tak": {
+        "current_implementation": "Flask",
+        "target_implementation": "Express.js",
+        "current_port": 8000,
+        "target_port": 8000,
+        "base_path": "/src/wigletotak/WigleToTAK/TheStinkToTAK/",
+        "endpoints": {
+          "GET /": {
+            "description": "Serve main WigleToTAK HTML interface",
+            "request_params": "None",
+            "response_format": "text/html",
+            "response_example": "WigleToTAK.html template",
+            "authentication": false,
+            "migration_priority": "high",
+            "compatibility_test": "verify form functionality and UI interactions"
+          },
+          "POST /update_tak_settings": {
+            "description": "Update TAK server configuration",
+            "request_params": {
+              "tak_server_ip": "string",
+              "tak_server_port": "string"
+            },
+            "response_format": "application/json",
+            "response_example": {
+              "message": "TAK settings updated successfully"
+            },
+            "authentication": false,
+            "migration_priority": "critical",
+            "compatibility_test": "verify TAK server connectivity"
+          },
+          "POST /update_multicast_state": {
+            "description": "Toggle multicast broadcasting",
+            "request_params": {
+              "takMulticast": "boolean"
+            },
+            "response_format": "application/json",
+            "response_example": {
+              "message": "Multicast state updated"
+            },
+            "authentication": false,
+            "migration_priority": "high",
+            "compatibility_test": "verify UDP multicast functionality"
+          },
+          "POST /update_analysis_mode": {
+            "description": "Set analysis mode (realtime/postcollection)",
+            "request_params": {
+              "mode": "string (realtime|postcollection)"
+            },
+            "response_format": "application/json",
+            "response_example": {
+              "message": "Analysis mode updated to realtime"
+            },
+            "authentication": false,
+            "migration_priority": "critical",
+            "compatibility_test": "verify file monitoring behavior changes"
+          },
+          "GET /list_wigle_files": {
+            "description": "List available Wigle CSV files",
+            "request_params": {
+              "directory": "string (query parameter)"
+            },
+            "response_format": "application/json",
+            "response_example": {
+              "files": [
+                "WigleWifi_20241215_001.wiglecsv",
+                "WigleWifi_20241215_002.wiglecsv"
+              ]
+            },
+            "authentication": false,
+            "migration_priority": "high",
+            "compatibility_test": "verify file system access and filtering"
+          },
+          "POST /start_broadcast": {
+            "description": "Start broadcasting CSV data to TAK",
+            "request_params": {
+              "directory": "string",
+              "filename": "string"
+            },
+            "response_format": "application/json",
+            "response_example": {
+              "message": "Broadcasting started for WigleWifi_20241215_001.wiglecsv"
+            },
+            "authentication": false,
+            "migration_priority": "critical",
+            "compatibility_test": "verify CSV parsing and TAK message generation"
+          },
+          "POST /stop_broadcast": {
+            "description": "Stop broadcasting",
+            "request_params": "{}",
+            "response_format": "application/json",
+            "response_example": {
+              "message": "Broadcasting stopped"
+            },
+            "authentication": false,
+            "migration_priority": "critical",
+            "compatibility_test": "verify graceful shutdown of broadcasting"
+          },
+          "POST /add_to_whitelist": {
+            "description": "Add SSID or MAC to whitelist",
+            "request_params": {
+              "ssid": "string (optional)",
+              "mac": "string (optional)"
+            },
+            "response_format": "application/json",
+            "response_example": {
+              "message": "Added 'TestSSID' to whitelist"
+            },
+            "authentication": false,
+            "migration_priority": "high",
+            "compatibility_test": "verify filtering logic implementation"
+          },
+          "POST /remove_from_whitelist": {
+            "description": "Remove SSID or MAC from whitelist",
+            "request_params": {
+              "ssid": "string (optional)",
+              "mac": "string (optional)"
+            },
+            "response_format": "application/json",
+            "response_example": {
+              "message": "Removed 'TestSSID' from whitelist"
+            },
+            "authentication": false,
+            "migration_priority": "high",
+            "compatibility_test": "verify filtering logic implementation"
+          },
+          "POST /add_to_blacklist": {
+            "description": "Add SSID or MAC to blacklist with color",
+            "request_params": {
+              "ssid": "string (optional)",
+              "mac": "string (optional)",
+              "argb_value": "string"
+            },
+            "response_format": "application/json",
+            "response_example": {
+              "message": "Added 'EvilSSID' to blacklist with color -65536"
+            },
+            "authentication": false,
+            "migration_priority": "high",
+            "compatibility_test": "verify TAK color assignment functionality"
+          },
+          "POST /remove_from_blacklist": {
+            "description": "Remove SSID or MAC from blacklist",
+            "request_params": {
+              "ssid": "string (optional)",
+              "mac": "string (optional)"
+            },
+            "response_format": "application/json",
+            "response_example": {
+              "message": "Removed 'EvilSSID' from blacklist"
+            },
+            "authentication": false,
+            "migration_priority": "high",
+            "compatibility_test": "verify blacklist management"
+          },
+          "POST /update_antenna_sensitivity": {
+            "description": "Set antenna sensitivity type and custom factor",
+            "request_params": {
+              "antenna_sensitivity": "string (standard|alfa_card|high_gain|rpi_internal|custom)",
+              "custom_factor": "number (optional)"
+            },
+            "response_format": "application/json",
+            "response_example": {
+              "message": "Antenna sensitivity updated to 'high_gain'"
+            },
+            "authentication": false,
+            "migration_priority": "medium",
+            "compatibility_test": "verify RSSI calculation adjustments"
+          },
+          "GET /get_antenna_settings": {
+            "description": "Get current antenna configuration",
+            "request_params": "None",
+            "response_format": "application/json",
+            "response_example": {
+              "current_sensitivity": "standard",
+              "available_types": ["standard", "alfa_card", "high_gain", "rpi_internal", "custom"],
+              "custom_factor": 1.0
+            },
+            "authentication": false,
+            "migration_priority": "medium",
+            "compatibility_test": "verify configuration state management"
+          }
+        }
+      }
+    },
+    "external_integrations": {
+      "openwebrx": {
+        "connection_type": "WebSocket",
+        "url": "ws://localhost:8073/ws/",
+        "protocol": "Custom binary + JSON",
+        "data_flow": "OpenWebRX → Spectrum Analyzer",
+        "migration_impact": "Must maintain WebSocket client compatibility",
+        "test_requirements": [
+          "WebSocket connection establishment",
+          "Binary FFT data parsing",
+          "Real-time data streaming",
+          "Connection error handling"
+        ]
+      },
+      "tak_server": {
+        "connection_type": "UDP",
+        "protocol": "CoT XML over UDP multicast/unicast",
+        "default_multicast": "239.2.3.1:6969",
+        "data_flow": "WigleToTAK → TAK Server/Clients",
+        "migration_impact": "Must maintain exact CoT XML format",
+        "test_requirements": [
+          "UDP multicast broadcasting",
+          "CoT XML generation accuracy",
+          "TAK client compatibility",
+          "Network interface configuration"
+        ]
+      },
+      "kismet": {
+        "connection_type": "File-based",
+        "file_format": "Wigle CSV",
+        "file_location": "/home/pi/kismet_ops/",
+        "data_flow": "Kismet → CSV files → WigleToTAK",
+        "migration_impact": "Must maintain CSV parsing compatibility",
+        "test_requirements": [
+          "CSV file format parsing",
+          "Real-time file monitoring",
+          "Large file handling",
+          "Malformed data handling"
+        ]
+      },
+      "gpsd": {
+        "connection_type": "TCP",
+        "port": 2947,
+        "protocol": "GPSD JSON protocol",
+        "data_flow": "MAVLink → GPSD → Location services",
+        "migration_impact": "Not directly affected by web service migration",
+        "test_requirements": [
+          "Location data integration test",
+          "GPS coordinate accuracy verification"
+        ]
+      }
+    },
+    "compatibility_matrix": {
+      "api_endpoints": {
+        "total_endpoints": 15,
+        "critical_priority": 8,
+        "high_priority": 5,
+        "medium_priority": 2
+      },
+      "websocket_events": {
+        "total_events": 3,
+        "critical_priority": 2,
+        "high_priority": 1
+      },
+      "external_integrations": {
+        "total_systems": 4,
+        "high_impact": 2,
+        "medium_impact": 1,
+        "low_impact": 1
+      }
+    },
+    "test_coverage_requirements": {
+      "unit_tests": ">=80% code coverage",
+      "integration_tests": "100% API endpoint coverage",
+      "performance_tests": "All critical paths under load",
+      "compatibility_tests": "100% endpoint format validation"
+    }
+  }
+}

@@ -1,0 +1,30 @@
+{
+  "name": "api-compatibility-tests",
+  "version": "1.0.0",
+  "description": "API Compatibility Test Suite for Flask to Node.js Migration",
+  "main": "run-compatibility-tests.js",
+  "scripts": {
+    "test": "node run-compatibility-tests.js",
+    "test:api": "node run-compatibility-tests.js --api-only",
+    "test:validation": "node run-compatibility-tests.js --validation-only", 
+    "test:performance": "node run-compatibility-tests.js --performance-only",
+    "install": "npm install --no-package-lock"
+  },
+  "dependencies": {
+    "axios": "^1.6.0",
+    "chalk": "^4.1.2",
+    "commander": "^11.0.0",
+    "deep-equal": "^2.2.0"
+  },
+  "devDependencies": {},
+  "keywords": [
+    "api",
+    "compatibility", 
+    "testing",
+    "flask",
+    "nodejs",
+    "migration"
+  ],
+  "author": "Christian - Agent 5",
+  "license": "MIT"
+}

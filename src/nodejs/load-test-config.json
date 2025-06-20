@@ -1,0 +1,44 @@
+{
+  "spectrum": {
+    "target": "http://localhost:8092",
+    "scenarios": [
+      {
+        "endpoint": "/api/status",
+        "weight": 40
+      },
+      {
+        "endpoint": "/api/profiles",
+        "weight": 30
+      },
+      {
+        "endpoint": "/api/scan/vhf",
+        "weight": 20
+      },
+      {
+        "endpoint": "/api/scan/uhf",
+        "weight": 10
+      }
+    ],
+    "load": {
+      "arrivalRate": 10,
+      "duration": "2m"
+    }
+  },
+  "wigleToTak": {
+    "target": "http://localhost:8000",
+    "scenarios": [
+      {
+        "endpoint": "/api/status",
+        "weight": 50
+      },
+      {
+        "endpoint": "/",
+        "weight": 50
+      }
+    ],
+    "load": {
+      "arrivalRate": 5,
+      "duration": "2m"
+    }
+  }
+}

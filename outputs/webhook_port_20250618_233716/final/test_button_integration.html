@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Webhook Button Integration Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            margin-bottom: 30px;
+        }
+        .button-group {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+        button {
+            padding: 12px 24px;
+            font-size: 16px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .btn-start {
+            background-color: #4CAF50;
+            color: white;
+        }
+        .btn-start:hover {
+            background-color: #45a049;
+        }
+        .btn-stop {
+            background-color: #f44336;
+            color: white;
+        }
+        .btn-stop:hover {
+            background-color: #da190b;
+        }
+        .btn-status {
+            background-color: #2196F3;
+            color: white;
+        }
+        .btn-status:hover {
+            background-color: #0b7dda;
+        }
+        .btn-data {
+            background-color: #FF9800;
+            color: white;
+        }
+        .btn-data:hover {
+            background-color: #e68900;
+        }
+        button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        .status-panel {
+            background-color: #f9f9f9;
+            padding: 20px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+        .status-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+        .status-indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-left: 10px;
+        }
+        .status-running {
+            background-color: #4CAF50;
+        }
+        .status-stopped {
+            background-color: #f44336;
+        }
+        .log-panel {
+            background-color: #000;
+            color: #0f0;
+            padding: 15px;
+            border-radius: 5px;
+            height: 200px;
+            overflow-y: auto;
+            font-family: monospace;
+            font-size: 14px;
+        }
+        .log-entry {
+            margin-bottom: 5px;
+        }
+        .log-error {
+            color: #f44336;
+        }
+        .log-success {
+            color: #4CAF50;
+        }
+        .log-info {
+            color: #2196F3;
+        }
+        .websocket-status {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            padding: 5px 10px;
+            border-radius: 3px;
+            font-size: 12px;
+        }
+        .ws-connected {
+            background-color: #4CAF50;
+            color: white;
+        }
+        .ws-disconnected {
+            background-color: #f44336;
+            color: white;
+        }
+    </style>
+    <script src="https://cdn.socket.io/4.6.1/socket.io.min.js"></script>
+</head>
+<body>
+    <div class="websocket-status ws-disconnected" id="wsStatus">WebSocket: Disconnected</div>
+    
+    <div class="container">
+        <h1>Webhook Service Button Test</h1>
+        
+        <div class="status-panel">
+            <h3>Service Status</h3>
+            <div class="status-item">
+                <span>Main Script</span>
+                <span id="mainStatus">Unknown <span class="status-indicator status-stopped"></span></span>
+            </div>
+            <div class="status-item">
+                <span>Kismet</span>
+                <span id="kismetStatus">Unknown <span class="status-indicator status-stopped"></span></span>
+            </div>
+            <div class="status-item">
+                <span>WigleToTAK</span>
+                <span id="wigleStatus">Unknown <span class="status-indicator status-stopped"></span></span>
+            </div>
+            <div class="status-item">
+                <span>GPS</span>
+                <span id="gpsStatus">No Fix</span>
+            </div>
+        </div>
+        
+        <div class="button-group">
+            <button class="btn-start" onclick="startServices()" id="startBtn">
+                Start All Services
+            </button>
+            <button class="btn-stop" onclick="stopServices()" id="stopBtn">
+                Stop All Services
+            </button>
+            <button class="btn-status" onclick="checkStatus()">
+                Check Status
+            </button>
+            <button class="btn-data" onclick="getKismetData()">
+                Get Kismet Data
+            </button>
+        </div>
+        
+        <div class="log-panel" id="logPanel">
+            <div class="log-entry log-info">Ready to test webhook service on port 8002...</div>
+        </div>
+    </div>
+
+    <script>
+        // Configuration
+        const WEBHOOK_URL = 'http://localhost:8002';
+        let socket = null;
+        
+        // Logging function
+        function log(message, type = 'info') {
+            const logPanel = document.getElementById('logPanel');
+            const entry = document.createElement('div');
+            entry.className = `log-entry log-${type}`;
+            entry.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+            logPanel.appendChild(entry);
+            logPanel.scrollTop = logPanel.scrollHeight;
+        }
+        
+        // Update status indicators
+        function updateStatus(service, running) {
+            const statusElement = document.getElementById(`${service}Status`);
+            const indicator = statusElement.querySelector('.status-indicator');
+            
+            if (running) {
+                statusElement.innerHTML = `Running <span class="status-indicator status-running"></span>`;
+            } else {
+                statusElement.innerHTML = `Stopped <span class="status-indicator status-stopped"></span>`;
+            }
+        }
+        
+        // WebSocket setup
+        function setupWebSocket() {
+            socket = io(WEBHOOK_URL);
+            
+            socket.on('connect', () => {
+                log('WebSocket connected', 'success');
+                document.getElementById('wsStatus').className = 'websocket-status ws-connected';
+                document.getElementById('wsStatus').textContent = 'WebSocket: Connected';
+                
+                // Subscribe to events
+                socket.emit('subscribe:output');
+                socket.emit('subscribe:status');
+            });
+            
+            socket.on('disconnect', () => {
+                log('WebSocket disconnected', 'error');
+                document.getElementById('wsStatus').className = 'websocket-status ws-disconnected';
+                document.getElementById('wsStatus').textContent = 'WebSocket: Disconnected';
+            });
+            
+            socket.on('script_output', (data) => {
+                log(`[${data.script}] ${data.data}`, data.type === 'stderr' ? 'error' : 'info');
+            });
+            
+            socket.on('status_update', (data) => {
+                log(`Status update: ${data.type}`, 'info');
+                if (data.type === 'services_started') {
+                    updateStatus('kismet', data.kismet);
+                    updateStatus('wigle', data.wigle);
+                    checkStatus();
+                }
+            });
+        }
+        
+        // Button handlers
+        async function startServices() {
+            const btn = document.getElementById('startBtn');
+            btn.disabled = true;
+            log('Starting all services...', 'info');
+            
+            try {
+                const response = await fetch(`${WEBHOOK_URL}/webhook/run-script`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ script: 'both' })
+                });
+                
+                const data = await response.json();
+                log(`Start response: ${data.message}`, data.status === 'success' ? 'success' : 'error');
+                
+                // Check status after a delay
+                setTimeout(checkStatus, 5000);
+                
+            } catch (error) {
+                log(`Failed to start services: ${error.message}`, 'error');
+            } finally {
+                btn.disabled = false;
+            }
+        }
+        
+        async function stopServices() {
+            const btn = document.getElementById('stopBtn');
+            btn.disabled = true;
+            log('Stopping all services...', 'info');
+            
+            try {
+                const response = await fetch(`${WEBHOOK_URL}/webhook/stop-script`, {
+                    method: 'POST'
+                });
+                
+                const data = await response.json();
+                log(`Stop response: ${data.message}`, data.status === 'success' ? 'success' : 'error');
+                
+                // Update status
+                setTimeout(checkStatus, 2000);
+                
+            } catch (error) {
+                log(`Failed to stop services: ${error.message}`, 'error');
+            } finally {
+                btn.disabled = false;
+            }
+        }
+        
+        async function checkStatus() {
+            log('Checking service status...', 'info');
+            
+            try {
+                // Get script status
+                const statusResponse = await fetch(`${WEBHOOK_URL}/webhook/script-status`);
+                const statusData = await statusResponse.json();
+                
+                updateStatus('main', statusData.running);
+                updateStatus('kismet', statusData.kismet_running);
+                updateStatus('wigle', statusData.wigle_running);
+                
+                // Get GPS info
+                const infoResponse = await fetch(`${WEBHOOK_URL}/webhook/info`);
+                const infoData = await infoResponse.json();
+                
+                const gpsElement = document.getElementById('gpsStatus');
+                if (infoData.gps && infoData.gps.lat && infoData.gps.lon) {
+                    gpsElement.textContent = `${infoData.gps.status} (${infoData.gps.lat.toFixed(6)}, ${infoData.gps.lon.toFixed(6)})`;
+                } else {
+                    gpsElement.textContent = infoData.gps?.status || 'No Fix';
+                }
+                
+                log('Status check complete', 'success');
+                
+            } catch (error) {
+                log(`Failed to check status: ${error.message}`, 'error');
+            }
+        }
+        
+        async function getKismetData() {
+            log('Fetching Kismet data...', 'info');
+            
+            try {
+                const response = await fetch(`${WEBHOOK_URL}/webhook/kismet-data`);
+                const data = await response.json();
+                
+                log(`Kismet data: ${data.devices_count} devices, ${data.networks_count} networks`, 'success');
+                
+                if (data.recent_devices && data.recent_devices.length > 0) {
+                    log(`Recent devices:`, 'info');
+                    data.recent_devices.slice(0, 5).forEach(device => {
+                        log(`  - ${device.name} (${device.type}) on channel ${device.channel}`, 'info');
+                    });
+                }
+                
+            } catch (error) {
+                log(`Failed to get Kismet data: ${error.message}`, 'error');
+            }
+        }
+        
+        // Initialize on page load
+        window.onload = () => {
+            log('Initializing webhook button test interface', 'info');
+            setupWebSocket();
+            checkStatus();
+        };
+    </script>
+</body>
+</html>

@@ -6,13 +6,22 @@ set -x # Force full command tracing
 # set -x  # Print commands as they execute
 # fi
 
-# Create tmp directory if it doesn't exist
-mkdir -p ${LOG_DIR:-/home/pi/projects/stinkster/logs}
+# GPS Fix Timeout Configuration:
+# Set GPS_TIMEOUT environment variable to change how long to wait for GPS fix
+# Default is 30 seconds. Example: GPS_TIMEOUT=60 ./gps_kismet_wigle.sh
+
+# Create log directory if it doesn't exist
+export LOG_DIR="${LOG_DIR:-/home/pi/tmp}"
+mkdir -p "$LOG_DIR"
+
+# Set default directories
+export KISMET_DATA_DIR="${KISMET_DATA_DIR:-/home/pi/projects/stinkster/data/kismet}"
+export WIRELESS_INTERFACE="${WIRELESS_INTERFACE:-wlan2}"
 
 # File to store all PIDs
-PID_FILE="${LOG_DIR:-/home/pi/projects/stinkster/logs}/gps_kismet_wigle.pids"
-LOG_FILE="${LOG_DIR:-/home/pi/projects/stinkster/logs}/gps_kismet_wigle.log"
-KISMET_PID_FILE="${KISMET_DATA_DIR:-/home/pi/projects/stinkster/data/kismet}/kismet.pid"
+PID_FILE="${LOG_DIR}/gps_kismet_wigle.pids"
+LOG_FILE="${LOG_DIR}/gps_kismet_wigle.log"
+KISMET_PID_FILE="${KISMET_DATA_DIR}/kismet.pid"
 
 # Set up environment
 export DISPLAY=:0
@@ -59,10 +68,10 @@ cleanup() {
 
     # Robustly stop gpsd
     log "Forcefully stopping gpsd service..."
-    sudo systemctl stop gpsd.socket > /dev/null 2>&1
-    sudo systemctl stop gpsd > /dev/null 2>&1
+    systemctl --user stop gpsd.socket > /dev/null 2>&1 || true
+    systemctl --user stop gpsd > /dev/null 2>&1 || true
     sleep 1 # Give services a moment
-    sudo killall gpsd gpsdctl > /dev/null 2>&1 # Suppress errors if not found
+    killall gpsd gpsdctl > /dev/null 2>&1 || true # Suppress errors if not found
     log "gpsd stop sequence complete."
     
     # First, try to stop Kismet using its PID file
@@ -137,9 +146,9 @@ setup_kismet_config() {
 httpd_username=admin
 httpd_password=admin
 httpd_autologin=true
-source=wlan2:name=wlan2,type=linuxwifi,hop=true,channel_hop_speed=5/sec
-enable_datasource=wlan2
-allowed_interfaces=wlan2,wlan2mon
+source=$WIRELESS_INTERFACE:name=$WIRELESS_INTERFACE,type=linuxwifi,hop=true,channel_hop_speed=5/sec
+enable_datasource=$WIRELESS_INTERFACE
+allowed_interfaces=$WIRELESS_INTERFACE,${WIRELESS_INTERFACE}mon
 # GPS configuration
 gps=gpsd:host=localhost,port=2947,reconnect=true,reconnect_wait=5
 gps_quit_on_error=false
@@ -150,7 +159,7 @@ EOF
     log "Kismet configuration updated"
 }
 
-WIGLETOTAK_DIR="${WIGLETOTAK_DIR:-/home/pi/projects/stinkster/wigletotak}/WigleToTAK/TheStinkToTAK"
+WIGLETOTAK_DIR="${WIGLETOTAK_DIR:-/home/pi/projects/stinkster_malone/stinkster/src/wigletotak}/WigleToTAK/TheStinkToTAK"
 WIGLETOTAK_PORT=6969
 
 if [ -n "$1" ]; then
@@ -164,23 +173,23 @@ fi
 setup_kismet_config
 
 log "Attempting to (re)start gpsd service..."
-sudo systemctl stop gpsd.socket > /dev/null 2>&1
-sudo systemctl stop gpsd > /dev/null 2>&1
+systemctl --user stop gpsd.socket > /dev/null 2>&1 || true
+systemctl --user stop gpsd > /dev/null 2>&1 || true
 sleep 1
-sudo killall gpsd gpsdctl > /dev/null 2>&1 
+killall gpsd gpsdctl > /dev/null 2>&1 || true
 log "Attempting to start gpsd socket and service..."
-sudo systemctl start gpsd.socket
-sudo systemctl start gpsd
+systemctl --user start gpsd.socket 2>/dev/null || systemctl start gpsd.socket 2>/dev/null || true
+systemctl --user start gpsd 2>/dev/null || systemctl start gpsd 2>/dev/null || true
 sleep 5 
 log "gpsd start sequence initiated."
 
 log "Checking gpsd status..."
 if ! systemctl is-active --quiet gpsd; then
     log "ERROR: gpsd service is not active after attempting start. Forcing gpsd restart."
-    sudo killall -9 gpsd gpsdctl > /dev/null 2>&1
-    sudo rm -f /var/run/gpsd.sock 
-    sudo systemctl restart gpsd.socket
-    sudo systemctl restart gpsd
+    killall -9 gpsd gpsdctl > /dev/null 2>&1 || true
+    rm -f /var/run/gpsd.sock 2>/dev/null || true
+    systemctl --user restart gpsd.socket 2>/dev/null || systemctl restart gpsd.socket 2>/dev/null || true
+    systemctl --user restart gpsd 2>/dev/null || systemctl restart gpsd 2>/dev/null || true
     sleep 5 
     if ! systemctl is-active --quiet gpsd; then
         log "ERROR: gpsd service STILL not active after second attempt."
@@ -192,10 +201,10 @@ fi
 
 if ! gpspipe -w -n 1 > /dev/null 2>&1; then
     log "ERROR: gpsd is not responding via gpspipe after (re)start. Forcing another gpsd restart."
-    sudo killall -9 gpsd gpsdctl > /dev/null 2>&1
-    sudo rm -f /var/run/gpsd.sock 
-    sudo systemctl restart gpsd.socket
-    sudo systemctl restart gpsd
+    killall -9 gpsd gpsdctl > /dev/null 2>&1 || true
+    rm -f /var/run/gpsd.sock 2>/dev/null || true
+    systemctl --user restart gpsd.socket 2>/dev/null || systemctl restart gpsd.socket 2>/dev/null || true
+    systemctl --user restart gpsd 2>/dev/null || systemctl restart gpsd 2>/dev/null || true
     sleep 3 
     if ! gpspipe -w -n 1 > /dev/null 2>&1; then
         log "ERROR: gpsd STILL not responding via gpspipe after multiple restart attempts."
@@ -213,15 +222,15 @@ env | grep -E 'DISPLAY|XAUTHORITY|TERM|PATH' >> "$LOG_FILE"
 # Ensure gpsd has a GPS device configured
 log "Checking GPS device configuration..."
     
-# First, check what devices gpsd is using
-GPSD_DEVICES=$(gpspipe -w -n 1 2>/dev/null | grep -o '"path":"[^"]*"' | cut -d'"' -f4 || true)
+# First, check what devices gpsd is using (with timeout to prevent hanging)
+GPSD_DEVICES=$(timeout 2 gpspipe -w -n 3 2>/dev/null | grep -o '"path":"[^"]*"' | cut -d'"' -f4 | head -1 || true)
 if [ -n "$GPSD_DEVICES" ]; then
     log "gpsd is configured with devices: $GPSD_DEVICES"
 else
     log "No devices configured in gpsd, searching for GPS devices..."
     
     # Stop gpsd to reconfigure it
-    sudo systemctl stop gpsd
+    systemctl --user stop gpsd 2>/dev/null || systemctl stop gpsd 2>/dev/null || true
     sleep 1
     
     # Try common GPS device paths
@@ -231,16 +240,25 @@ else
             log "Found potential GPS device at $device"
             # Test if it's actually a GPS by checking for NMEA data at different baud rates
             GPS_FOUND=false
-            for baud in 9600 4800 38400 57600 115200; do
+            for baud in 4800 9600 38400 57600 115200; do
                 log "Testing $device at ${baud} baud..."
-                sudo stty -F "$device" "$baud" 2>/dev/null || continue
-                if timeout 2 cat "$device" 2>/dev/null | grep -q '^\$G[PNLR][A-Z]\{3\}'; then
-                    log "Confirmed GPS device at $device with ${baud} baud (NMEA data detected)"
-                    GPS_DEVICE="$device"
-                    GPS_BAUD="$baud"
-                    GPS_FOUND=true
-                    break
-                fi
+                stty -F "$device" "$baud" 2>/dev/null || continue
+                # Give GPS time to start outputting data after baud rate change
+                sleep 1
+                # Try multiple times with longer timeout for GPS startup
+                for attempt in 1 2 3; do
+                    if timeout 3 cat "$device" 2>/dev/null | grep -q '^\$G[PNLR][A-Z]\{3\}'; then
+                        log "Confirmed GPS device at $device with ${baud} baud (NMEA data detected on attempt $attempt)"
+                        GPS_DEVICE="$device"
+                        GPS_BAUD="$baud"
+                        GPS_FOUND=true
+                        break 2
+                    fi
+                    if [ $attempt -lt 3 ]; then
+                        log "No NMEA data on attempt $attempt, retrying..."
+                        sleep 1
+                    fi
+                done
             done
             
             if [ "$GPS_FOUND" = "true" ]; then
@@ -254,14 +272,19 @@ else
     if [ -n "$GPS_DEVICE" ]; then
         # Configure gpsd with the found device
         log "Configuring gpsd with device $GPS_DEVICE"
-        echo "DEVICES=\"$GPS_DEVICE\"" | sudo tee /etc/default/gpsd > /dev/null
-        echo "GPSD_OPTIONS=\"-n\"" | sudo tee -a /etc/default/gpsd > /dev/null
-        echo "START_DAEMON=\"true\"" | sudo tee -a /etc/default/gpsd > /dev/null
-        echo "USBAUTO=\"true\"" | sudo tee -a /etc/default/gpsd > /dev/null
+        # Try to configure gpsd (may need sudo for /etc/default/gpsd)
+        if [ -w /etc/default/gpsd ]; then
+            echo "DEVICES=\"$GPS_DEVICE\"" > /etc/default/gpsd
+            echo "GPSD_OPTIONS=\"-n\"" >> /etc/default/gpsd
+            echo "START_DAEMON=\"true\"" >> /etc/default/gpsd
+            echo "USBAUTO=\"true\"" >> /etc/default/gpsd
+        else
+            log "WARNING: Cannot write to /etc/default/gpsd - gpsd configuration may need manual setup"
+        fi
         
         # Restart gpsd with new configuration
-        sudo systemctl daemon-reload
-        sudo systemctl start gpsd
+        systemctl --user daemon-reload 2>/dev/null || systemctl daemon-reload 2>/dev/null || true
+        systemctl --user start gpsd 2>/dev/null || systemctl start gpsd 2>/dev/null || true
         sleep 3
         
         # Verify gpsd is using the device
@@ -277,7 +300,7 @@ fi
 MAX_CGPS_RETRIES=3
 CGPS_RETRY=0
 while [ $CGPS_RETRY -lt $MAX_CGPS_RETRIES ]; do
-    /usr/bin/cgps > ${LOG_DIR:-/home/pi/projects/stinkster/logs}/cgps.log 2>&1 &
+    /usr/bin/cgps > "${LOG_DIR}/cgps.log" 2>&1 &
     CGPS_PID=$!
     sleep 3
     
@@ -288,7 +311,7 @@ while [ $CGPS_RETRY -lt $MAX_CGPS_RETRIES ]; do
         CGPS_RETRY=$((CGPS_RETRY + 1))
         if [ $CGPS_RETRY -lt $MAX_CGPS_RETRIES ]; then
             log "Restarting gpsd before retry..."
-            sudo systemctl restart gpsd
+            systemctl --user restart gpsd 2>/dev/null || systemctl restart gpsd 2>/dev/null || true
             sleep 2
         fi
     fi
@@ -297,8 +320,8 @@ done
 if ! check_process "$CGPS_PID"; then
     log "ERROR: Failed to start cgps (PID check failed for $CGPS_PID)"
     log "Checking cgps.log for errors..."
-    if [ -f "${LOG_DIR:-/home/pi/projects/stinkster/logs}/cgps.log" ]; then
-        cat "${LOG_DIR:-/home/pi/projects/stinkster/logs}/cgps.log" >> "$LOG_FILE"
+    if [ -f "${LOG_DIR}/cgps.log" ]; then
+        cat "${LOG_DIR}/cgps.log" >> "$LOG_FILE"
     else
         log "cgps.log not found."
     fi
@@ -307,9 +330,9 @@ fi
 
 if ! check_process_by_name "cgps"; then
     log "ERROR: cgps process not found by name (PID was $CGPS_PID). cgps might have exited immediately."
-    if [ -f "${LOG_DIR:-/home/pi/projects/stinkster/logs}/cgps.log" ]; then
+    if [ -f "${LOG_DIR}/cgps.log" ]; then
         log "Contents of cgps.log:"
-        cat "${LOG_DIR:-/home/pi/projects/stinkster/logs}/cgps.log" >> "$LOG_FILE"
+        cat "${LOG_DIR}/cgps.log" >> "$LOG_FILE"
     fi
     exit 1 
 fi
@@ -322,14 +345,84 @@ if ! grep -qF "$CGPS_PID" "$PID_FILE"; then
     exit 1 
 fi
 
-log "Starting Kismet on wlan2..."
+# Wait for GPS to get a fix before starting Kismet
+log "Waiting for GPS to acquire fix before starting Kismet..."
+GPS_TIMEOUT=${GPS_TIMEOUT:-30}  # Default 30 seconds timeout, configurable via environment
+GPS_WAIT_COUNT=0
+GPS_HAS_FIX=false
+
+while [ $GPS_WAIT_COUNT -lt $GPS_TIMEOUT ]; do
+    # Check for GPS fix using gpspipe
+    # Look for TPV (Time-Position-Velocity) messages with valid lat/lon
+    GPS_OUTPUT=$(timeout 2 gpspipe -w -n 5 2>/dev/null || true)
+    
+    # Check if we have a TPV message with lat and lon fields
+    if echo "$GPS_OUTPUT" | grep -q '"class":"TPV".*"lat":[0-9.-]*,"lon":[0-9.-]*'; then
+        # Extract latitude and longitude
+        GPS_LAT=$(echo "$GPS_OUTPUT" | grep -o '"lat":[0-9.-]*' | head -1 | cut -d: -f2)
+        GPS_LON=$(echo "$GPS_OUTPUT" | grep -o '"lon":[0-9.-]*' | head -1 | cut -d: -f2)
+        
+        # Check if coordinates are non-zero (0,0 means no fix)
+        if [ -n "$GPS_LAT" ] && [ -n "$GPS_LON" ]; then
+            if [ "$GPS_LAT" != "0" ] && [ "$GPS_LON" != "0" ] && [ "$GPS_LAT" != "0.0" ] && [ "$GPS_LON" != "0.0" ]; then
+                GPS_HAS_FIX=true
+                log "GPS fix acquired! Location: lat=$GPS_LAT, lon=$GPS_LON"
+                break
+            fi
+        fi
+    fi
+    
+    # Also check for valid NMEA sentences (as backup method)
+    if ! $GPS_HAS_FIX && echo "$GPS_OUTPUT" | grep -q '"class":"TPV".*"mode":[23]'; then
+        # mode 2 = 2D fix, mode 3 = 3D fix
+        GPS_MODE=$(echo "$GPS_OUTPUT" | grep -o '"mode":[0-9]' | head -1 | cut -d: -f2)
+        if [ "$GPS_MODE" = "2" ] || [ "$GPS_MODE" = "3" ]; then
+            GPS_HAS_FIX=true
+            log "GPS fix acquired! Mode: ${GPS_MODE}D fix"
+            break
+        fi
+    fi
+    
+    # Provide progress feedback
+    if [ $((GPS_WAIT_COUNT % 5)) -eq 0 ]; then
+        log "Waiting for GPS fix... ($GPS_WAIT_COUNT/$GPS_TIMEOUT seconds)"
+        
+        # Log GPS status for debugging
+        if echo "$GPS_OUTPUT" | grep -q '"class":"SKY".*"satellites"'; then
+            SAT_COUNT=$(echo "$GPS_OUTPUT" | grep -o '"satellites":\[[^]]*\]' | grep -o '"used":true' | wc -l)
+            log "GPS satellites in use: $SAT_COUNT"
+        fi
+    fi
+    
+    GPS_WAIT_COUNT=$((GPS_WAIT_COUNT + 1))
+    sleep 1
+done
+
+if ! $GPS_HAS_FIX; then
+    log "WARNING: GPS fix not acquired after $GPS_TIMEOUT seconds."
+    log "Continuing to start Kismet without GPS fix. GPS data may become available later."
+    log "To increase timeout, set GPS_TIMEOUT environment variable (e.g., GPS_TIMEOUT=60)"
+else
+    log "GPS is ready with valid position data."
+    
+    # Add stabilization period after GPS fix
+    log "Waiting 10 seconds for GPS to stabilize..."
+    GPS_STABILIZATION_TIME=${GPS_STABILIZATION_TIME:-10}  # Default 10 seconds
+    
+    # Simple wait without continuous checking to avoid blocking the socket
+    sleep $GPS_STABILIZATION_TIME
+    
+    log "GPS stabilization complete"
+fi
+
+log "Starting Kismet on $WIRELESS_INTERFACE..."
     
 # Pre-flight checks for Kismet
 log "Performing pre-flight checks for Kismet..."
     
-# Check if wlan2 exists
-if ! ip link show wlan2 > /dev/null 2>&1; then
-    log "ERROR: Network interface wlan2 not found"
+# Check if wireless interface exists
+if ! ip link show "$WIRELESS_INTERFACE" > /dev/null 2>&1; then
+    log "ERROR: Network interface $WIRELESS_INTERFACE not found"
     exit 1
 fi
     
@@ -370,10 +463,16 @@ AVAILABLE_MEM=$(free -m | awk 'NR==2{print $7}')
 if [ "$AVAILABLE_MEM" -lt 100 ]; then
     log "WARNING: Low available memory: ${AVAILABLE_MEM}MB"
 fi
+
+# Create kismet data directory if it doesn't exist
+mkdir -p "$KISMET_DATA_DIR"
     
-if [ -x "${STINKSTER_ROOT:-/home/pi/projects/stinkster}/src/scripts/start_kismet.sh" ]; then 
-    log "Found start_kismet.sh script, executing..."
-    nohup "${STINKSTER_ROOT:-/home/pi/projects/stinkster}/src/scripts/start_kismet.sh" > ${LOG_DIR:-/home/pi/projects/stinkster/logs}/kismet.log 2>&1 &
+if [ -x "${STINKSTER_ROOT:-/home/pi/projects/stinkster_malone/stinkster}/src/scripts/start_kismet.sh" ]; then 
+    log "Found start_kismet.sh script, executing with KISMET_DATA_DIR=$KISMET_DATA_DIR and WIRELESS_INTERFACE=$WIRELESS_INTERFACE..."
+    # Export variables so child script can use them
+    export KISMET_DATA_DIR
+    export WIRELESS_INTERFACE
+    nohup "${STINKSTER_ROOT:-/home/pi/projects/stinkster_malone/stinkster}/src/scripts/start_kismet.sh" > "${LOG_DIR}/kismet.log" 2>&1 &
     KISMET_SCRIPT_PID=$! 
     log "start_kismet.sh launched with PID $KISMET_SCRIPT_PID. Waiting for Kismet actual PID..."
     sleep 10  # Increased wait time for Kismet to fully start  
@@ -386,8 +485,8 @@ if [ -x "${STINKSTER_ROOT:-/home/pi/projects/stinkster}/src/scripts/start_kismet
         else
             log "ERROR: Kismet process (PID '$KISMET_PID_VALUE' from file $KISMET_PID_FILE) not running or PID is invalid after start"
             log "Checking kismet.log for errors..."
-            if [ -f "${LOG_DIR:-/home/pi/projects/stinkster/logs}/kismet.log" ]; then 
-                cat "${LOG_DIR:-/home/pi/projects/stinkster/logs}/kismet.log" >> "$LOG_FILE"
+            if [ -f "${LOG_DIR}/kismet.log" ]; then 
+                cat "${LOG_DIR}/kismet.log" >> "$LOG_FILE"
             fi
             exit 1 
         fi
@@ -400,13 +499,13 @@ if [ -x "${STINKSTER_ROOT:-/home/pi/projects/stinkster}/src/scripts/start_kismet
             log "start_kismet.sh (PID $KISMET_SCRIPT_PID) is still running, but Kismet PID file wasn't created."
         fi
         log "Checking kismet.log for errors..."
-        if [ -f "${LOG_DIR:-/home/pi/projects/stinkster/logs}/kismet.log" ]; then 
-            cat "${LOG_DIR:-/home/pi/projects/stinkster/logs}/kismet.log" >> "$LOG_FILE"
+        if [ -f "${LOG_DIR}/kismet.log" ]; then 
+            cat "${LOG_DIR}/kismet.log" >> "$LOG_FILE"
         fi
         exit 1 
     fi
 else
-    log "ERROR: ${STINKSTER_ROOT:-/home/pi/projects/stinkster}/src/scripts/start_kismet.sh not found or not executable"
+    log "ERROR: ${STINKSTER_ROOT:-/home/pi/projects/stinkster_malone/stinkster}/src/scripts/start_kismet.sh not found or not executable"
     exit 1 
 fi
 
@@ -416,8 +515,14 @@ log "Kismet initialization wait complete. Proceeding to WigleToTAK."
 
 
 log "Starting WigleToTAK..."
-if [ -x "$WIGLETOTAK_DIR/WigleToTak2.py" ]; then
-    log "Starting WigleToTAK..."
+
+# Check if port 8000 is already in use (Node.js WigleToTAK may be running)
+if netstat -tlnp 2>/dev/null | grep -q ":8000 "; then
+    log "Port 8000 is already in use. Skipping Python WigleToTAK startup (Node.js version may be running)."
+    log "WigleToTAK functionality is available via Node.js server on port 8000."
+else
+    if [ -x "$WIGLETOTAK_DIR/WigleToTak2.py" ]; then
+        log "Starting Python WigleToTAK..."
     cd "$WIGLETOTAK_DIR" || { log "ERROR: Failed to cd to $WIGLETOTAK_DIR"; exit 1; }
     
     # Create a virtual environment if it doesn't exist
@@ -445,7 +550,7 @@ if [ -x "$WIGLETOTAK_DIR/WigleToTak2.py" ]; then
     # shellcheck disable=SC1091
     . venv/bin/activate
     
-    nohup python3 WigleToTak2.py > ${LOG_DIR:-/home/pi/projects/stinkster/logs}/wigletotak.log 2>&1 &
+    nohup python3 WigleToTak2.py > "${LOG_DIR}/wigletotak.log" 2>&1 &
     WIGLE_PID=$!
     sleep 5  # Give WigleToTAK a moment to start
     
@@ -455,8 +560,8 @@ if [ -x "$WIGLETOTAK_DIR/WigleToTak2.py" ]; then
     if ! check_process "$WIGLE_PID"; then
         log "ERROR: Failed to start WigleToTAK (PID check failed for $WIGLE_PID)"
         log "Checking wigletotak.log for errors..."
-        if [ -f "${LOG_DIR:-/home/pi/projects/stinkster/logs}/wigletotak.log" ]; then 
-            cat "${LOG_DIR:-/home/pi/projects/stinkster/logs}/wigletotak.log" >> "$LOG_FILE"
+        if [ -f "${LOG_DIR}/wigletotak.log" ]; then 
+            cat "${LOG_DIR}/wigletotak.log" >> "$LOG_FILE"
         fi
         exit 1 # Ensuring script exits if WigleToTAK truly fails early
     fi
@@ -464,18 +569,19 @@ if [ -x "$WIGLETOTAK_DIR/WigleToTak2.py" ]; then
     if ! ps -p "$WIGLE_PID" -o cmd= | grep -q "WigleToTak2.py"; then
         log "ERROR: Process $WIGLE_PID is not running WigleToTak2.py. Command was: $(ps -p "$WIGLE_PID" -o cmd=)"
         log "Checking wigletotak.log for errors..."
-        if [ -f "${LOG_DIR:-/home/pi/projects/stinkster/logs}/wigletotak.log" ]; then 
-            cat "${LOG_DIR:-/home/pi/projects/stinkster/logs}/wigletotak.log" >> "$LOG_FILE"
+        if [ -f "${LOG_DIR}/wigletotak.log" ]; then 
+            cat "${LOG_DIR}/wigletotak.log" >> "$LOG_FILE"
         fi
         exit 1 # Ensuring script exits if command line is wrong
     fi
     
-    echo "$WIGLE_PID" >> "$PID_FILE" # Keep adding to the general PID file
-    echo "$WIGLE_PID" > "${LOG_DIR:-/home/pi/projects/stinkster/logs}/wigletotak.specific.pid" # Create specific PID file
-    log "WigleToTAK started with PID: $WIGLE_PID (specific PID file created at ${LOG_DIR:-/home/pi/projects/stinkster/logs}/wigletotak.specific.pid)"
-else
-    log "ERROR: WigleToTak2.py not found at $WIGLETOTAK_DIR/WigleToTak2.py"
-    exit 1 
+        echo "$WIGLE_PID" >> "$PID_FILE" # Keep adding to the general PID file
+        echo "$WIGLE_PID" > "${LOG_DIR}/wigletotak.specific.pid" # Create specific PID file
+        log "WigleToTAK started with PID: $WIGLE_PID (specific PID file created at ${LOG_DIR}/wigletotak.specific.pid)"
+    else
+        log "ERROR: WigleToTak2.py not found at $WIGLETOTAK_DIR/WigleToTak2.py"
+        exit 1 
+    fi
 fi
 
 echo "$$" >> "$PID_FILE"

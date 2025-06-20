@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Glowdot Color Flow Test</title>
+    <style>
+        body {
+            background: #0a192f;
+            color: #00d2ff;
+            font-family: 'Courier New', monospace;
+            padding: 20px;
+        }
+        .test-container {
+            background: rgba(12, 22, 48, 0.85);
+            border: 1px solid rgba(0, 190, 215, 0.35);
+            padding: 20px;
+            margin: 20px;
+            border-radius: 8px;
+        }
+        .status-indicator {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 6px;
+            margin-bottom: 10px;
+        }
+        .status-dot {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #ff4444;
+            transition: all 0.3s ease;
+        }
+        .control-button {
+            background: rgba(0, 190, 215, 0.15);
+            border: 1px solid rgba(0, 190, 215, 0.35);
+            color: #00d2ff;
+            padding: 10px 20px;
+            margin: 5px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .control-button:hover {
+            background: rgba(0, 190, 215, 0.25);
+            border-color: #00d2ff;
+        }
+        .log-output {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 10px;
+            margin-top: 20px;
+            border: 1px solid rgba(0, 190, 215, 0.35);
+            height: 200px;
+            overflow-y: auto;
+            font-size: 12px;
+        }
+        .log-entry {
+            margin: 2px 0;
+            padding: 2px;
+        }
+        .log-entry.success { color: #44ff44; }
+        .log-entry.warning { color: #ffaa00; }
+        .log-entry.error { color: #ff4444; }
+        .log-entry.info { color: #00d2ff; }
+    </style>
+</head>
+<body>
+    <h1>Glowdot Color Flow Validation Test</h1>
+    
+    <div class="test-container">
+        <h2>Service Status Indicators</h2>
+        <div class="status-indicator">
+            <div class="status-dot" id="kismet-status"></div>
+            <span>Kismet Service</span>
+        </div>
+        <div class="status-indicator">
+            <div class="status-dot" id="wigle-status"></div>
+            <span>WigletoTak Service</span>
+        </div>
+        
+        <h3>Control Buttons</h3>
+        <button class="control-button" onclick="startServices()">Start Services</button>
+        <button class="control-button" onclick="stopServices()">Stop Services</button>
+        <button class="control-button" onclick="checkStatus()">Check Status</button>
+        <button class="control-button" onclick="simulateStartup()">Simulate Startup Flow</button>
+        
+        <h3>Test Results</h3>
+        <div class="log-output" id="test-log"></div>
+    </div>
+
+    <script>
+        // Test state variables
+        let servicesStarting = false;
+        let startupBeginTime = null;
+        
+        // Logger function
+        function log(message, type = 'info') {
+            const logElement = document.getElementById('test-log');
+            const entry = document.createElement('div');
+            entry.className = `log-entry ${type}`;
+            entry.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+            logElement.appendChild(entry);
+            logElement.scrollTop = logElement.scrollHeight;
+        }
+        
+        // Update status dots
+        function updateStatusDots(kismetColor, wigleColor) {
+            const kismetDot = document.getElementById('kismet-status');
+            const wigleDot = document.getElementById('wigle-status');
+            
+            if (kismetDot) {
+                kismetDot.style.background = kismetColor;
+                kismetDot.style.boxShadow = kismetColor === '#ff4444' ? 'none' : `0 0 10px ${kismetColor}`;
+                log(`Kismet dot changed to: ${kismetColor}`, kismetColor === '#ff4444' ? 'error' : kismetColor === '#ffaa00' ? 'warning' : 'success');
+            }
+            
+            if (wigleDot) {
+                wigleDot.style.background = wigleColor;
+                wigleDot.style.boxShadow = wigleColor === '#ff4444' ? 'none' : `0 0 10px ${wigleColor}`;
+                log(`Wigle dot changed to: ${wigleColor}`, wigleColor === '#ff4444' ? 'error' : wigleColor === '#ffaa00' ? 'warning' : 'success');
+            }
+        }
+        
+        // Start services
+        async function startServices() {
+            log('Starting services...', 'info');
+            
+            // Immediately set dots to yellow
+            updateStatusDots('#ffaa00', '#ffaa00');
+            servicesStarting = true;
+            startupBeginTime = Date.now();
+            
+            try {
+                const response = await fetch('/api/start-script', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ scriptName: 'gps_kismet_wigle.sh' })
+                });
+                
+                const data = await response.json();
+                if (data.success) {
+                    log('Start command sent successfully', 'success');
+                    // Start checking status
+                    setTimeout(checkStatus, 2000);
+                } else {
+                    log(`Failed to start: ${data.message}`, 'error');
+                    updateStatusDots('#ff4444', '#ff4444');
+                }
+            } catch (error) {
+                log(`Error starting services: ${error.message}`, 'error');
+                updateStatusDots('#ff4444', '#ff4444');
+            }
+        }
+        
+        // Stop services
+        async function stopServices() {
+            log('Stopping services...', 'info');
+            
+            try {
+                const response = await fetch('/stop-script', { method: 'POST' });
+                const data = await response.json();
+                
+                if (data.status === 'success') {
+                    log('Services stopped successfully', 'success');
+                    updateStatusDots('#ff4444', '#ff4444');
+                    servicesStarting = false;
+                    startupBeginTime = null;
+                } else {
+                    log(`Failed to stop: ${data.message}`, 'error');
+                }
+            } catch (error) {
+                log(`Error stopping services: ${error.message}`, 'error');
+            }
+        }
+        
+        // Check status
+        async function checkStatus() {
+            try {
+                const response = await fetch('/script-status');
+                const data = await response.json();
+                
+                const isStartingUp = servicesStarting && startupBeginTime && 
+                                   (Date.now() - startupBeginTime < 60000);
+                
+                log(`Kismet running: ${data.kismet_running}, Wigle running: ${data.wigle_running}, Starting up: ${isStartingUp}`, 'info');
+                
+                if (data.kismet_running && data.wigle_running) {
+                    updateStatusDots('#44ff44', '#44ff44');
+                    servicesStarting = false;
+                    startupBeginTime = null;
+                    log('Both services are running', 'success');
+                } else if (isStartingUp) {
+                    updateStatusDots('#ffaa00', '#ffaa00');
+                    log('Services are starting up...', 'warning');
+                    // Check again in 2 seconds
+                    setTimeout(checkStatus, 2000);
+                } else {
+                    updateStatusDots('#ff4444', '#ff4444');
+                    log('Services are not running', 'error');
+                }
+            } catch (error) {
+                log(`Error checking status: ${error.message}`, 'error');
+                const isStartingUp = servicesStarting && startupBeginTime && 
+                                   (Date.now() - startupBeginTime < 60000);
+                if (isStartingUp) {
+                    updateStatusDots('#ffaa00', '#ffaa00');
+                } else {
+                    updateStatusDots('#ff4444', '#ff4444');
+                }
+            }
+        }
+        
+        // Simulate the complete startup flow
+        async function simulateStartup() {
+            log('=== Starting Color Flow Test ===', 'info');
+            
+            // Initial state - red
+            log('Initial state: RED (stopped)', 'error');
+            updateStatusDots('#ff4444', '#ff4444');
+            await new Promise(resolve => setTimeout(resolve, 2000));
+            
+            // Click start - immediately yellow
+            log('Clicking start button - should turn YELLOW immediately', 'warning');
+            updateStatusDots('#ffaa00', '#ffaa00');
+            servicesStarting = true;
+            startupBeginTime = Date.now();
+            await new Promise(resolve => setTimeout(resolve, 2000));
+            
+            // Stay yellow during startup
+            log('Services starting - should stay YELLOW', 'warning');
+            updateStatusDots('#ffaa00', '#ffaa00');
+            await new Promise(resolve => setTimeout(resolve, 3000));
+            
+            // Services started - turn green
+            log('Services started - should turn GREEN', 'success');
+            updateStatusDots('#44ff44', '#44ff44');
+            servicesStarting = false;
+            startupBeginTime = null;
+            await new Promise(resolve => setTimeout(resolve, 2000));
+            
+            // Stop services - turn red
+            log('Stopping services - should turn RED', 'error');
+            updateStatusDots('#ff4444', '#ff4444');
+            
+            log('=== Color Flow Test Complete ===', 'info');
+        }
+        
+        // Initial check on load
+        window.addEventListener('DOMContentLoaded', () => {
+            log('Test page loaded', 'info');
+            checkStatus();
+        });
+    </script>
+</body>
+</html>

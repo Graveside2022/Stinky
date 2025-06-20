@@ -1,0 +1,138 @@
+{
+  "timestamp": "2025-06-15T21:44:27.249Z",
+  "validation_summary": {
+    "memory_target_met": false,
+    "response_time_target_met": true,
+    "websocket_optimized": false,
+    "pi_optimized": true,
+    "overall_score": 65
+  },
+  "measurements": {
+    "memory_usage": {
+      "services": {
+        "wigle-to-tak": {
+          "current_mb": 73,
+          "target_mb": 70,
+          "baseline_mb": 108,
+          "reduction_percent": 32,
+          "target_met": false,
+          "memory_efficiency": "excellent"
+        },
+        "spectrum-analyzer": {
+          "error": "Process not running"
+        }
+      },
+      "targets_met": 0,
+      "total_services": 2,
+      "average_reduction": 32
+    },
+    "response_times": {
+      "services": {
+        "wigle-to-tak": {
+          "average_response_time": 7.9,
+          "target_response_time": 12,
+          "baseline_response_time": 13,
+          "improvement_percent": 39,
+          "target_met": true,
+          "measurements": {
+            "GET /api/status": {
+              "avg_time": 9.01,
+              "min_time": 7.05,
+              "max_time": 16.33,
+              "success_rate": 100,
+              "cache_hit_rate": 0
+            },
+            "GET /list_wigle_files?directory=.": {
+              "avg_time": 6.8,
+              "min_time": 5.73,
+              "max_time": 9.78,
+              "success_rate": 100,
+              "cache_hit_rate": 0
+            },
+            "GET /performance/stats": {
+              "error": "All requests failed",
+              "success_rate": 0
+            }
+          }
+        },
+        "spectrum-analyzer": {
+          "error": "Service not running"
+        }
+      },
+      "targets_met": 1,
+      "total_services": 1,
+      "average_improvement": 39
+    },
+    "websocket_performance": {
+      "spectrum_analyzer": null,
+      "performance_improved": false
+    },
+    "system_metrics": {
+      "system_info": {
+        "platform": "linux",
+        "arch": "arm64",
+        "cpu_model": "Cortex-A72",
+        "cpu_cores": 4,
+        "total_memory_gb": 7.63,
+        "free_memory_gb": 4.41,
+        "node_version": "v22.16.0",
+        "uptime_hours": 225.21
+      },
+      "optimization_files": {
+        "src/nodejs/shared/utils/memory-monitor.js": "found",
+        "src/nodejs/shared/utils/gc-optimizer.js": "found",
+        "src/nodejs/shared/middleware/performance-middleware.js": "found",
+        "src/nodejs/wigle-to-tak/start-optimized.sh": "found",
+        "systemd/wigle-to-tak-optimized.service": "found"
+      },
+      "memory_pressure": false,
+      "cpu_utilization": {
+        "load_1min": 1.52,
+        "load_5min": 2.18,
+        "cores": 4,
+        "utilization_percent": 38
+      },
+      "optimization_score": 100
+    }
+  },
+  "optimizations_applied": [
+    {
+      "name": "Node.js memory flags",
+      "status": "applied",
+      "impact": "memory reduction"
+    },
+    {
+      "name": "Memory monitoring",
+      "status": "available",
+      "impact": "memory stability"
+    },
+    {
+      "name": "API response caching",
+      "status": "available",
+      "impact": "response time improvement"
+    },
+    {
+      "name": "Response compression",
+      "status": "available",
+      "impact": "bandwidth and response time"
+    },
+    {
+      "name": "Memory-efficient caching",
+      "status": "available",
+      "impact": "memory and performance"
+    }
+  ],
+  "performance_improvements": {
+    "memory": {
+      "achieved_reduction": "32%",
+      "target_reduction": "35%",
+      "status": "target_not_met"
+    },
+    "response_time": {
+      "achieved_improvement": "39%",
+      "target_improvement": "8%",
+      "status": "target_met"
+    }
+  },
+  "recommendations": []
+}

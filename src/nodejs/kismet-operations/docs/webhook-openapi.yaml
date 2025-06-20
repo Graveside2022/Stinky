@@ -1,0 +1,691 @@
+openapi: 3.0.3
+info:
+  title: Kismet Operations Webhook API
+  description: |
+    API for managing Kismet and GPS services, providing real-time monitoring
+    and data access for WiFi scanning operations.
+    
+    This API enables:
+    - Starting and stopping Kismet/GPS services
+    - Monitoring service status and system health
+    - Retrieving Kismet scan data and alerts
+    - Real-time updates via WebSocket
+  version: 1.0.0
+  contact:
+    name: Stinkster Development Team
+    email: support@stinkster.local
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+
+servers:
+  - url: http://localhost:8092
+    description: Local development server
+  - url: http://10.42.0.1:8092
+    description: Raspberry Pi host
+  - url: https://kismet.stinkster.com
+    description: Production server (future)
+
+tags:
+  - name: Script Management
+    description: Start, stop, and monitor scripts
+  - name: System Info
+    description: System and service information
+  - name: Kismet Data
+    description: Access Kismet scan data and alerts
+  - name: WebSocket
+    description: Real-time event streaming
+
+paths:
+  /api/webhook/run-script:
+    post:
+      summary: Start a script
+      description: Starts Kismet and/or GPS services with optional configuration
+      operationId: runScript
+      tags:
+        - Script Management
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RunScriptRequest'
+            examples:
+              kismet:
+                summary: Start Kismet only
+                value:
+                  script: kismet
+                  options:
+                    interface: wlan0
+              gps:
+                summary: Start GPS only
+                value:
+                  script: gps
+              both:
+                summary: Start both services
+                value:
+                  script: both
+      responses:
+        '200':
+          description: Script started successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RunScriptResponse'
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                success: false
+                error: INVALID_SCRIPT
+                message: Invalid script type specified
+                details: "Valid options are: kismet, gps, both"
+        '409':
+          description: Script already running
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                success: false
+                error: ALREADY_RUNNING
+                message: Script is already running
+                details: "PID: 12345"
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/webhook/stop-script:
+    post:
+      summary: Stop a script
+      description: Stops running Kismet and/or GPS services
+      operationId: stopScript
+      tags:
+        - Script Management
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StopScriptRequest'
+            examples:
+              graceful:
+                summary: Graceful shutdown
+                value:
+                  script: kismet
+                  force: false
+              force:
+                summary: Force kill
+                value:
+                  script: kismet
+                  force: true
+      responses:
+        '200':
+          description: Script stopped successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StopScriptResponse'
+        '404':
+          description: Script not running
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                success: false
+                error: NOT_RUNNING
+                message: Script is not running
+                details: No PID file found
+        '500':
+          description: Failed to stop script
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/webhook/script-status:
+    get:
+      summary: Get script status
+      description: Returns the current status of Kismet and GPS services
+      operationId: getScriptStatus
+      tags:
+        - Script Management
+      parameters:
+        - name: script
+          in: query
+          description: Filter by specific script
+          required: false
+          schema:
+            type: string
+            enum: [kismet, gps]
+      responses:
+        '200':
+          description: Script status retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ScriptStatusResponse'
+
+  /api/webhook/info:
+    get:
+      summary: Get system information
+      description: Returns system information and service configuration
+      operationId: getSystemInfo
+      tags:
+        - System Info
+      responses:
+        '200':
+          description: System information retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SystemInfoResponse'
+
+  /api/webhook/kismet-data:
+    get:
+      summary: Get Kismet data
+      description: Retrieves recent data from Kismet including detected devices and networks
+      operationId: getKismetData
+      tags:
+        - Kismet Data
+      parameters:
+        - name: type
+          in: query
+          description: Data type to retrieve
+          required: false
+          schema:
+            type: string
+            enum: [devices, networks, alerts, all]
+            default: all
+        - name: limit
+          in: query
+          description: Maximum number of results
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 1000
+            default: 100
+        - name: since
+          in: query
+          description: ISO timestamp for filtering recent data
+          required: false
+          schema:
+            type: string
+            format: date-time
+        - name: format
+          in: query
+          description: Response format
+          required: false
+          schema:
+            type: string
+            enum: [json, csv]
+            default: json
+      responses:
+        '200':
+          description: Kismet data retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/KismetDataResponse'
+            text/csv:
+              schema:
+                type: string
+                description: CSV formatted data
+        '503':
+          description: Kismet service unavailable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                success: false
+                error: KISMET_UNAVAILABLE
+                message: Kismet service is not running or not responding
+                details: Start Kismet using /api/webhook/run-script
+
+components:
+  schemas:
+    RunScriptRequest:
+      type: object
+      required:
+        - script
+      properties:
+        script:
+          type: string
+          enum: [kismet, gps, both]
+          description: Script to start
+        options:
+          type: object
+          properties:
+            interface:
+              type: string
+              description: Network interface for Kismet
+              default: wlan0
+            config:
+              type: string
+              description: Custom configuration file
+
+    RunScriptResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        message:
+          type: string
+        script:
+          type: string
+        pid:
+          type: integer
+          description: Process ID of started script
+        timestamp:
+          type: string
+          format: date-time
+
+    StopScriptRequest:
+      type: object
+      required:
+        - script
+      properties:
+        script:
+          type: string
+          enum: [kismet, gps, both]
+          description: Script to stop
+        force:
+          type: boolean
+          description: Force kill the process
+          default: false
+
+    StopScriptResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        message:
+          type: string
+        script:
+          type: string
+        pid:
+          type: integer
+          description: Process ID that was stopped
+        timestamp:
+          type: string
+          format: date-time
+
+    ScriptStatusResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        status:
+          type: object
+          properties:
+            kismet:
+              $ref: '#/components/schemas/ServiceStatus'
+            gps:
+              $ref: '#/components/schemas/ServiceStatus'
+        timestamp:
+          type: string
+          format: date-time
+
+    ServiceStatus:
+      type: object
+      properties:
+        running:
+          type: boolean
+        pid:
+          type: integer
+          nullable: true
+        uptime:
+          type: integer
+          description: Uptime in seconds
+          nullable: true
+        startTime:
+          type: string
+          format: date-time
+          nullable: true
+        lastRunTime:
+          type: string
+          format: date-time
+          nullable: true
+        lastExitCode:
+          type: integer
+          nullable: true
+        memory:
+          type: object
+          properties:
+            rss:
+              type: integer
+              description: Resident set size in bytes
+            vms:
+              type: integer
+              description: Virtual memory size in bytes
+        cpu:
+          type: number
+          description: CPU usage percentage
+
+    SystemInfoResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        system:
+          type: object
+          properties:
+            hostname:
+              type: string
+            platform:
+              type: string
+            arch:
+              type: string
+            uptime:
+              type: integer
+              description: System uptime in seconds
+            loadAverage:
+              type: array
+              items:
+                type: number
+              minItems: 3
+              maxItems: 3
+            memory:
+              $ref: '#/components/schemas/MemoryInfo'
+            disk:
+              $ref: '#/components/schemas/DiskInfo'
+        services:
+          type: object
+          properties:
+            kismet:
+              $ref: '#/components/schemas/KismetConfig'
+            gps:
+              $ref: '#/components/schemas/GPSConfig'
+            spectrum:
+              $ref: '#/components/schemas/SpectrumConfig'
+        network:
+          type: object
+          properties:
+            interfaces:
+              type: array
+              items:
+                $ref: '#/components/schemas/NetworkInterface'
+        timestamp:
+          type: string
+          format: date-time
+
+    MemoryInfo:
+      type: object
+      properties:
+        total:
+          type: integer
+          description: Total memory in bytes
+        free:
+          type: integer
+          description: Free memory in bytes
+        used:
+          type: integer
+          description: Used memory in bytes
+        percentage:
+          type: number
+          description: Memory usage percentage
+
+    DiskInfo:
+      type: object
+      properties:
+        total:
+          type: integer
+          description: Total disk space in bytes
+        free:
+          type: integer
+          description: Free disk space in bytes
+        used:
+          type: integer
+          description: Used disk space in bytes
+        percentage:
+          type: number
+          description: Disk usage percentage
+
+    KismetConfig:
+      type: object
+      properties:
+        version:
+          type: string
+        configPath:
+          type: string
+        dataPath:
+          type: string
+        interfaces:
+          type: array
+          items:
+            type: string
+
+    GPSConfig:
+      type: object
+      properties:
+        device:
+          type: string
+        baudRate:
+          type: integer
+        protocol:
+          type: string
+
+    SpectrumConfig:
+      type: object
+      properties:
+        version:
+          type: string
+        port:
+          type: integer
+        openwebrxConnected:
+          type: boolean
+
+    NetworkInterface:
+      type: object
+      properties:
+        name:
+          type: string
+        address:
+          type: string
+        mac:
+          type: string
+        type:
+          type: string
+          enum: [ethernet, wireless]
+        monitoring:
+          type: boolean
+
+    KismetDataResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: object
+          properties:
+            devices:
+              type: array
+              items:
+                $ref: '#/components/schemas/DetectedDevice'
+            networks:
+              type: array
+              items:
+                $ref: '#/components/schemas/DetectedNetwork'
+            alerts:
+              type: array
+              items:
+                $ref: '#/components/schemas/KismetAlert'
+            summary:
+              $ref: '#/components/schemas/DataSummary'
+        timestamp:
+          type: string
+          format: date-time
+
+    DetectedDevice:
+      type: object
+      properties:
+        mac:
+          type: string
+          pattern: '^([0-9A-F]{2}:){5}[0-9A-F]{2}$'
+        firstSeen:
+          type: string
+          format: date-time
+        lastSeen:
+          type: string
+          format: date-time
+        manufacturer:
+          type: string
+        type:
+          type: string
+        packets:
+          type: integer
+        dataBytes:
+          type: integer
+        signal:
+          type: object
+          properties:
+            last:
+              type: integer
+            min:
+              type: integer
+            max:
+              type: integer
+        location:
+          type: object
+          properties:
+            lat:
+              type: number
+            lon:
+              type: number
+            accuracy:
+              type: number
+
+    DetectedNetwork:
+      type: object
+      properties:
+        ssid:
+          type: string
+        bssid:
+          type: string
+          pattern: '^([0-9A-F]{2}:){5}[0-9A-F]{2}$'
+        channel:
+          type: integer
+        frequency:
+          type: integer
+        encryption:
+          type: string
+        firstSeen:
+          type: string
+          format: date-time
+        lastSeen:
+          type: string
+          format: date-time
+        clients:
+          type: integer
+        packets:
+          type: integer
+        signal:
+          type: object
+          properties:
+            last:
+              type: integer
+            min:
+              type: integer
+            max:
+              type: integer
+
+    KismetAlert:
+      type: object
+      properties:
+        id:
+          type: string
+        type:
+          type: string
+        severity:
+          type: string
+          enum: [low, medium, high, critical]
+        timestamp:
+          type: string
+          format: date-time
+        message:
+          type: string
+        details:
+          type: object
+          additionalProperties: true
+
+    DataSummary:
+      type: object
+      properties:
+        totalDevices:
+          type: integer
+        totalNetworks:
+          type: integer
+        activeAlerts:
+          type: integer
+        dataRange:
+          type: object
+          properties:
+            start:
+              type: string
+              format: date-time
+            end:
+              type: string
+              format: date-time
+
+    ErrorResponse:
+      type: object
+      required:
+        - success
+        - error
+        - message
+      properties:
+        success:
+          type: boolean
+          example: false
+        error:
+          type: string
+          description: Error code
+        message:
+          type: string
+          description: Human-readable error message
+        details:
+          type: string
+          description: Additional error details
+        timestamp:
+          type: string
+          format: date-time
+
+    WebSocketMessage:
+      type: object
+      required:
+        - event
+        - data
+      properties:
+        event:
+          type: string
+          enum: [subscribe, requestStatus, statusUpdate, newDevice, alert]
+        data:
+          type: object
+          description: Event-specific data payload
+
+  securitySchemes:
+    apiKey:
+      type: apiKey
+      in: header
+      name: X-API-Key
+      description: API key for authentication (future implementation)
+
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: JWT token authentication (future implementation)
+
+# Future security implementation
+# security:
+#   - apiKey: []
+#   - bearerAuth: []

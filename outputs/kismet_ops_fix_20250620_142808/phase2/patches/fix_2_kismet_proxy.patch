@@ -1,0 +1,60 @@
+--- outputs/kismet_ops_fix_20250620_142808/phase2/backups/server.js.backup	2025-06-20 14:37:19.497458348 +0200
++++ src/nodejs/kismet-operations/server.js	2025-06-20 14:38:39.237059159 +0200
+@@ -514,6 +514,57 @@
+   }
+ }));
+ 
++// Proxy middleware for Kismet iframe integration
++app.use('/kismet', createProxyMiddleware({
++  target: 'http://localhost:2501',
++  changeOrigin: true,
++  auth: 'admin:admin', // Add authentication
++  ws: true, // Enable WebSocket support for Kismet
++  timeout: 30000, // 30 second timeout
++  proxyTimeout: 30000, // 30 second proxy timeout
++  onProxyReq: (proxyReq, req, res) => {
++    // Log proxied requests
++    logger.debug('Proxying iframe request to Kismet', {
++      method: req.method,
++      originalUrl: req.originalUrl,
++      targetPath: proxyReq.path
++    });
++  },
++  onProxyRes: (proxyRes, req, res) => {
++    // Remove X-Frame-Options to allow iframe embedding
++    delete proxyRes.headers['x-frame-options'];
++    
++    // Add CORS headers
++    proxyRes.headers['access-control-allow-origin'] = '*';
++    proxyRes.headers['access-control-allow-methods'] = 'GET, POST, PUT, DELETE, OPTIONS';
++    proxyRes.headers['access-control-allow-headers'] = 'Content-Type, Authorization';
++    
++    // Allow iframe embedding
++    proxyRes.headers['content-security-policy'] = "frame-ancestors 'self' *;";
++    
++    logger.debug('Received iframe response from Kismet', {
++      statusCode: proxyRes.statusCode,
++      originalUrl: req.originalUrl
++    });
++  },
++  onError: (err, req, res) => {
++    logger.error('Proxy error for Kismet iframe', {
++      error: err.message,
++      originalUrl: req.originalUrl
++    });
++    res.status(502).send(`
++      <html>
++        <body style="margin: 20px; font-family: Arial;">
++          <h2>Unable to connect to Kismet</h2>
++          <p>The Kismet service is not available.</p>
++          <p>Error: ${err.message}</p>
++          <p>Please ensure Kismet is running on port 2501.</p>
++        </body>
++      </html>
++    `);
++  }
++}));
++
+ // Routes
+ app.get('/', (req, res) => {
+   // Force no-cache for the main page

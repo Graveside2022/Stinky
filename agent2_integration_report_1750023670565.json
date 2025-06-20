@@ -1,0 +1,228 @@
+{
+  "timestamp": "2025-06-15T21:40:57.799Z",
+  "testId": "integration-test-1750023657800",
+  "totalTests": 6,
+  "passedTests": 5,
+  "failedTests": 1,
+  "tests": [
+    {
+      "testName": "GPS Data Flow",
+      "startTime": 1750023657805,
+      "subTests": [
+        {
+          "testName": "GPSD Connection",
+          "passed": true,
+          "duration": 37,
+          "responseData": "{\"class\":\"VERSION\",\"release\":\"3.22\",\"rev\":\"3.22\",\"proto_major\":3,\"proto_minor\":14}\r"
+        },
+        {
+          "testName": "GPS Data Format",
+          "passed": true,
+          "duration": 3,
+          "messagesReceived": 3,
+          "messageTypes": [
+            "VERSION",
+            "DEVICES",
+            "WATCH"
+          ]
+        },
+        {
+          "testName": "GPS Data Streaming",
+          "passed": true,
+          "duration": 1761,
+          "linesReceived": 5,
+          "validJsonLines": 5
+        }
+      ],
+      "passed": true,
+      "endTime": 1750023659612,
+      "duration": 1807
+    },
+    {
+      "testName": "WiFi Scanning Integration",
+      "startTime": 1750023659615,
+      "subTests": [
+        {
+          "testName": "WigleToTAK Service Status",
+          "passed": true,
+          "duration": "N/A",
+          "statusFields": [
+            "broadcasting",
+            "takServerIp",
+            "takServerPort",
+            "analysisMode",
+            "antennaSensitivity",
+            "whitelistedSsids",
+            "whitelistedMacs",
+            "blacklistedSsids",
+            "blacklistedMacs",
+            "takMulticastState",
+            "directory",
+            "processedMacs",
+            "processedEntries"
+          ]
+        },
+        {
+          "testName": "CSV File Processing",
+          "passed": true,
+          "filesFound": 0,
+          "supportedExtensions": []
+        },
+        {
+          "testName": "Filter Management",
+          "passed": true,
+          "addResponse": {
+            "message": "SSID \"TEST_SSID_INTEGRATION\" added to whitelist"
+          },
+          "removeResponse": {
+            "message": "SSID \"TEST_SSID_INTEGRATION\" removed from whitelist"
+          }
+        }
+      ],
+      "passed": true,
+      "endTime": 1750023659734,
+      "duration": 119
+    },
+    {
+      "testName": "TAK Integration",
+      "startTime": 1750023659737,
+      "subTests": [
+        {
+          "testName": "TAK Settings Update",
+          "passed": true,
+          "responseMessage": "TAK settings updated successfully"
+        },
+        {
+          "testName": "Multicast Configuration",
+          "passed": true,
+          "responseMessage": "Multicast enabled"
+        },
+        {
+          "testName": "UDP Broadcasting",
+          "passed": false,
+          "duration": 10002,
+          "error": "No UDP message received within timeout"
+        }
+      ],
+      "passed": false,
+      "endTime": 1750023669765,
+      "duration": 10028
+    },
+    {
+      "testName": "Real-time Data Processing",
+      "startTime": 1750023669765,
+      "subTests": [
+        {
+          "testName": "Analysis Mode Switch",
+          "passed": true,
+          "realtimeMode": {
+            "message": "Analysis mode set to realtime"
+          },
+          "postcollectionMode": {
+            "message": "Analysis mode set to postcollection"
+          }
+        },
+        {
+          "testName": "Response Time Performance",
+          "passed": true,
+          "averageResponseTime": "8.20ms",
+          "minResponseTime": "6ms",
+          "maxResponseTime": "12ms",
+          "iterations": 10
+        }
+      ],
+      "passed": true,
+      "endTime": 1750023670390,
+      "duration": 625
+    },
+    {
+      "testName": "API Endpoint Validation",
+      "startTime": 1750023670391,
+      "subTests": [
+        {
+          "testName": "GET /",
+          "passed": true,
+          "statusCode": 200,
+          "responseTime": "12ms",
+          "contentLength": "11854"
+        },
+        {
+          "testName": "GET /api/status",
+          "passed": true,
+          "statusCode": 200,
+          "responseTime": "6ms",
+          "contentLength": "339"
+        },
+        {
+          "testName": "GET /list_wigle_files?directory=./",
+          "passed": true,
+          "statusCode": 200,
+          "responseTime": "10ms",
+          "contentLength": "12"
+        },
+        {
+          "testName": "POST /update_tak_settings",
+          "passed": true,
+          "statusCode": 200,
+          "responseTime": "10ms",
+          "contentLength": "47"
+        },
+        {
+          "testName": "POST /update_multicast_state",
+          "passed": true,
+          "statusCode": 200,
+          "responseTime": "7ms",
+          "contentLength": "31"
+        },
+        {
+          "testName": "POST /update_analysis_mode",
+          "passed": true,
+          "statusCode": 200,
+          "responseTime": "7ms",
+          "contentLength": "43"
+        }
+      ],
+      "passed": true,
+      "endTime": 1750023670445,
+      "duration": 54
+    },
+    {
+      "testName": "Performance Metrics Collection",
+      "startTime": 1750023670446,
+      "subTests": [
+        {
+          "testName": "System Metrics",
+          "passed": true,
+          "memoryInfo": "Mem:            7809        3273         506          68        4228        4536",
+          "activeProcesses": 10,
+          "processDetails": [
+            "root 1655 0.0 0.0 2224 1404 ? Ss Jun06 0:00 fusermount3",
+            "pi 2581575 0.6 1.2 5258168 103000 ? Sl 19:14 1:39 /home/pi/.cursor-server/cli/servers/Stable-53b99ce608cba35127ae3a050c1738a959750860/server/node",
+            "pi 2581850 0.1 0.8 5139796 67404 ? Sl 19:14 0:27 /home/pi/.cursor-server/cli/servers/Stable-53b99ce608cba35127ae3a050c1738a959750860/server/node",
+            "gpsd 2622251 1.8 0.0 17284 3824 ? S<sl 20:39 3:17 /usr/sbin/gpsd",
+            "pi 2630239 1.4 5.0 35745552 401044 ? Sl 20:47 2:29 /home/pi/.cursor-server/cli/servers/Stable-53b99ce608cba35127ae3a050c1738a959750860/server/node",
+            "pi 2630262 0.5 1.6 5169032 131436 ? Sl 20:47 0:53 /home/pi/.cursor-server/cli/servers/Stable-53b99ce608cba35127ae3a050c1738a959750860/server/node",
+            "pi 2744228 0.0 0.8 851840 66000 ? SNl 22:46 0:01 node",
+            "pi 2755758 0.1 0.9 1054552 73600 ? SNl 23:05 0:03 node",
+            "pi 2777797 0.3 0.0 7328 3164 ? Ss 23:40 0:00 /usr/bin/zsh",
+            "pi 2777798 5.5 0.7 11531300 62436 ? Sl 23:40 0:00 node"
+          ]
+        },
+        {
+          "testName": "Service Metrics",
+          "passed": true,
+          "metrics": {
+            "wigleToTAK": {
+              "averageResponseTime": "6.40",
+              "minResponseTime": 6,
+              "maxResponseTime": 7
+            }
+          }
+        }
+      ],
+      "passed": true,
+      "endTime": 1750023670561,
+      "duration": 115
+    }
+  ]
+}

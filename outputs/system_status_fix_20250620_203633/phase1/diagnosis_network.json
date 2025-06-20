@@ -1,0 +1,200 @@
+{
+  "diagnosticReport": {
+    "timestamp": "2025-06-20T20:40:00Z",
+    "analysisType": "Network Communication Patterns",
+    "focusArea": "System Status Box Data Flow",
+    "agent": "Agent E - Network Diagnostics"
+  },
+  "networkRequestAnalysis": {
+    "statusBoxEndpoints": {
+      "/info": {
+        "method": "GET",
+        "frequency": "Every 5 seconds",
+        "headers": {
+          "Accept": "application/json"
+        },
+        "expectedResponse": {
+          "ip": "string",
+          "gps": {
+            "status": "string",
+            "lat": "string",
+            "lon": "string", 
+            "alt": "string",
+            "time": "ISO timestamp"
+          }
+        },
+        "actualResponse": {
+          "status": "HARDCODED_DATA",
+          "issue": "Server returns static values, not real GPS data",
+          "details": {
+            "lat": "37.7749 (San Francisco)",
+            "lon": "-122.4194 (San Francisco)",
+            "status": "Connected (hardcoded)",
+            "comments": "TODO comments indicate real GPS integration pending"
+          }
+        }
+      },
+      "/kismet-data": {
+        "method": "GET",
+        "frequency": "Every 2 seconds",
+        "headers": {
+          "Accept": "application/json"
+        },
+        "expectedResponse": {
+          "devices_count": "number",
+          "networks_count": "number",
+          "recent_devices": "array",
+          "feed_items": "array"
+        },
+        "serverImplementation": {
+          "dataSource": "KismetClient library",
+          "endpoint": "http://localhost:2501",
+          "auth": {
+            "username": "admin",
+            "password": "admin"
+          },
+          "errorHandling": "Returns empty data on error"
+        }
+      },
+      "/script-status": {
+        "method": "GET", 
+        "frequency": "Every 5 seconds",
+        "purpose": "Check Kismet and WigleToTAK service status",
+        "expectedResponse": {
+          "kismet_running": "boolean",
+          "wigle_running": "boolean",
+          "gps_running": "boolean",
+          "timestamp": "ISO timestamp"
+        },
+        "serverImplementation": {
+          "dataSource": "scriptManager service",
+          "checksMultipleScripts": true,
+          "fallbackBehavior": "Returns all false on error"
+        }
+      }
+    },
+    "clientSideRequestFlow": {
+      "initialization": {
+        "onDOMContentLoaded": [
+          "initializeGrid()",
+          "initializePeriodicUpdates()",
+          "initializeStatusUpdates()"
+        ],
+        "periodicUpdates": {
+          "updateSystemStatus": "5000ms interval",
+          "updateKismetData": "2000ms interval",
+          "updateKismetStatus": "5000ms interval"
+        }
+      },
+      "errorHandling": {
+        "networkErrors": "Caught and logged to console",
+        "displayFallback": "Shows 'Error loading' or '0' values",
+        "noRetryMechanism": true
+      }
+    }
+  },
+  "webSocketAnalysis": {
+    "socketIOPresent": true,
+    "serverConfiguration": {
+      "library": "socket.io",
+      "cors": {
+        "origin": "Dynamic based on request",
+        "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+        "credentials": true
+      }
+    },
+    "statusBoxUsesWebSocket": false,
+    "note": "Socket.IO is configured but status box uses polling instead"
+  },
+  "corsAndSecurityAnalysis": {
+    "corsConfiguration": {
+      "helmetDisabled": {
+        "contentSecurityPolicy": false,
+        "reason": "Disabled for development"
+      },
+      "allowedOrigins": [
+        "http://localhost:8002",
+        "http://localhost:2501", 
+        "http://localhost:8000",
+        "http://localhost:3002",
+        "http://localhost:8073",
+        "http://localhost:8092",
+        "http://10.42.0.1:*",
+        "http://192.168.0.217:*"
+      ],
+      "developmentMode": "Allows any origin with warning"
+    },
+    "potentialIssues": {
+      "cspDisabled": "No Content Security Policy protection",
+      "openCors": "Development mode allows any origin",
+      "noRateLimiting": "No request throttling observed"
+    }
+  },
+  "identifiedIssues": {
+    "critical": [
+      {
+        "issue": "GPS Data Not Live",
+        "details": "The /info endpoint returns hardcoded GPS coordinates for San Francisco",
+        "impact": "System status box shows fake location data",
+        "evidence": "TODO comments in server.js lines 640-644"
+      }
+    ],
+    "major": [
+      {
+        "issue": "No WebSocket for Real-time Updates",
+        "details": "Status box uses polling instead of WebSocket despite socket.io availability",
+        "impact": "Inefficient network usage, delayed updates",
+        "recommendation": "Implement WebSocket events for status updates"
+      },
+      {
+        "issue": "Missing Error Recovery", 
+        "details": "No retry mechanism when requests fail",
+        "impact": "Status box stays in error state until page refresh",
+        "recommendation": "Add exponential backoff retry logic"
+      }
+    ],
+    "minor": [
+      {
+        "issue": "Frequent Polling",
+        "details": "Kismet data polled every 2 seconds regardless of activity",
+        "impact": "Unnecessary server load",
+        "recommendation": "Use adaptive polling or WebSocket push"
+      }
+    ]
+  },
+  "requestSequenceDiagram": {
+    "pageLoad": [
+      "1. DOMContentLoaded event",
+      "2. initializeApplication()",
+      "3. Start 3 interval timers",
+      "4. Immediate calls to update functions", 
+      "5. GET /info (system status)",
+      "6. GET /kismet-data (device data)",
+      "7. GET /script-status (service status)",
+      "8. Update DOM with responses"
+    ],
+    "continuousOperation": [
+      "Every 2s: GET /kismet-data",
+      "Every 5s: GET /info",
+      "Every 5s: GET /script-status",
+      "On service start: Rapid polling for 30s"
+    ]
+  },
+  "recommendations": {
+    "immediate": [
+      "Fix /info endpoint to return real GPS data",
+      "Add error retry mechanism with backoff",
+      "Implement request timeout handling"
+    ],
+    "shortTerm": [
+      "Replace polling with WebSocket events",
+      "Add request/response logging for debugging",
+      "Implement client-side caching"
+    ],
+    "longTerm": [
+      "Add request batching to reduce calls",
+      "Implement GraphQL or similar for efficient data fetching",
+      "Add performance monitoring"
+    ]
+  }
+}

@@ -1,0 +1,174 @@
+{
+  "diagnostic_report": {
+    "agent": "Agent B - Backend API Diagnostics",
+    "timestamp": "2025-06-20T18:42:00Z",
+    "objective": "Examine Node.js backend API endpoints for system status box data delivery",
+    "findings": {
+      "api_endpoints_discovered": {
+        "/info": {
+          "status": "FUNCTIONAL",
+          "description": "Provides IP address and GPS data",
+          "test_result": {
+            "ip": "10.42.0.1",
+            "gps": {
+              "status": "Connected",
+              "lat": "37.7749",
+              "lon": "-122.4194",
+              "alt": "15.0m",
+              "time": "2025-06-20T18:38:36.862Z"
+            }
+          },
+          "issues": [
+            "Returns hardcoded GPS coordinates (San Francisco)",
+            "Does not fetch real GPS data from GPSD",
+            "Missing MGRS coordinate calculation"
+          ]
+        },
+        "/api/status": {
+          "status": "FUNCTIONAL",
+          "description": "Provides spectrum analyzer status",
+          "test_result": {
+            "connected": false,
+            "mode": "DEMO MODE",
+            "buffer_size": 0
+          },
+          "issues": [
+            "Returns spectrum analyzer status, not system status",
+            "Does not include GPS or IP information",
+            "Frontend expects GPS data from this endpoint"
+          ]
+        },
+        "/script-status": {
+          "status": "FUNCTIONAL", 
+          "description": "Provides service running status",
+          "test_result": {
+            "kismet_running": true,
+            "wigle_running": true,
+            "gps_running": true
+          },
+          "issues": []
+        },
+        "/kismet-data": {
+          "status": "FUNCTIONAL",
+          "description": "Provides Kismet device/network data",
+          "test_result": {
+            "devices_count": 0,
+            "networks_count": 0,
+            "recent_devices": []
+          },
+          "issues": []
+        }
+      },
+      "critical_issues": [
+        {
+          "issue": "Frontend-Backend Endpoint Mismatch",
+          "severity": "HIGH",
+          "details": "Frontend JavaScript calls /api/status expecting GPS data, but /api/status returns spectrum analyzer data",
+          "frontend_code": "updateSystemStatus() calls fetch('/api/status')",
+          "backend_reality": "/api/status returns spectrum analyzer status, GPS data is at /info"
+        },
+        {
+          "issue": "Hardcoded GPS Data",
+          "severity": "HIGH", 
+          "details": "The /info endpoint returns hardcoded San Francisco coordinates instead of real GPS data",
+          "evidence": {
+            "hardcoded_values": {
+              "lat": "37.7749",
+              "lon": "-122.4194"
+            },
+            "actual_gps_available": {
+              "lat": 50.083885000,
+              "lon": 8.273961667,
+              "source": "gpspipe shows real data available on /dev/ttyUSB0"
+            }
+          }
+        },
+        {
+          "issue": "Missing MGRS Calculation",
+          "severity": "MEDIUM",
+          "details": "Backend does not calculate MGRS coordinates, frontend expects them",
+          "frontend_expectation": "document.getElementById('gps-mgrs').textContent expects MGRS data",
+          "backend_reality": "No MGRS field provided in API response"
+        }
+      ],
+      "gps_integration_status": {
+        "gpsd_running": true,
+        "gpsd_data_available": true,
+        "sample_data": {
+          "class": "TPV",
+          "device": "/dev/ttyUSB0",
+          "mode": 3,
+          "lat": 50.083885000,
+          "lon": 8.273961667,
+          "alt": 212.7000
+        },
+        "integration_issue": "Backend not connecting to GPSD to fetch real data"
+      },
+      "recommended_fixes": [
+        {
+          "priority": 1,
+          "fix": "Change frontend to call /info instead of /api/status",
+          "implementation": "Update hi.html line 1508: fetch('/info', {...})"
+        },
+        {
+          "priority": 2,
+          "fix": "Integrate real GPS data from GPSD",
+          "implementation": "Add gpsd client to server.js, connect to localhost:2947, fetch real TPV data"
+        },
+        {
+          "priority": 3,
+          "fix": "Add MGRS calculation to backend",
+          "implementation": "Use mgrs npm package to convert lat/lon to MGRS in /info endpoint"
+        },
+        {
+          "priority": 4,
+          "fix": "Alternatively, create new /api/system-status endpoint",
+          "implementation": "Combine GPS, IP, and MGRS data in format expected by frontend"
+        }
+      ],
+      "data_flow_analysis": {
+        "current_flow": [
+          "Frontend loads hi.html",
+          "JavaScript calls updateSystemStatus()",
+          "Fetches /api/status (WRONG ENDPOINT)",
+          "Expects {ip, gps:{status,lat,lon,alt,time}}",
+          "Gets spectrum analyzer data instead",
+          "Status box shows no data"
+        ],
+        "correct_flow": [
+          "Frontend should call /info endpoint",
+          "Backend should connect to GPSD",
+          "Fetch real GPS data from TPV messages",
+          "Calculate MGRS from lat/lon",
+          "Return complete system status"
+        ]
+      },
+      "middleware_analysis": {
+        "cors": "Properly configured, allows all origins",
+        "authentication": "None required for status endpoints",
+        "error_handling": "Proper error middleware in place",
+        "logging": "Winston logger configured and working"
+      },
+      "async_issues": {
+        "found": false,
+        "details": "Endpoints use proper async/await patterns"
+      },
+      "recent_changes": {
+        "todos_found": [
+          "Line 640: // TODO: Get real GPS status",
+          "Line 641: // TODO: Get real GPS coordinates"
+        ],
+        "indicates": "GPS integration was planned but not implemented"
+      }
+    },
+    "conclusion": {
+      "root_cause": "Frontend-backend endpoint mismatch and missing GPS integration",
+      "quick_fix": "Change frontend to use /info endpoint",
+      "proper_fix": "Implement real GPS data fetching from GPSD and add MGRS calculation",
+      "estimated_effort": {
+        "quick_fix": "5 minutes",
+        "proper_fix": "1-2 hours"
+      }
+    }
+  }
+}

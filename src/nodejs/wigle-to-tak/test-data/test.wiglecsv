@@ -1,0 +1,2 @@
+MAC,SSID,AuthMode,FirstSeen,Channel,RSSI,CurrentLatitude,CurrentLongitude,AltitudeMeters,AccuracyMeters,Type
+AA:BB:CC:DD:EE:01,TestNetwork1,WPA2,2023-01-01T12:00:00Z,6,-65,40.7128,-74.0060,100,5,WiFi

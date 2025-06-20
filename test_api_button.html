@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>API Test</title>
+</head>
+<body>
+    <h1>Test Start Button API</h1>
+    <button id="testButton">Test Start Script</button>
+    <div id="result"></div>
+    
+    <script>
+        document.getElementById('testButton').addEventListener('click', async function() {
+            const resultDiv = document.getElementById('result');
+            resultDiv.innerHTML = 'Testing API...';
+            
+            try {
+                console.log('Sending request to /api/start-script');
+                const response = await fetch('/api/start-script', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ scriptName: 'gps_kismet_wigle.sh' })
+                });
+                
+                console.log('Response status:', response.status);
+                console.log('Response headers:', response.headers);
+                
+                const data = await response.json();
+                console.log('Response data:', data);
+                
+                if (response.ok) {
+                    resultDiv.innerHTML = '<pre style="color: green;">Success: ' + JSON.stringify(data, null, 2) + '</pre>';
+                } else {
+                    resultDiv.innerHTML = '<pre style="color: red;">Error: ' + JSON.stringify(data, null, 2) + '</pre>';
+                }
+            } catch (error) {
+                console.error('Fetch error:', error);
+                resultDiv.innerHTML = '<pre style="color: red;">Fetch Error: ' + error.message + '</pre>';
+            }
+        });
+    </script>
+</body>
+</html>

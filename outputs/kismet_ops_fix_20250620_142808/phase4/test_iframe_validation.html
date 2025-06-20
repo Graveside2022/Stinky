@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Iframe Validation Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #1a1a1a;
+            color: #fff;
+            padding: 20px;
+        }
+        .test-result {
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 5px;
+        }
+        .pass { background: #2d5a2d; }
+        .fail { background: #5a2d2d; }
+        .info { background: #2d3a5a; }
+        iframe {
+            width: 100%;
+            height: 400px;
+            border: 2px solid #666;
+            margin: 20px 0;
+        }
+        #log {
+            background: #000;
+            padding: 10px;
+            font-family: monospace;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+<body>
+    <h1>Kismet Iframe Validation Test</h1>
+    
+    <div id="test-results"></div>
+    
+    <h2>Test Iframe (Direct Port)</h2>
+    <iframe id="direct-iframe" src=""></iframe>
+    
+    <h2>Test Iframe (Proxy Path)</h2>
+    <iframe id="proxy-iframe" src=""></iframe>
+    
+    <h2>Console Log</h2>
+    <div id="log"></div>
+    
+    <script>
+        const results = document.getElementById('test-results');
+        const logDiv = document.getElementById('log');
+        const directIframe = document.getElementById('direct-iframe');
+        const proxyIframe = document.getElementById('proxy-iframe');
+        
+        function log(msg) {
+            const time = new Date().toLocaleTimeString();
+            logDiv.innerHTML += `[${time}] ${msg}<br>`;
+            logDiv.scrollTop = logDiv.scrollHeight;
+        }
+        
+        function addResult(test, passed, details) {
+            const div = document.createElement('div');
+            div.className = `test-result ${passed ? 'pass' : 'fail'}`;
+            div.innerHTML = `<strong>${test}:</strong> ${passed ? 'PASS' : 'FAIL'} - ${details}`;
+            results.appendChild(div);
+        }
+        
+        // Test 1: Check if Kismet service is accessible
+        log('Testing Kismet service status...');
+        fetch('/script-status')
+            .then(response => response.json())
+            .then(data => {
+                const kismetRunning = data && data.kismet_running === true;
+                addResult('Kismet Service Check', kismetRunning, 
+                    kismetRunning ? 'Kismet is running' : 'Kismet is not running');
+                log(`Kismet status: ${kismetRunning ? 'Running' : 'Not running'}`);
+                
+                if (kismetRunning) {
+                    // Test 2: Direct port access
+                    const directUrl = `http://${window.location.hostname}:2501`;
+                    log(`Setting direct iframe URL: ${directUrl}`);
+                    directIframe.src = directUrl;
+                    
+                    // Test 3: Proxy path access
+                    const proxyUrl = '/kismet';
+                    log(`Setting proxy iframe URL: ${proxyUrl}`);
+                    proxyIframe.src = proxyUrl;
+                }
+            })
+            .catch(error => {
+                addResult('API Check', false, `Failed to check service status: ${error}`);
+                log(`Error checking status: ${error}`);
+            });
+        
+        // Monitor iframe load events
+        directIframe.addEventListener('load', function() {
+            log('Direct iframe loaded successfully');
+            addResult('Direct Port Iframe', true, 'Iframe loaded via direct port');
+        });
+        
+        directIframe.addEventListener('error', function(e) {
+            log(`Direct iframe error: ${e}`);
+            addResult('Direct Port Iframe', false, 'Failed to load via direct port');
+        });
+        
+        proxyIframe.addEventListener('load', function() {
+            log('Proxy iframe loaded successfully');
+            addResult('Proxy Path Iframe', true, 'Iframe loaded via proxy path');
+        });
+        
+        proxyIframe.addEventListener('error', function(e) {
+            log(`Proxy iframe error: ${e}`);
+            addResult('Proxy Path Iframe', false, 'Failed to load via proxy path');
+        });
+        
+        // Test 4: Check iframe visibility
+        setTimeout(() => {
+            const directVisible = directIframe.style.display !== 'none' && 
+                                 directIframe.style.visibility !== 'hidden';
+            const proxyVisible = proxyIframe.style.display !== 'none' && 
+                                proxyIframe.style.visibility !== 'hidden';
+            
+            addResult('Direct Iframe Visibility', directVisible, 
+                directVisible ? 'Iframe is visible' : 'Iframe is hidden');
+            addResult('Proxy Iframe Visibility', proxyVisible, 
+                proxyVisible ? 'Iframe is visible' : 'Iframe is hidden');
+        }, 3000);
+        
+        // Test 5: Check hi.html iframe code
+        log('Analyzing hi.html iframe implementation...');
+        fetch('/hi.html')
+            .then(response => response.text())
+            .then(html => {
+                // Check for direct port usage
+                const hasDirectPort = html.includes(':2501');
+                const hasProxyPath = html.includes("kismetFrame.src = '/kismet'");
+                const hasRetryLogic = html.includes('maxRetries');
+                const hasLoadDelay = html.includes('setTimeout(() => loadKismetIframe(), 1000)');
+                
+                addResult('Direct Port Implementation', hasDirectPort, 
+                    hasDirectPort ? 'Uses direct port :2501' : 'Missing direct port');
+                addResult('Proxy Path Removed', !hasProxyPath, 
+                    hasProxyPath ? 'Still uses proxy path /kismet' : 'Proxy path removed');
+                addResult('Retry Logic', hasRetryLogic, 
+                    hasRetryLogic ? 'Has retry mechanism' : 'Missing retry logic');
+                addResult('Load Delay', hasLoadDelay, 
+                    hasLoadDelay ? 'Has 1-second delay' : 'Missing load delay');
+                
+                // Log the inconsistency
+                if (hasProxyPath) {
+                    log('WARNING: Found proxy path usage at line ~1674');
+                    log('This conflicts with direct port setup and may cause issues');
+                }
+            })
+            .catch(error => {
+                log(`Error fetching hi.html: ${error}`);
+            });
+    </script>
+</body>
+</html>

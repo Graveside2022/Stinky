@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Button Test - Port 8002</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        button { padding: 10px 20px; margin: 10px; font-size: 16px; cursor: pointer; }
+        .status { margin: 20px 0; padding: 10px; background: #f0f0f0; border-radius: 5px; }
+        .success { color: green; }
+        .error { color: red; }
+    </style>
+</head>
+<body>
+    <h1>Webhook Button Test - Port 8002</h1>
+    
+    <div>
+        <button onclick="testStart()">Start Kismet</button>
+        <button onclick="testStop()">Stop Kismet</button>
+        <button onclick="checkStatus()">Check Status</button>
+    </div>
+    
+    <div class="status">
+        <h3>Status:</h3>
+        <div id="status">Ready to test...</div>
+    </div>
+    
+    <script>
+        function updateStatus(message, isError = false) {
+            const status = document.getElementById('status');
+            status.innerHTML = `${new Date().toLocaleTimeString()}: ${message}`;
+            status.className = isError ? 'error' : 'success';
+        }
+        
+        async function testStart() {
+            updateStatus('Starting Kismet services...');
+            try {
+                const response = await fetch('http://localhost:8002/run-script', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({})
+                });
+                const data = await response.json();
+                updateStatus(`Start response: ${JSON.stringify(data)}`);
+            } catch (error) {
+                updateStatus(`Error: ${error.message}`, true);
+            }
+        }
+        
+        async function testStop() {
+            updateStatus('Stopping Kismet services...');
+            try {
+                const response = await fetch('http://localhost:8002/stop-script', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({})
+                });
+                const data = await response.json();
+                updateStatus(`Stop response: ${JSON.stringify(data)}`);
+            } catch (error) {
+                updateStatus(`Error: ${error.message}`, true);
+            }
+        }
+        
+        async function checkStatus() {
+            try {
+                const response = await fetch('http://localhost:8002/script-status');
+                const data = await response.json();
+                updateStatus(`Status: Kismet=${data.kismet_running}, Wigle=${data.wigle_running}, GPS=${data.gps_running}`);
+            } catch (error) {
+                updateStatus(`Error: ${error.message}`, true);
+            }
+        }
+        
+        // Check status on load
+        checkStatus();
+    </script>
+</body>
+</html>

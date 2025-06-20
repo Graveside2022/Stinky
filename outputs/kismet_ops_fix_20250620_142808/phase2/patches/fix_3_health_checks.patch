@@ -1,0 +1,113 @@
+@@ -514,6 +514,57 @@
+   }
+ }));
+ 
++// Proxy middleware for Kismet iframe integration
++app.use('/kismet', createProxyMiddleware({
++  target: 'http://localhost:2501',
++  changeOrigin: true,
++  auth: 'admin:admin', // Add authentication
++  ws: true, // Enable WebSocket support for Kismet
++  timeout: 30000, // 30 second timeout
++  proxyTimeout: 30000, // 30 second proxy timeout
++  onProxyReq: (proxyReq, req, res) => {
++    // Log proxied requests
++    logger.debug('Proxying iframe request to Kismet', {
++      method: req.method,
++      originalUrl: req.originalUrl,
++      targetPath: proxyReq.path
++    });
++  },
++  onProxyRes: (proxyRes, req, res) => {
++    // Remove X-Frame-Options to allow iframe embedding
++    delete proxyRes.headers['x-frame-options'];
++    
++    // Add CORS headers
++    proxyRes.headers['access-control-allow-origin'] = '*';
++    proxyRes.headers['access-control-allow-methods'] = 'GET, POST, PUT, DELETE, OPTIONS';
++    proxyRes.headers['access-control-allow-headers'] = 'Content-Type, Authorization';
++    
++    // Allow iframe embedding
++    proxyRes.headers['content-security-policy'] = "frame-ancestors 'self' *;";
++    
++    logger.debug('Received iframe response from Kismet', {
++      statusCode: proxyRes.statusCode,
++      originalUrl: req.originalUrl
++    });
++  },
++  onError: (err, req, res) => {
++    logger.error('Proxy error for Kismet iframe', {
++      error: err.message,
++      originalUrl: req.originalUrl
++    });
++    res.status(502).send(`
++      <html>
++        <body style="margin: 20px; font-family: Arial;">
++          <h2>Unable to connect to Kismet</h2>
++          <p>The Kismet service is not available.</p>
++          <p>Error: ${err.message}</p>
++          <p>Please ensure Kismet is running on port 2501.</p>
++        </body>
++      </html>
++    `);
++  }
++}));
++
+ // Routes
+ app.get('/', (req, res) => {
+   // Force no-cache for the main page
+@@ -694,14 +745,16 @@
+  */
+ app.post('/run-script', async (req, res) => {
+   try {
+-    const { script_name, args = [] } = req.body;
+-    logger.info('Running script via frontend', { script_name, args });
++    // Support both script_name and script parameters for backward compatibility
++    const { script_name, script, args = [] } = req.body;
++    const scriptName = script_name || script;
++    logger.info('Running script via frontend', { scriptName, args });
+     
+-    // Determine which script to run
+-    let scriptToRun = script_name || 'gps_kismet_wigle';
++    // Map 'kismet' to 'gps_kismet_wigle' for compatibility
++    let scriptToRun = scriptName === 'kismet' ? 'gps_kismet_wigle' : (scriptName || 'gps_kismet_wigle');
+     
+     // Handle the different script names
+-    if (script_name === 'smart_restart' && args.includes('start')) {
++    if (scriptName === 'smart_restart' && args.includes('start')) {
+       // Use the smart restart script for starting
+       const scriptPath = path.join(__dirname, '..', '..', 'orchestration', 'smart_restart.sh');
+       
+@@ -717,12 +770,13 @@
+       await new Promise(resolve => setTimeout(resolve, 1000));
+       
+       res.json({
++        success: true,
+         status: 'success',
+         message: 'Kismet services started successfully',
+-        script: script_name,
++        script: scriptName,
+         timestamp: new Date().toISOString()
+       });
+-    } else if (script_name === 'stop_restart_services' && args.includes('stop')) {
++    } else if (scriptName === 'stop_restart_services' && args.includes('stop')) {
+       // Use the stop and restart script for stopping
+       const scriptPath = path.join(__dirname, '..', '..', 'orchestration', 'stop_and_restart_services.sh');
+       
+@@ -740,7 +794,7 @@
+       res.json({
+         status: 'success',
+         message: 'Kismet services stopped successfully',
+-        script: script_name,
++        script: scriptName,
+         timestamp: new Date().toISOString()
+       });
+     } else {
+@@ -748,6 +802,7 @@
+       const result = await scriptManager.startScript(scriptToRun);
+       
+       res.json({
++        success: true,
+         status: 'success',
+         message: 'Script started successfully',
+         script: scriptToRun,

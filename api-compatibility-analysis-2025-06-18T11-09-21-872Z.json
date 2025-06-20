@@ -1,0 +1,1141 @@
+{
+  "timestamp": "2025-06-18T11:09:21.840Z",
+  "flask_apps": {
+    "spectrum_analyzer": {
+      "file": "src/hackrf/spectrum_analyzer.py",
+      "port": 8092,
+      "endpoints": [
+        {
+          "method": "GET",
+          "path": "/",
+          "handler": "index",
+          "template": "spectrum.html"
+        },
+        {
+          "method": "GET",
+          "path": "/api/status",
+          "handler": "api_status",
+          "returns": "status_info"
+        },
+        {
+          "method": "GET",
+          "path": "/api/scan/<profile_id>",
+          "handler": "api_scan",
+          "returns": "scan_results"
+        },
+        {
+          "method": "GET",
+          "path": "/api/profiles",
+          "handler": "api_profiles",
+          "returns": "scan_profiles"
+        }
+      ],
+      "websockets": [
+        {
+          "event": "connect",
+          "handler": "handle_connect"
+        },
+        {
+          "event": "fft_data",
+          "emitted": true,
+          "data": "spectrum_data"
+        }
+      ],
+      "features": [
+        "openwebrx_integration",
+        "real_time_fft",
+        "signal_detection",
+        "websocket_support"
+      ]
+    },
+    "wigle_to_tak": {
+      "file": "src/wigletotak/WigleToTAK/TheStinkToTAK/WigleToTak2.py",
+      "port": 8000,
+      "endpoints": [
+        {
+          "method": "GET",
+          "path": "/",
+          "handler": "index",
+          "template": "WigleToTAK.html"
+        },
+        {
+          "method": "POST",
+          "path": "/update_tak_settings",
+          "handler": "update_tak_settings",
+          "body": [
+            "tak_server_ip",
+            "tak_server_port"
+          ]
+        },
+        {
+          "method": "POST",
+          "path": "/update_multicast_state",
+          "handler": "update_multicast_state",
+          "body": [
+            "takMulticast"
+          ]
+        },
+        {
+          "method": "POST",
+          "path": "/update_analysis_mode",
+          "handler": "update_analysis_mode",
+          "body": [
+            "mode"
+          ]
+        },
+        {
+          "method": "POST",
+          "path": "/update_antenna_sensitivity",
+          "handler": "update_antenna_sensitivity",
+          "body": [
+            "antenna_sensitivity",
+            "custom_factor"
+          ]
+        },
+        {
+          "method": "GET",
+          "path": "/get_antenna_settings",
+          "handler": "get_antenna_settings",
+          "returns": "antenna_config"
+        },
+        {
+          "method": "GET",
+          "path": "/list_wigle_files",
+          "handler": "list_wigle_files",
+          "query": [
+            "directory"
+          ],
+          "returns": "file_list"
+        },
+        {
+          "method": "POST",
+          "path": "/start_broadcast",
+          "handler": "start_broadcast",
+          "body": [
+            "directory",
+            "filename"
+          ]
+        },
+        {
+          "method": "POST",
+          "path": "/stop_broadcast",
+          "handler": "stop_broadcast"
+        },
+        {
+          "method": "POST",
+          "path": "/add_to_whitelist",
+          "handler": "add_to_whitelist",
+          "body": [
+            "ssid",
+            "mac"
+          ]
+        },
+        {
+          "method": "POST",
+          "path": "/remove_from_whitelist",
+          "handler": "remove_from_whitelist",
+          "body": [
+            "ssid",
+            "mac"
+          ]
+        },
+        {
+          "method": "POST",
+          "path": "/add_to_blacklist",
+          "handler": "add_to_blacklist",
+          "body": [
+            "ssid",
+            "mac",
+            "argb_value"
+          ]
+        },
+        {
+          "method": "POST",
+          "path": "/remove_from_blacklist",
+          "handler": "remove_from_blacklist",
+          "body": [
+            "ssid",
+            "mac"
+          ]
+        }
+      ],
+      "features": [
+        "tak_broadcasting",
+        "wigle_csv_processing",
+        "antenna_sensitivity",
+        "whitelist_blacklist"
+      ]
+    }
+  },
+  "nodejs_apps": {
+    "wigle_to_tak": {
+      "file": "src/nodejs/wigle-to-tak/server.js",
+      "port": 3002,
+      "endpoints": [
+        {
+          "method": "GET",
+          "path": "/",
+          "handler": "static_html",
+          "template": "WigleToTAK.html"
+        },
+        {
+          "method": "GET",
+          "path": "/api/status",
+          "handler": "status",
+          "returns": "status_info"
+        },
+        {
+          "method": "POST",
+          "path": "/update_tak_settings",
+          "handler": "update_tak_settings",
+          "body": [
+            "tak_server_ip",
+            "tak_server_port"
+          ]
+        },
+        {
+          "method": "POST",
+          "path": "/update_multicast_state",
+          "handler": "update_multicast_state",
+          "body": [
+            "takMulticast"
+          ]
+        },
+        {
+          "method": "POST",
+          "path": "/update_analysis_mode",
+          "handler": "update_analysis_mode",
+          "body": [
+            "mode"
+          ]
+        },
+        {
+          "method": "POST",
+          "path": "/update_antenna_sensitivity",
+          "handler": "update_antenna_sensitivity",
+          "body": [
+            "antenna_sensitivity",
+            "custom_factor"
+          ]
+        },
+        {
+          "method": "GET",
+          "path": "/get_antenna_settings",
+          "handler": "get_antenna_settings",
+          "returns": "antenna_config"
+        },
+        {
+          "method": "GET",
+          "path": "/list_wigle_files",
+          "handler": "list_wigle_files",
+          "query": [
+            "directory"
+          ],
+          "returns": "enhanced_file_list"
+        },
+        {
+          "method": "POST",
+          "path": "/start_broadcast",
+          "handler": "start_broadcast",
+          "body": [
+            "directory",
+            "filename"
+          ]
+        },
+        {
+          "method": "POST",
+          "path": "/stop_broadcast",
+          "handler": "stop_broadcast"
+        },
+        {
+          "method": "POST",
+          "path": "/add_to_whitelist",
+          "handler": "add_to_whitelist",
+          "body": [
+            "ssid",
+            "mac"
+          ]
+        },
+        {
+          "method": "POST",
+          "path": "/remove_from_whitelist",
+          "handler": "remove_from_whitelist",
+          "body": [
+            "ssid",
+            "mac"
+          ]
+        },
+        {
+          "method": "POST",
+          "path": "/add_to_blacklist",
+          "handler": "add_to_blacklist",
+          "body": [
+            "ssid",
+            "mac",
+            "argb_value"
+          ]
+        },
+        {
+          "method": "POST",
+          "path": "/remove_from_blacklist",
+          "handler": "remove_from_blacklist",
+          "body": [
+            "ssid",
+            "mac"
+          ]
+        },
+        {
+          "method": "POST",
+          "path": "/upload_csv",
+          "handler": "upload_csv",
+          "middleware": "multer",
+          "body": [
+            "csvFile"
+          ]
+        },
+        {
+          "method": "POST",
+          "path": "/api/start",
+          "handler": "api_start",
+          "alias_for": "/start_broadcast"
+        },
+        {
+          "method": "POST",
+          "path": "/api/stop",
+          "handler": "api_stop",
+          "alias_for": "/stop_broadcast"
+        },
+        {
+          "method": "POST",
+          "path": "/api/config",
+          "handler": "api_config",
+          "body": [
+            "analysisMode",
+            "antennaSensitivity",
+            "takServerIp",
+            "takServerPort"
+          ]
+        },
+        {
+          "method": "GET",
+          "path": "/health",
+          "handler": "health_check",
+          "returns": "health_status"
+        }
+      ],
+      "features": [
+        "tak_broadcasting",
+        "wigle_csv_processing",
+        "antenna_sensitivity",
+        "whitelist_blacklist",
+        "file_upload",
+        "health_check",
+        "enhanced_api"
+      ]
+    },
+    "kismet_operations": {
+      "file": "src/nodejs/kismet-operations/server.js",
+      "port": 8092,
+      "endpoints": [
+        {
+          "method": "GET",
+          "path": "/",
+          "handler": "hi_html",
+          "template": "hi.html"
+        },
+        {
+          "method": "GET",
+          "path": "/hi.html",
+          "handler": "hi_html_direct",
+          "template": "hi.html"
+        },
+        {
+          "method": "GET",
+          "path": "/health",
+          "handler": "health_check",
+          "returns": "extended_health"
+        },
+        {
+          "method": "POST",
+          "path": "/run-script",
+          "handler": "run_script",
+          "starts": "gps_kismet_wigle"
+        },
+        {
+          "method": "POST",
+          "path": "/stop-script",
+          "handler": "stop_script",
+          "stops": "gps_kismet_wigle"
+        },
+        {
+          "method": "GET",
+          "path": "/script-status",
+          "handler": "script_status",
+          "returns": "service_status"
+        },
+        {
+          "method": "GET",
+          "path": "/api/config",
+          "handler": "get_config",
+          "returns": "spectrum_config"
+        },
+        {
+          "method": "POST",
+          "path": "/api/config",
+          "handler": "update_config",
+          "body": [
+            "fft_size",
+            "center_freq",
+            "samp_rate"
+          ]
+        },
+        {
+          "method": "GET",
+          "path": "/api/status",
+          "handler": "get_status",
+          "returns": "extended_status"
+        },
+        {
+          "method": "POST",
+          "path": "/api/connect",
+          "handler": "connect_openwebrx",
+          "body": [
+            "url"
+          ]
+        },
+        {
+          "method": "POST",
+          "path": "/api/disconnect",
+          "handler": "disconnect_openwebrx"
+        },
+        {
+          "method": "GET",
+          "path": "/api/signals",
+          "handler": "get_signals",
+          "query": [
+            "threshold"
+          ],
+          "returns": "detected_signals"
+        },
+        {
+          "method": "GET",
+          "path": "/api/signals/stats",
+          "handler": "get_signal_stats",
+          "returns": "signal_statistics"
+        },
+        {
+          "method": "GET",
+          "path": "/api/fft/latest",
+          "handler": "get_latest_fft",
+          "returns": "fft_data"
+        },
+        {
+          "method": "POST",
+          "path": "/api/fft/clear",
+          "handler": "clear_fft_buffer"
+        },
+        {
+          "method": "GET",
+          "path": "/api/profiles",
+          "handler": "get_profiles",
+          "returns": "scan_profiles"
+        },
+        {
+          "method": "GET",
+          "path": "/api/scan/:profileId",
+          "handler": "scan_profile",
+          "params": [
+            "profileId"
+          ],
+          "returns": "scan_results"
+        },
+        {
+          "method": "GET",
+          "path": "/api/kismet-data",
+          "handler": "get_kismet_data",
+          "returns": "kismet_data_with_demo_fallback"
+        }
+      ],
+      "websockets": [
+        {
+          "event": "connection",
+          "handler": "handle_connection"
+        },
+        {
+          "event": "disconnect",
+          "handler": "handle_disconnect"
+        },
+        {
+          "event": "requestStatus",
+          "handler": "send_status"
+        },
+        {
+          "event": "requestLatestFFT",
+          "handler": "send_latest_fft"
+        },
+        {
+          "event": "requestSignals",
+          "handler": "send_signals",
+          "data": [
+            "threshold"
+          ]
+        },
+        {
+          "event": "requestKismetData",
+          "handler": "send_kismet_data"
+        },
+        {
+          "event": "fftData",
+          "emitted": true,
+          "data": "spectrum_data"
+        },
+        {
+          "event": "signalsDetected",
+          "emitted": true,
+          "data": "detected_signals"
+        },
+        {
+          "event": "openwebrxConnected",
+          "emitted": true,
+          "data": "connection_status"
+        },
+        {
+          "event": "openwebrxDisconnected",
+          "emitted": true,
+          "data": "disconnection_status"
+        },
+        {
+          "event": "openwebrxError",
+          "emitted": true,
+          "data": "error_info"
+        },
+        {
+          "event": "configUpdated",
+          "emitted": true,
+          "data": "new_config"
+        },
+        {
+          "event": "bufferCleared",
+          "emitted": true,
+          "data": "clear_confirmation"
+        },
+        {
+          "event": "kismetData",
+          "emitted": true,
+          "data": "kismet_update"
+        },
+        {
+          "event": "kismetDataUpdate",
+          "emitted": true,
+          "data": "automated_kismet_update"
+        }
+      ],
+      "features": [
+        "spectrum_analysis",
+        "openwebrx_integration",
+        "kismet_integration",
+        "script_management",
+        "websocket_support",
+        "health_monitoring",
+        "signal_detection"
+      ]
+    }
+  },
+  "compatibility_matrix": {
+    "spectrum_analyzer": {
+      "app_name": "Spectrum Analyzer",
+      "flask_port": 8092,
+      "nodejs_port": 8092,
+      "endpoint_mapping": [
+        {
+          "endpoint": "GET:/",
+          "flask_handler": "index",
+          "nodejs_handler": "hi_html",
+          "status": "MATCHED",
+          "compatibility": {
+            "compatible": true,
+            "issues": [],
+            "confidence": "HIGH"
+          }
+        },
+        {
+          "endpoint": "GET:/api/status",
+          "flask_handler": "api_status",
+          "nodejs_handler": "get_status",
+          "status": "MATCHED",
+          "compatibility": {
+            "compatible": true,
+            "issues": [],
+            "confidence": "HIGH"
+          }
+        },
+        {
+          "endpoint": "GET:/api/profiles",
+          "flask_handler": "api_profiles",
+          "nodejs_handler": "get_profiles",
+          "status": "MATCHED",
+          "compatibility": {
+            "compatible": true,
+            "issues": [],
+            "confidence": "HIGH"
+          }
+        }
+      ],
+      "missing_in_nodejs": [
+        {
+          "endpoint": "GET:/api/scan/<profile_id>",
+          "flask_handler": "api_scan",
+          "status": "MISSING",
+          "impact": "HIGH"
+        }
+      ],
+      "additional_in_nodejs": [
+        {
+          "endpoint": "GET:/hi.html",
+          "nodejs_handler": "hi_html_direct",
+          "status": "ADDITIONAL",
+          "benefit": "LOW"
+        },
+        {
+          "endpoint": "GET:/health",
+          "nodejs_handler": "health_check",
+          "status": "ADDITIONAL",
+          "benefit": "HIGH"
+        },
+        {
+          "endpoint": "POST:/run-script",
+          "nodejs_handler": "run_script",
+          "status": "ADDITIONAL",
+          "benefit": "LOW"
+        },
+        {
+          "endpoint": "POST:/stop-script",
+          "nodejs_handler": "stop_script",
+          "status": "ADDITIONAL",
+          "benefit": "LOW"
+        },
+        {
+          "endpoint": "GET:/script-status",
+          "nodejs_handler": "script_status",
+          "status": "ADDITIONAL",
+          "benefit": "LOW"
+        },
+        {
+          "endpoint": "GET:/api/config",
+          "nodejs_handler": "get_config",
+          "status": "ADDITIONAL",
+          "benefit": "MEDIUM"
+        },
+        {
+          "endpoint": "POST:/api/config",
+          "nodejs_handler": "update_config",
+          "status": "ADDITIONAL",
+          "benefit": "MEDIUM"
+        },
+        {
+          "endpoint": "POST:/api/connect",
+          "nodejs_handler": "connect_openwebrx",
+          "status": "ADDITIONAL",
+          "benefit": "MEDIUM"
+        },
+        {
+          "endpoint": "POST:/api/disconnect",
+          "nodejs_handler": "disconnect_openwebrx",
+          "status": "ADDITIONAL",
+          "benefit": "MEDIUM"
+        },
+        {
+          "endpoint": "GET:/api/signals",
+          "nodejs_handler": "get_signals",
+          "status": "ADDITIONAL",
+          "benefit": "MEDIUM"
+        },
+        {
+          "endpoint": "GET:/api/signals/stats",
+          "nodejs_handler": "get_signal_stats",
+          "status": "ADDITIONAL",
+          "benefit": "MEDIUM"
+        },
+        {
+          "endpoint": "GET:/api/fft/latest",
+          "nodejs_handler": "get_latest_fft",
+          "status": "ADDITIONAL",
+          "benefit": "MEDIUM"
+        },
+        {
+          "endpoint": "POST:/api/fft/clear",
+          "nodejs_handler": "clear_fft_buffer",
+          "status": "ADDITIONAL",
+          "benefit": "MEDIUM"
+        },
+        {
+          "endpoint": "GET:/api/scan/:profileId",
+          "nodejs_handler": "scan_profile",
+          "status": "ADDITIONAL",
+          "benefit": "MEDIUM"
+        },
+        {
+          "endpoint": "GET:/api/kismet-data",
+          "nodejs_handler": "get_kismet_data",
+          "status": "ADDITIONAL",
+          "benefit": "MEDIUM"
+        }
+      ],
+      "compatibility_score": 75,
+      "issues": []
+    },
+    "wigle_to_tak": {
+      "app_name": "WigleToTAK",
+      "flask_port": 8000,
+      "nodejs_port": 3002,
+      "endpoint_mapping": [
+        {
+          "endpoint": "GET:/",
+          "flask_handler": "index",
+          "nodejs_handler": "static_html",
+          "status": "MATCHED",
+          "compatibility": {
+            "compatible": true,
+            "issues": [],
+            "confidence": "HIGH"
+          }
+        },
+        {
+          "endpoint": "POST:/update_tak_settings",
+          "flask_handler": "update_tak_settings",
+          "nodejs_handler": "update_tak_settings",
+          "status": "MATCHED",
+          "compatibility": {
+            "compatible": true,
+            "issues": [],
+            "confidence": "HIGH"
+          }
+        },
+        {
+          "endpoint": "POST:/update_multicast_state",
+          "flask_handler": "update_multicast_state",
+          "nodejs_handler": "update_multicast_state",
+          "status": "MATCHED",
+          "compatibility": {
+            "compatible": true,
+            "issues": [],
+            "confidence": "HIGH"
+          }
+        },
+        {
+          "endpoint": "POST:/update_analysis_mode",
+          "flask_handler": "update_analysis_mode",
+          "nodejs_handler": "update_analysis_mode",
+          "status": "MATCHED",
+          "compatibility": {
+            "compatible": true,
+            "issues": [],
+            "confidence": "HIGH"
+          }
+        },
+        {
+          "endpoint": "POST:/update_antenna_sensitivity",
+          "flask_handler": "update_antenna_sensitivity",
+          "nodejs_handler": "update_antenna_sensitivity",
+          "status": "MATCHED",
+          "compatibility": {
+            "compatible": true,
+            "issues": [],
+            "confidence": "HIGH"
+          }
+        },
+        {
+          "endpoint": "GET:/get_antenna_settings",
+          "flask_handler": "get_antenna_settings",
+          "nodejs_handler": "get_antenna_settings",
+          "status": "MATCHED",
+          "compatibility": {
+            "compatible": true,
+            "issues": [],
+            "confidence": "HIGH"
+          }
+        },
+        {
+          "endpoint": "GET:/list_wigle_files",
+          "flask_handler": "list_wigle_files",
+          "nodejs_handler": "list_wigle_files",
+          "status": "MATCHED",
+          "compatibility": {
+            "compatible": true,
+            "issues": [],
+            "confidence": "HIGH"
+          }
+        },
+        {
+          "endpoint": "POST:/start_broadcast",
+          "flask_handler": "start_broadcast",
+          "nodejs_handler": "start_broadcast",
+          "status": "MATCHED",
+          "compatibility": {
+            "compatible": true,
+            "issues": [],
+            "confidence": "HIGH"
+          }
+        },
+        {
+          "endpoint": "POST:/stop_broadcast",
+          "flask_handler": "stop_broadcast",
+          "nodejs_handler": "stop_broadcast",
+          "status": "MATCHED",
+          "compatibility": {
+            "compatible": true,
+            "issues": [],
+            "confidence": "HIGH"
+          }
+        },
+        {
+          "endpoint": "POST:/add_to_whitelist",
+          "flask_handler": "add_to_whitelist",
+          "nodejs_handler": "add_to_whitelist",
+          "status": "MATCHED",
+          "compatibility": {
+            "compatible": true,
+            "issues": [],
+            "confidence": "HIGH"
+          }
+        },
+        {
+          "endpoint": "POST:/remove_from_whitelist",
+          "flask_handler": "remove_from_whitelist",
+          "nodejs_handler": "remove_from_whitelist",
+          "status": "MATCHED",
+          "compatibility": {
+            "compatible": true,
+            "issues": [],
+            "confidence": "HIGH"
+          }
+        },
+        {
+          "endpoint": "POST:/add_to_blacklist",
+          "flask_handler": "add_to_blacklist",
+          "nodejs_handler": "add_to_blacklist",
+          "status": "MATCHED",
+          "compatibility": {
+            "compatible": true,
+            "issues": [],
+            "confidence": "HIGH"
+          }
+        },
+        {
+          "endpoint": "POST:/remove_from_blacklist",
+          "flask_handler": "remove_from_blacklist",
+          "nodejs_handler": "remove_from_blacklist",
+          "status": "MATCHED",
+          "compatibility": {
+            "compatible": true,
+            "issues": [],
+            "confidence": "HIGH"
+          }
+        }
+      ],
+      "missing_in_nodejs": [],
+      "additional_in_nodejs": [
+        {
+          "endpoint": "GET:/api/status",
+          "nodejs_handler": "status",
+          "status": "ADDITIONAL",
+          "benefit": "MEDIUM"
+        },
+        {
+          "endpoint": "POST:/upload_csv",
+          "nodejs_handler": "upload_csv",
+          "status": "ADDITIONAL",
+          "benefit": "HIGH"
+        },
+        {
+          "endpoint": "POST:/api/start",
+          "nodejs_handler": "api_start",
+          "status": "ADDITIONAL",
+          "benefit": "MEDIUM"
+        },
+        {
+          "endpoint": "POST:/api/stop",
+          "nodejs_handler": "api_stop",
+          "status": "ADDITIONAL",
+          "benefit": "MEDIUM"
+        },
+        {
+          "endpoint": "POST:/api/config",
+          "nodejs_handler": "api_config",
+          "status": "ADDITIONAL",
+          "benefit": "MEDIUM"
+        },
+        {
+          "endpoint": "GET:/health",
+          "nodejs_handler": "health_check",
+          "status": "ADDITIONAL",
+          "benefit": "HIGH"
+        }
+      ],
+      "compatibility_score": 100,
+      "issues": [
+        {
+          "type": "PORT_MISMATCH",
+          "description": "Flask runs on port 8000, Node.js on port 3002",
+          "impact": "MEDIUM"
+        }
+      ]
+    }
+  },
+  "gaps": [],
+  "security_analysis": {
+    "flask": {
+      "cors": {
+        "implementation": "flask-socketio cors_allowed_origins=\"*\"",
+        "level": "basic",
+        "issues": [
+          "wildcard_cors",
+          "no_explicit_cors_middleware"
+        ]
+      },
+      "headers": {
+        "implementation": "none",
+        "level": "minimal",
+        "issues": [
+          "no_security_headers",
+          "no_csp",
+          "no_helmet_equivalent"
+        ]
+      },
+      "authentication": {
+        "implementation": "none",
+        "level": "none",
+        "issues": [
+          "no_auth",
+          "no_api_keys",
+          "no_rate_limiting"
+        ]
+      }
+    },
+    "nodejs": {
+      "cors": {
+        "implementation": "cors middleware",
+        "level": "standard",
+        "features": [
+          "express_cors_middleware"
+        ]
+      },
+      "headers": {
+        "implementation": "helmet middleware",
+        "level": "good",
+        "features": [
+          "csp_configuration",
+          "security_headers",
+          "xss_protection"
+        ]
+      },
+      "authentication": {
+        "implementation": "partial",
+        "level": "basic",
+        "features": [
+          "kismet_api_key_support"
+        ],
+        "missing": [
+          "jwt_auth",
+          "session_management",
+          "rate_limiting"
+        ]
+      }
+    }
+  },
+  "error_handling": {
+    "flask": {
+      "pattern": "try/except blocks",
+      "consistency": "inconsistent",
+      "status_codes": [
+        "basic_http_codes"
+      ],
+      "logging": "python_logging",
+      "issues": [
+        "inconsistent_error_format",
+        "missing_status_codes",
+        "limited_error_context"
+      ]
+    },
+    "nodejs": {
+      "pattern": "try/catch + middleware",
+      "consistency": "good",
+      "status_codes": [
+        "comprehensive_http_codes",
+        "proper_4xx_5xx_usage"
+      ],
+      "logging": "winston_structured",
+      "features": [
+        "error_middleware",
+        "structured_logging",
+        "consistent_error_format"
+      ]
+    }
+  },
+  "websocket_analysis": {
+    "flask": {
+      "library": "flask-socketio",
+      "events": [
+        "connect",
+        "fft_data"
+      ],
+      "features": [
+        "basic_emit",
+        "connection_handling"
+      ],
+      "issues": [
+        "limited_event_handling",
+        "no_client_management",
+        "basic_error_handling"
+      ]
+    },
+    "nodejs": {
+      "library": "socket.io",
+      "events": [
+        "connection",
+        "disconnect",
+        "requestStatus",
+        "requestLatestFFT",
+        "requestSignals",
+        "requestKismetData"
+      ],
+      "emitted_events": [
+        "fftData",
+        "signalsDetected",
+        "openwebrxConnected",
+        "openwebrxDisconnected",
+        "openwebrxError",
+        "configUpdated",
+        "bufferCleared",
+        "kismetData",
+        "kismetDataUpdate"
+      ],
+      "features": [
+        "comprehensive_event_handling",
+        "client_management",
+        "event_forwarding",
+        "error_handling",
+        "connection_tracking"
+      ],
+      "advanced": [
+        "automated_updates",
+        "polling_integration",
+        "graceful_disconnection"
+      ]
+    }
+  },
+  "recommendations": [
+    {
+      "priority": "HIGH",
+      "category": "Security",
+      "title": "Implement Comprehensive Security Headers",
+      "description": "Add helmet.js equivalent security headers to Flask applications",
+      "implementation": "Use Flask-Talisman or custom middleware for CSP, HSTS, XSS protection"
+    },
+    {
+      "priority": "HIGH",
+      "category": "API Compatibility",
+      "title": "Standardize Error Response Format",
+      "description": "Implement consistent error response structure across Flask and Node.js",
+      "implementation": "Use JSON error format: {success: false, error: message, code: http_code}"
+    },
+    {
+      "priority": "MEDIUM",
+      "category": "WebSocket",
+      "title": "Enhance Flask WebSocket Implementation",
+      "description": "Add comprehensive WebSocket event handling to match Node.js capabilities",
+      "implementation": "Implement client management, event forwarding, and error handling"
+    },
+    {
+      "priority": "MEDIUM",
+      "category": "Infrastructure",
+      "title": "Resolve Port Conflicts",
+      "description": "Address port 8092 conflict between Flask and Node.js applications",
+      "implementation": "Configure different ports or implement proper service orchestration"
+    },
+    {
+      "priority": "LOW",
+      "category": "Enhancement",
+      "title": "Add Health Check Endpoints",
+      "description": "Implement /health endpoints in Flask applications",
+      "implementation": "Add health check routes returning service status and dependencies"
+    }
+  ],
+  "security_gaps": [
+    {
+      "component": "Flask CORS",
+      "issue": "Wildcard CORS origins (*) allows any domain",
+      "severity": "HIGH",
+      "recommendation": "Configure specific allowed origins"
+    },
+    {
+      "component": "Flask Security Headers",
+      "issue": "No security headers implementation",
+      "severity": "HIGH",
+      "recommendation": "Implement security headers similar to Node.js helmet configuration"
+    },
+    {
+      "component": "Flask Authentication",
+      "issue": "No authentication mechanism",
+      "severity": "MEDIUM",
+      "recommendation": "Implement API key or JWT authentication"
+    }
+  ],
+  "error_handling_issues": [
+    {
+      "component": "Flask Error Handling",
+      "issue": "Inconsistent error response format across endpoints",
+      "impact": "MEDIUM",
+      "recommendation": "Standardize error response format with consistent structure"
+    },
+    {
+      "component": "Flask HTTP Status Codes",
+      "issue": "Missing proper HTTP status codes for error conditions",
+      "impact": "MEDIUM",
+      "recommendation": "Implement proper 4xx and 5xx status codes"
+    }
+  ],
+  "websocket_gaps": [
+    {
+      "component": "WebSocket Events",
+      "issue": "Node.js implements 6 events vs Flask's 2",
+      "gap": "Missing 4 event types in Flask",
+      "recommendation": "Implement comprehensive WebSocket event handling in Flask"
+    },
+    {
+      "component": "WebSocket Client Management",
+      "issue": "Flask lacks client connection management",
+      "recommendation": "Implement client tracking and management"
+    }
+  ],
+  "critical_gaps": [
+    {
+      "type": "MISSING_ENDPOINT",
+      "description": "GET:/api/scan/<profile_id> not implemented in Node.js",
+      "component": "Spectrum Analyzer",
+      "severity": "HIGH"
+    },
+    {
+      "type": "PORT_CONFLICT",
+      "description": "Kismet Operations (Node.js) and Spectrum Analyzer (Flask) both use port 8092",
+      "component": "Infrastructure",
+      "severity": "HIGH"
+    },
+    {
+      "type": "MISSING_FEATURE",
+      "description": "Feature 'real_time_fft' not implemented in Node.js",
+      "component": "Features",
+      "severity": "MEDIUM"
+    }
+  ],
+  "summary": {
+    "total_flask_endpoints": 17,
+    "total_nodejs_endpoints": 37,
+    "compatibility_scores": [
+      75,
+      100
+    ],
+    "critical_issues_count": 3,
+    "security_gaps_count": 3
+  }
+}

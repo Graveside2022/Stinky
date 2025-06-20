@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wigle To TAK - Node.js</title>
+    <link rel="stylesheet" href="/css/wigle-to-tak.css">
+</head>
+<body>
+    <h1>🛡️ Wigle To TAK - Node.js Version</h1>
+    
+    <!-- Status Dashboard -->
+    <div class="section">
+        <h2>System Status</h2>
+        <div class="status-indicators">
+            <div class="status-item" id="service-status">
+                <strong>Service</strong><br>
+                <span id="status-info">Loading...</span>
+            </div>
+            <div class="status-item" id="broadcasting-status">
+                <strong>Broadcasting</strong><br>
+                <span>Inactive</span>
+            </div>
+            <div class="status-item" id="analysis-mode-display">
+                <strong>Analysis Mode</strong><br>
+                <span id="analysis-mode">Real-time</span>
+            </div>
+            <div class="status-item" id="antenna-display">
+                <strong>Antenna</strong><br>
+                <span id="antenna-sensitivity">Standard</span>
+            </div>
+        </div>
+        <button onclick="window.wigleToTakInterface.refreshStatus()" class="blue">🔄 Refresh Status</button>
+    </div>
+    
+    <div class="container">
+        <div class="controls-column">
+            <!-- TAK Destination Section -->
+            <div class="section">
+                <h2>TAK Server Configuration</h2>
+                <div class="form-row">
+                    <div class="form-col">
+                        <label for="tak-server-ip">TAK Server IPv4:</label>
+                        <input type="text" id="tak-server-ip" placeholder="Default 0.0.0.0" value="0.0.0.0">
+                    </div>
+                    <div class="form-col">
+                        <label for="tak-server-port">TAK Server Port:</label>
+                        <input type="text" id="tak-server-port" placeholder="Default 6969" value="6969">
+                    </div>
+                </div>
+                
+                <div class="toggle">
+                    <input type="checkbox" id="tak-multicast" checked>
+                    <label for="tak-multicast">Enable Multicast (239.2.3.1:6969)</label>
+                </div>
+                
+                <div class="control-group">
+                    <button id="update-tak-settings" class="green">💾 Save TAK Settings</button>
+                </div>
+                
+                <div class="description">
+                    Current TAK Server: <strong><span id="tak-server">0.0.0.0:6969</span></strong>
+                </div>
+            </div>
+
+            <!-- Antenna Sensitivity Section -->
+            <div class="section">
+                <h2>Antenna Configuration</h2>
+                <label for="antenna-type">Antenna Type:</label>
+                <select id="antenna-type">
+                    <option value="standard">Standard (1.0x)</option>
+                    <option value="alfa_card">Alfa Card (1.5x)</option>
+                    <option value="high_gain">High Gain (2.0x)</option>
+                    <option value="rpi_internal">Raspberry Pi Internal (0.7x)</option>
+                    <option value="custom">Custom Factor</option>
+                </select>
+                
+                <div id="custom-sensitivity-container" class="hidden">
+                    <label for="custom-sensitivity">Custom Sensitivity Factor:</label>
+                    <input type="number" id="custom-sensitivity" min="0.1" step="0.1" value="1.0">
+                </div>
+                
+                <div class="control-group">
+                    <button id="update-antenna-settings" class="green">📡 Update Antenna</button>
+                </div>
+                
+                <div class="description">
+                    Antenna sensitivity affects signal range calculations and ellipse sizing in TAK displays.
+                </div>
+            </div>
+            
+            <!-- File Management Section -->
+            <div class="section">
+                <h2>Wigle CSV File Management</h2>
+                
+                <label for="directory">Wigle CSV Directory:</label>
+                <input type="text" id="directory" placeholder="Enter directory path (e.g., /home/pi/kismet)">
+                <button id="list-files" class="blue">📁 List Files</button>
+                
+                <label for="file-selector">Available WigleCSV Files:</label>
+                <select id="file-selector"></select>
+                
+                <div class="control-group">
+                    <button id="start-broadcast" class="green" disabled>🚀 Start Broadcasting</button>
+                    <button id="stop-broadcast" class="red" disabled>⏹️ Stop Broadcasting</button>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-col">
+                        <label for="file-upload">Upload Wigle CSV File:</label>
+                        <input type="file" id="file-upload" accept=".wiglecsv">
+                    </div>
+                </div>
+                
+                <h2>Analysis Mode</h2>
+                <button id="update-analysis-mode" class="blue">🔄 Real-time</button>
+                <div class="description">
+                    Real-time: Process files as they are created<br>
+                    Post-collection: Process complete files faster
+                </div>
+            </div>
+            
+            <!-- Filtering Section -->
+            <div class="section">
+                <h2>SSID/MAC Whitelist</h2>
+                <div class="form-row">
+                    <div class="form-col">
+                        <input type="text" id="whitelist-ssid" placeholder="Enter SSID">
+                    </div>
+                    <div class="form-col">
+                        <input type="text" id="whitelist-mac" placeholder="Enter MAC address">
+                    </div>
+                </div>
+                
+                <div class="control-group">
+                    <button id="add-whitelist" class="green">➕ Add to Whitelist</button>
+                    <button id="remove-whitelist" class="red">➖ Remove from Whitelist</button>
+                </div>
+                <select id="whitelist-items" size="3"></select>
+            </div>
+            
+            <!-- Blacklist Section -->
+            <div class="section">
+                <h2>SSID/MAC Blacklist (Special Colors)</h2>
+                <div class="form-row">
+                    <div class="form-col">
+                        <input type="text" id="blacklist-ssid" placeholder="Enter SSID">
+                    </div>
+                    <div class="form-col">
+                        <input type="text" id="blacklist-mac" placeholder="Enter MAC address">
+                    </div>
+                    <div class="form-col">
+                        <input type="text" id="blacklist-color" placeholder="ARGB Color (e.g., -256)">
+                    </div>
+                </div>
+                
+                <div class="control-group">
+                    <button id="add-blacklist" class="green">➕ Add to Blacklist</button>
+                    <button id="remove-blacklist" class="red">➖ Remove from Blacklist</button>
+                </div>
+                <select id="blacklist-items" size="3"></select>
+                
+                <div class="description">
+                    Color codes: -256 (yellow), -65536 (red), -16776961 (blue), -23296 (orange)
+                </div>
+            </div>
+        </div>
+        
+        <!-- Instructions Column -->
+        <div class="instructions-column">
+            <div class="instruction-section">
+                <h2 class="instruction-title">📖 WigleToTAK Usage Instructions</h2>
+                <p>This application reads .wiglecsv files and converts WiFi device data to TAK format for real-time tactical awareness.</p>
+            </div>
+            
+            <div class="instruction-section">
+                <p class="instruction-title">🚀 Quick Start:</p>
+                <ol>
+                    <li>Configure your TAK server IP and port above</li>
+                    <li>Set your antenna type for accurate range calculations</li>
+                    <li>Enter the directory containing your .wiglecsv files</li>
+                    <li>Select a file and start broadcasting</li>
+                </ol>
+            </div>
+            
+            <div class="instruction-section">
+                <p class="instruction-title">⚙️ Configuration Details:</p>
+                <p><strong>TAK Server:</strong> The IP address and port of your TAK Server for data ingestion.</p>
+                <p><strong>Multicast:</strong> Enabled by default. Sends packets to TAK SA multicast address 239.2.3.1:6969.</p>
+                <p><strong>Analysis Mode:</strong> Real-time processes files as they grow, Post-collection processes complete files faster.</p>
+            </div>
+            
+            <div class="instruction-section">
+                <p class="instruction-title">📁 File Management:</p>
+                <p><strong>Directory Path:</strong> Absolute path to your WigleCSV files directory. Ensure no root/sudo required.</p>
+                <p><strong>File Selection:</strong> Choose which .wiglecsv file to process and broadcast.</p>
+                <p><strong>File Upload:</strong> Upload .wiglecsv files directly through the web interface.</p>
+            </div>
+            
+            <div class="instruction-section">
+                <p class="instruction-title">🎯 Filtering Options:</p>
+                <p><strong>Whitelist:</strong> Only display SSIDs or MAC addresses in the whitelist (all others ignored).</p>
+                <p><strong>Blacklist:</strong> Display blacklisted SSIDs or MAC addresses in special colors for highlighting.</p>
+            </div>
+            
+            <div class="instruction-section">
+                <h2 class="instruction-title">📡 WiFi Ellipse Visualization</h2>
+                <p>WiFi networks appear as ellipses in TAK clients, with size based on signal strength and antenna sensitivity.</p>
+                <p>Stronger signals create smaller ellipses, weaker signals create larger ellipses representing the probable WiFi emitter location area.</p>
+            </div>
+            
+            <div class="instruction-section">
+                <h2 class="instruction-title">📶 Antenna Types</h2>
+                <p><strong>Standard:</strong> Default WiFi adapter (1.0x sensitivity)</p>
+                <p><strong>Alfa Card:</strong> High-sensitivity USB adapters (1.5x standard)</p>
+                <p><strong>High Gain:</strong> Directional antennas (2.0x standard)</p>
+                <p><strong>Raspberry Pi Internal:</strong> Built-in Pi WiFi (0.7x standard)</p>
+                <p><strong>Custom:</strong> Set your own sensitivity multiplier</p>
+            </div>
+            
+            <div class="instruction-section">
+                <h2 class="instruction-title">🔧 System Integration</h2>
+                <p>This Node.js version provides improved performance and better integration with modern web technologies.</p>
+                <p>Compatible with Kismet, OpenWebRX, and other tools in the Stinkster ecosystem.</p>
+            </div>
+            
+            <!-- Log Output -->
+            <div class="instruction-section">
+                <h2 class="instruction-title">📋 System Log</h2>
+                <div class="log-output" id="log-output">
+                    <div>[Starting] WigleToTAK Interface initialized</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/js/wigle-to-tak.js"></script>
+</body>
+</html>

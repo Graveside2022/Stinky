@@ -23,8 +23,15 @@ parser.add_argument('--port', type=int, default=6969, help='Port for TAK broadca
 parser.add_argument('--flask-port', type=int, default=8000, help='Port for Flask web interface')
 args = parser.parse_args()
 
-if args.directory:
-    wigle_csv_directory = args.directory
+# Initialize wigle_csv_directory with a sensible default
+# Default to /home/pi/kismet_ops or a tmp directory if not provided
+default_wigle_directory = '/home/pi/kismet_ops'
+if not os.path.exists(default_wigle_directory):
+    default_wigle_directory = '/tmp/kismet'
+    if not os.path.exists(default_wigle_directory):
+        os.makedirs(default_wigle_directory, exist_ok=True)
+
+wigle_csv_directory = args.directory if args.directory else default_wigle_directory
 tak_server_port = str(args.port)
 
 broadcasting = False

@@ -1,0 +1,271 @@
+{
+  "timestamp": "2025-06-15T21:40:41.432Z",
+  "system_info": {
+    "platform": "linux",
+    "arch": "arm64",
+    "cpus": 4,
+    "cpu_model": "Cortex-A72",
+    "total_memory": "7809 MB",
+    "free_memory": "4549 MB",
+    "node_version": "v22.16.0",
+    "uptime": 810542.67,
+    "load_average": [
+      2.88,
+      2.8,
+      2.14
+    ]
+  },
+  "performance_targets": {
+    "memory_reduction": "35%",
+    "response_time_improvement": "8%",
+    "websocket_performance": "improved",
+    "pi_optimization": "maximized"
+  },
+  "analysis": {
+    "memory_usage": {
+      "current_usage": {
+        "wigle-to-tak-nodejs": {
+          "current_mb": 70,
+          "baseline_mb": 105,
+          "target_mb": 70,
+          "reduction_percent": 33,
+          "target_met": false,
+          "pid": 2755758,
+          "rss": 73793536,
+          "heap_used": 73793536,
+          "external": 0
+        },
+        "spectrum-analyzer-nodejs": {
+          "error": "Process not found"
+        }
+      },
+      "vs_baseline": {},
+      "optimization_potential": {},
+      "target_validation": {}
+    },
+    "response_times": {
+      "current_times": {
+        "wigle-to-tak": {
+          "GET /api/status": {
+            "avg_time": 12.66,
+            "min_time": 9,
+            "max_time": 19.72,
+            "success_rate": 100
+          },
+          "GET /list_wigle_files?directory=.": {
+            "avg_time": 16.29,
+            "min_time": 10.08,
+            "max_time": 24.07,
+            "success_rate": 100
+          },
+          "POST /update_tak_settings": {
+            "avg_time": 16.38,
+            "min_time": 8.99,
+            "max_time": 31.98,
+            "success_rate": 100
+          }
+        }
+      },
+      "vs_baseline": {},
+      "improvement_validation": {
+        "wigle-to-tak": {
+          "avg_response_time": 15.11,
+          "baseline_time": 13,
+          "target_time": 12,
+          "improvement_percent": -16,
+          "target_met": false
+        }
+      }
+    },
+    "websocket_metrics": {
+      "connection_performance": {
+        "spectrum-analyzer": {
+          "error": "Service not running"
+        }
+      },
+      "message_throughput": {},
+      "vs_flask_socketio": {}
+    },
+    "pi_optimizations": {
+      "arm_specific": {
+        "architecture": "arm64",
+        "node_compiled_for_arm": true,
+        "native_modules": [
+          "ws"
+        ],
+        "arm_optimized_packages": {
+          "ws": "uws (ARM optimized)",
+          "bcrypt": "bcryptjs (pure JS)",
+          "sqlite3": "better-sqlite3 (ARM compiled)"
+        }
+      },
+      "memory_constraints": {
+        "total_memory_gb": 7.63,
+        "free_memory_gb": 4.44,
+        "memory_pressure": false,
+        "swap_usage": {
+          "total_mb": 512,
+          "used_mb": 507,
+          "free_mb": 5,
+          "usage_percent": 99
+        },
+        "recommendations": []
+      },
+      "io_performance": {},
+      "cpu_utilization": {
+        "load_1min": 2.97,
+        "load_5min": 2.82,
+        "load_15min": 2.15,
+        "cpu_cores": 4,
+        "cpu_model": "Cortex-A72",
+        "high_load": false
+      },
+      "optimization_opportunities": [
+        "Node.js is ARM-optimized"
+      ]
+    },
+    "caching_opportunities": {
+      "frequently_accessed_data": {},
+      "cache_implementation_opportunities": [
+        {
+          "endpoint": "/api/status",
+          "strategy": "in-memory cache",
+          "ttl": "10s",
+          "estimated_performance_gain": "20-40%",
+          "implementation": "node-cache or memory-cache"
+        },
+        {
+          "endpoint": "/list_wigle_files",
+          "strategy": "in-memory cache",
+          "ttl": "30s",
+          "estimated_performance_gain": "20-40%",
+          "implementation": "node-cache or memory-cache"
+        },
+        {
+          "endpoint": "/api/config",
+          "strategy": "in-memory cache",
+          "ttl": "60s",
+          "estimated_performance_gain": "20-40%",
+          "implementation": "node-cache or memory-cache"
+        },
+        {
+          "endpoint": "CSV file processing",
+          "strategy": "file-based cache",
+          "ttl": "until file modified",
+          "estimated_performance_gain": "60-80%",
+          "implementation": "File modification time checking + parsed data cache"
+        },
+        {
+          "endpoint": "WebSocket broadcast data",
+          "strategy": "circular buffer",
+          "ttl": "real-time (sliding window)",
+          "estimated_performance_gain": "30-50%",
+          "implementation": "In-memory circular buffer for FFT data"
+        }
+      ],
+      "memory_cache_potential": {},
+      "redis_opportunities": []
+    },
+    "bottlenecks": [
+      {
+        "type": "io",
+        "severity": "medium",
+        "description": "CSV file parsing occurs on every request",
+        "impact": "High disk I/O, slow file processing",
+        "solution": "Implement file caching with modification time checking"
+      }
+    ]
+  },
+  "recommendations": [
+    {
+      "type": "memory",
+      "priority": "high",
+      "recommendation": "Reduce 0MB memory usage for undefined",
+      "actions": [
+        "Add --max-old-space-size=1024 Node.js flag",
+        "Implement object pooling for frequent allocations",
+        "Add garbage collection optimization"
+      ]
+    },
+    {
+      "type": "performance",
+      "priority": "high",
+      "recommendation": "Improve wigle-to-tak response time by 3.1099999999999994ms",
+      "actions": [
+        "Implement API response caching",
+        "Optimize JSON serialization",
+        "Add request compression"
+      ]
+    },
+    {
+      "type": "caching",
+      "priority": "high",
+      "recommendation": "Implement comprehensive caching strategy",
+      "actions": [
+        "Add in-memory cache for API endpoints with 10-60s TTL",
+        "Cache parsed CSV data with file modification checking",
+        "Implement WebSocket data buffering"
+      ]
+    },
+    {
+      "type": "platform",
+      "priority": "medium",
+      "recommendation": "Optimize for Raspberry Pi ARM architecture",
+      "actions": [
+        "Use clustering to utilize all CPU cores",
+        "Enable ARM-specific compiler optimizations",
+        "Consider using PM2 for process management"
+      ]
+    }
+  ],
+  "optimization_plan": [
+    {
+      "priority": "high",
+      "category": "memory",
+      "action": "Implement Node.js memory flags",
+      "implementation": "--max-old-space-size=1024 --optimize-for-size",
+      "estimated_impact": "15-25% memory reduction",
+      "effort": "low"
+    },
+    {
+      "priority": "high",
+      "category": "performance",
+      "action": "Implement in-memory caching for API endpoints",
+      "implementation": "node-cache with TTL for /api/status, /list_wigle_files",
+      "estimated_impact": "30-50% response time improvement",
+      "effort": "medium"
+    },
+    {
+      "priority": "high",
+      "category": "io",
+      "action": "Implement CSV file caching",
+      "implementation": "Cache parsed CSV data with file modification time checking",
+      "estimated_impact": "60-80% file processing improvement",
+      "effort": "medium"
+    },
+    {
+      "priority": "medium",
+      "category": "websocket",
+      "action": "Optimize WebSocket data transmission",
+      "implementation": "Binary data transmission, compression for large payloads",
+      "estimated_impact": "20-30% bandwidth reduction",
+      "effort": "medium"
+    },
+    {
+      "priority": "medium",
+      "category": "pi_optimization",
+      "action": "Enable ARM-specific Node.js optimizations",
+      "implementation": "Use ARM-optimized native modules, clustering",
+      "estimated_impact": "10-20% overall performance improvement",
+      "effort": "high"
+    },
+    {
+      "priority": "low",
+      "category": "memory",
+      "action": "Tune garbage collection",
+      "implementation": "--gc-interval=100 --expose-gc flags",
+      "estimated_impact": "5-10% memory stability improvement",
+      "effort": "low"
+    }
+  ]
+}

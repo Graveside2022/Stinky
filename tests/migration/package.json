@@ -1,0 +1,79 @@
+{
+  "name": "stinkster-migration-testing",
+  "version": "1.0.0",
+  "description": "Testing framework for Flask to Node.js migration",
+  "main": "index.js",
+  "scripts": {
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage",
+    "test:unit": "jest tests/unit",
+    "test:integration": "jest tests/integration",
+    "test:migration": "npm run test:unit && npm run test:integration && npm run test:performance",
+    "test:pre-migration": "node validation/pre-migration-validator.js",
+    "test:post-migration": "node validation/post-migration-validator.js",
+    "test:performance": "node performance/baseline-measurement.js",
+    "test:rollback": "node rollback/validation/rollback-validator.js",
+    "test:api-compatibility": "node integration/api-compatibility/compatibility-tester.js",
+    "baseline:measure": "node performance/baseline-measurement.js",
+    "baseline:compare": "node performance/compare-performance.js",
+    "validate:endpoints": "node validation/endpoint-validator.js",
+    "rollback:automated": "./rollback/scripts/automated-rollback.sh",
+    "rollback:validate": "./rollback/scripts/validate-rollback.sh",
+    "migration:status": "node validation/migration-status.js",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix"
+  },
+  "keywords": [
+    "migration",
+    "testing",
+    "flask",
+    "nodejs",
+    "stinkster",
+    "sdr",
+    "wifi"
+  ],
+  "author": "Stinkster Migration Team",
+  "license": "MIT",
+  "dependencies": {
+    "axios": "^1.5.0",
+    "ws": "^8.14.2",
+    "csv-parser": "^3.0.0",
+    "commander": "^11.0.0",
+    "winston": "^3.10.0"
+  },
+  "devDependencies": {
+    "jest": "^29.7.0",
+    "supertest": "^6.3.3",
+    "artillery": "^2.0.0",
+    "eslint": "^8.48.0",
+    "eslint-config-standard": "^17.1.0",
+    "@jest/globals": "^29.7.0"
+  },
+  "jest": {
+    "testEnvironment": "node",
+    "collectCoverageFrom": [
+      "**/*.js",
+      "!**/node_modules/**",
+      "!**/coverage/**",
+      "!jest.config.js"
+    ],
+    "coverageThreshold": {
+      "global": {
+        "branches": 80,
+        "functions": 80,
+        "lines": 80,
+        "statements": 80
+      }
+    },
+    "testMatch": [
+      "**/tests/**/*.test.js",
+      "**/tests/**/*.spec.js"
+    ],
+    "verbose": true
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=8.0.0"
+  }
+}

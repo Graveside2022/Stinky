@@ -1,0 +1,32 @@
+--- outputs/kismet_ops_fix_20250620_142808/phase2/backups/hi.html.backup	2025-06-20 14:37:11.305499326 +0200
++++ src/nodejs/kismet-operations/views/hi.html	2025-06-20 14:37:32.185394868 +0200
+@@ -1670,12 +1670,12 @@
+             showNotification('Starting Kismet services...', 'info');
+             try {
+                 console.log('Attempting to call /api/start-script endpoint');
+-                const response = await fetch('/api/start-script', {
++                const response = await fetch('/run-script', {
+                     method: 'POST',
+                     headers: {
+                         'Content-Type': 'application/json'
+                     },
+-                    body: JSON.stringify({ scriptName: 'gps_kismet_wigle.sh' })
++                    body: JSON.stringify({ script: 'kismet' })
+                 });
+                 
+                 console.log('Response received:', response.status, response.statusText);
+@@ -1809,12 +1809,12 @@
+             showNotification('Stopping Kismet services...', 'info');
+             window.servicesStopping = true; // Set flag to suppress network errors
+             
+-            fetch('/api/stop-script', {
++            fetch('/stop-script', {
+                 method: 'POST',
+                 headers: {
+                     'Content-Type': 'application/json'
+                 },
+-                body: JSON.stringify({ script: 'gps_kismet_wigle' })
++                body: JSON.stringify({ script: 'kismet' })
+             })
+                 .then(response => response.json())
+                 .then(data => {

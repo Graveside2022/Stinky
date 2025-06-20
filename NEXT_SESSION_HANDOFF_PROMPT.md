@@ -1,239 +1,165 @@
 # NEXT SESSION HANDOFF PROMPT
 
-**Session Date**: 2025-06-15  
-**User**: Christian  
-**Project**: Stinkster - Raspberry Pi SDR & WiFi Intelligence Platform  
-**Current Status**: ✅ PRODUCTION READY
+Previous session with Christian reached a critical milestone - Flask to Node.js migration is COMPLETE but webhook service migration is PENDING.
 
----
+## IMMEDIATE STARTUP ACTIONS
 
-## 🎯 SESSION CONTEXT
+1. Read CLAUDE.md for rules and memory system
+2. Read TODO.md for current task list (14 webhook migration tasks)
+3. Read HANDOFF_SUMMARY.md for complete context
+4. Check SESSION_CONTINUITY.md for detailed history
 
-This session achieved a **complete project transformation** from scattered development prototype to production-ready system:
+User: Christian
+Project: Stinkster Malone - SDR/WiFi/GPS/TAK Integration System
+Critical Work: Webhook service migration (final component for full functionality)
 
-### Major Accomplishments
-- ✅ **Repository cleanup**: 800+ files → 425 files (47% reduction, 770MB+ recovered)
-- ✅ **HackRF integration**: Native driver working, OpenWebRX fully functional on port 8073
-- ✅ **GitHub publication**: Professional repository published, all legal/security requirements met
-- ✅ **Documentation suite**: Comprehensive user guides, API docs, quick start instructions
-- ✅ **Automation perfected**: One-command installation working end-to-end
-- ✅ **Backup system**: Golden image and working configurations preserved
+## QUICK STATUS CHECK
 
-### Current System State
-- **Docker**: OpenWebRX container running with native HackRF driver
-- **Services**: GPSD active, all components ready for activation
-- **Hardware**: HackRF One detected and functional
-- **Documentation**: Complete handoff package created
-- **Repository**: Clean, organized, GitHub-ready
-
----
-
-## 🚀 IMMEDIATE NEXT ACTIONS
-
-### Priority 1: Integration Testing (15-30 minutes)
 ```bash
-# Start complete system test
-cd /home/pi/projects/stinkster
-./src/orchestration/gps_kismet_wigle.sh
+# Check Node.js services status
+pgrep -f "node.*spectrum" && echo "✅ Spectrum Analyzer: Running" || echo "❌ Spectrum Analyzer: Stopped"
+pgrep -f "node.*wigle" && echo "✅ WigleToTAK: Running" || echo "❌ WigleToTAK: Stopped"
 
-# Verify all web interfaces
-curl -I http://localhost:8073  # OpenWebRX
-curl -I http://localhost:2501  # Kismet  
-curl -I http://localhost:6969  # WigleToTAK
-curl -I http://localhost:8092  # Spectrum Analyzer
+# Test service endpoints
+curl -s http://localhost:8092/api/status | jq '.mode' 2>/dev/null || echo "Spectrum API not responding"
+curl -s http://localhost:8000/ | grep -q "WigleToTAK" && echo "✅ WigleToTAK: OK" || echo "WigleToTAK: Not responding"
+
+# Check for webhook service (should NOT exist yet)
+curl -s http://localhost:8092/run-script 2>/dev/null && echo "⚠️ Webhook endpoints exist" || echo "✅ Webhook endpoints not yet implemented"
 ```
 
-### Priority 2: Hardware Integration Verification (30 minutes)
+## CRITICAL CONTEXT
+
+### What's Working
+- **Spectrum Analyzer**: Port 8092, 34.5% performance improvement, Kismet UI integrated
+- **WigleToTAK**: Port 8000, 100% API compatibility maintained
+- **Pattern Library**: 13 production-validated patterns ready for use
+- **Memory System**: Complete knowledge capture with 82% pattern reuse rate
+
+### What's Missing (CRITICAL)
+- **Webhook Service**: System orchestration unavailable without this
+- **Web UI Control**: hi.html cannot control services without webhook endpoints
+- **GPS Integration**: node-gpsd not yet integrated
+- **Process Management**: Orchestration script control not implemented
+
+## PRIMARY OBJECTIVE: Complete Webhook Migration
+
+### Task 1: Install Dependencies (5 min)
 ```bash
-# Test GPS data flow
-timeout 10 gpspipe -w | grep GPGGA
-
-# Test WiFi monitor mode
-sudo iwconfig wlan2 mode monitor
-
-# Test HackRF signal reception  
-./hackrf-test-reception.sh
-
-# Complete system health check
-./dev/tools/health-check.sh
+cd /home/pi/projects/stinkster_malone/stinkster/src/nodejs/spectrum-analyzer
+npm install joi node-gpsd glob ps-list tree-kill
 ```
 
-### Priority 3: Service Orchestration Testing (1 hour)
-- Validate complete data flow: GPS → Kismet → WigleToTAK
-- Test systemd service management and auto-restart capabilities
-- Verify service dependency management and startup sequencing
-- Monitor resource usage under full operational load
+### Task 2: Fix Config Validation (30 min)
+- Add joi to dependencies
+- Fix signal_processing field in validation schema
 
----
+### Task 3: Implement Webhook Endpoints (6.5 hrs)
+Priority order:
+1. `/run-script` - Start orchestration
+2. `/stop-script` - Stop services
+3. `/info` - GPS and status data
+4. `/script-status` - Process checking
+5. `/kismet-data` - Device scan data
 
-## 📋 CRITICAL FILES & CONTEXT
+### Critical Files to Reference
+- **Python Original**: `/home/pi/web/webhook.py`
+- **Web UI**: `/home/pi/web/hi.html`
+- **Dependency Map**: `WEBHOOK_DEPENDENCY_MAPPING.md`
+- **Main Script**: `/home/pi/stinky/gps_kismet_wigle.sh`
 
-### Read These First
-1. **HANDOFF_SUMMARY.md** - Complete session achievements and current state
-2. **README.md** - Updated project documentation
-3. **QUICK_START.md** - Installation and setup procedures  
-4. **TODO.md** - Development pipeline and next priorities
+## PATTERN APPLICATION OPPORTUNITIES
 
-### Key Locations
-- **Project Root**: `/home/pi/projects/stinkster/`
-- **Golden Backup**: `/home/pi/projects/stinkster/backups/hackrf-working-2025-06-15/` (338MB)
-- **Current Backup**: `/home/pi/projects/stinkster/backups/2025-06-15_v4/`
-- **Working Archive**: `/home/pi/projects/stinkster/working-config-archive/`
+### Applicable Patterns for Webhook Migration
+1. **Python to Node.js Hardware Migration** - For GPS integration
+2. **API Compatibility Preservation** - Maintain exact response formats
+3. **Real-time WebSocket Migration** - For potential real-time updates
+4. **Complex System Documentation** - For comprehensive testing
 
-### System Status Commands
+### Time Savings Estimate
+- Without patterns: 24-28 hours
+- With patterns: 16-19 hours
+- Savings: 8-9 hours (33% efficiency gain)
+
+## SUCCESS CRITERIA
+
+### Endpoint Validation
+- hi.html must work without ANY modifications
+- All 5 webhook endpoints must match Python responses exactly
+- Process management must handle PIDs correctly
+- GPS data must be retrieved successfully
+
+### Performance Targets
+- Response time: <50ms for status endpoints
+- Process startup: <2s for orchestration script
+- Memory usage: <50MB for webhook service
+- Concurrent requests: Handle 10+ simultaneous
+
+## RISK MITIGATION
+
+### High-Risk Areas
+1. **Child Process Management**: Complex PID handling required
+2. **GPS Communication**: Untested node-gpsd integration
+3. **File System Operations**: Multiple PID files to manage
+4. **System Commands**: sudo operations need careful handling
+
+### Mitigation Strategies
+- Test each endpoint individually before integration
+- Preserve Python webhook for rollback
+- Use patterns for proven solutions
+- Document all decisions in SESSION_CONTINUITY.md
+
+## TESTING APPROACH
+
+### Unit Testing (Per Endpoint)
 ```bash
-# Quick status check
-docker ps | grep openwebrx
-systemctl status gpsd
-hackrf_info
+# Test /run-script
+curl -X POST http://localhost:8092/run-script
 
-# Service health monitoring
-./dev/tools/health-check.sh
+# Test /info
+curl http://localhost:8092/info
 
-# View current logs
-tail -f /home/pi/tmp/gps_kismet_wigle.log
+# Test /script-status  
+curl http://localhost:8092/script-status
+
+# Test /kismet-data
+curl http://localhost:8092/kismet-data
 ```
 
----
+### Integration Testing
+- Start services via hi.html interface
+- Verify all status displays update
+- Check GPS coordinates display
+- Validate Kismet data feed
 
-## 🛠️ CURRENT TECHNICAL STATE
+## DOCUMENTATION REQUIREMENTS
 
-### OpenWebRX (SDR Operations)
-- **Status**: ✅ Running on port 8073
-- **Driver**: Native HackRF (not SoapySDR) 
-- **Authentication**: admin/hackrf
-- **Configuration**: Optimized band profiles (2m, 70cm, aircraft, marine)
-- **Container**: Docker with auto-HackRF detection
+### Update These Files
+1. **SESSION_CONTINUITY.md** - After each major step
+2. **TODO.md** - Mark tasks complete as finished
+3. **API Documentation** - Add webhook endpoints
+4. **Operational Runbook** - Include webhook service
 
-### System Services
-- **GPSD**: ✅ Active on port 2947
-- **Docker**: ✅ Container platform operational
-- **HackRF**: ✅ Device detected via `hackrf_info`
-- **WiFi**: ⚙️ Monitor mode ready for activation
-- **GPS**: ⚙️ Ready for integration testing
-
-### Web Interfaces
-- **OpenWebRX**: http://localhost:8073 (SDR receiver)
-- **Kismet**: http://localhost:2501 (WiFi scanning) - Ready for start
-- **WigleToTAK**: http://localhost:6969 (TAK integration) - Ready for start  
-- **Spectrum Analyzer**: http://localhost:8092 (Real-time FFT) - Ready for start
-
----
-
-## 🎯 SESSION OBJECTIVES
-
-### Immediate Goals (This Session)
-1. **Complete Integration Testing**
-   - Start all services simultaneously
-   - Verify data flow between components
-   - Test web interface accessibility
-   - Validate hardware integration
-
-2. **Performance Validation**
-   - Monitor system resource usage
-   - Test under operational load
-   - Verify service stability
-   - Optimize configuration if needed
-
-3. **Production Readiness**
-   - Security configuration review
-   - Service dependency validation
-   - Error handling verification
-   - Documentation accuracy check
-
-### Success Criteria
-- [ ] All services start successfully and remain stable
-- [ ] GPS data flows correctly to Kismet for location tracking
-- [ ] WiFi scanning produces expected .wiglecsv output
-- [ ] WigleToTAK converts data successfully to TAK format
-- [ ] OpenWebRX receives and displays RF signals properly
-- [ ] All web interfaces accessible and functional
-- [ ] System operates within resource constraints
-- [ ] No critical errors in logs during operation
-
----
-
-## 🔄 WHAT NOT TO CHANGE
-
-### Protected Files (DO NOT MODIFY)
-- **Backup directories**: All content in `/backups/` and `/working-config-archive/`
-- **Docker golden image**: `/backups/hackrf-working-2025-06-15/`
-- **Working configurations**: Files in `/config/openwebrx-profiles/`
-- **Core scripts**: Installation and automation scripts already verified
-
-### Stable Components  
-- **OpenWebRX configuration**: Native HackRF driver working perfectly
-- **Docker setup**: Container configuration optimized and tested
-- **Installation system**: `./install.sh` tested and functional
-- **Documentation**: README.md and guides are comprehensive and accurate
+## EMERGENCY CONTACTS
 
 ### If Issues Arise
-```bash
-# Restore from golden backup if needed
-cd /home/pi/projects/stinkster/backups/hackrf-working-2025-06-15/
-./restore-hackrf-working.sh
+1. Check `WEBHOOK_DEPENDENCY_MAPPING.md` for detailed guidance
+2. Reference patterns in `patterns/` directory
+3. Python webhook at `/home/pi/web/webhook.py` for comparison
+4. Rollback procedure documented in migration patterns
 
-# Rebuild Docker if container issues
-cd /home/pi/projects/stinkster/docker/
-docker-compose down && docker-compose up -d --build
+## FINAL NOTES
 
-# Reset to known working state
-git checkout HEAD -- docker-compose.yml
-```
+This is the LAST major component needed for full system functionality. Once webhook migration is complete:
+- Full web UI control will be restored
+- System orchestration will be available
+- 24-hour production monitoring can begin
+- Migration will be 100% complete
 
----
+**Apply patterns aggressively** - We have 13 validated patterns that can save 8-9 hours on this migration.
 
-## 📊 PROJECT METRICS
-
-### Repository Health
-- **Size**: 1.1GB total (down from 1.5GB+)
-- **Files**: 425 organized files (down from 800+)
-- **Documentation**: 15+ comprehensive guides
-- **Automation**: 10+ working scripts
-- **Backup Coverage**: 100% critical configurations preserved
-
-### System Capabilities
-- **SDR Operations**: HackRF One with OpenWebRX (1MHz-6GHz)
-- **WiFi Intelligence**: Kismet with monitor mode scanning
-- **GPS Integration**: GPSD with MAVLink bridge support
-- **TAK Integration**: Real-time WiFi to tactical mapping
-- **Web Services**: Multiple Flask applications with WebSocket support
-
-### Quality Metrics
-- **Code Quality**: Professional standards throughout
-- **Documentation Coverage**: 100% of major components
-- **Security**: No hardcoded credentials, proper templating
-- **Legal Compliance**: MIT license, third-party attributions complete
-- **User Experience**: One-command installation to full operation
+**Document everything** - This is the final piece of a major migration success story.
 
 ---
 
-## 🎉 PROJECT ACHIEVEMENTS
-
-This project has successfully evolved from a complex, expert-only system requiring manual configuration into a **production-ready platform** that anyone can install and use. Key innovations:
-
-1. **Zero-Configuration HackRF**: Eliminated manual OpenWebRX setup and SoapySDR debugging
-2. **One-Command Installation**: Complete system deployment in 15 minutes
-3. **Professional Documentation**: User-friendly guides for all skill levels
-4. **Automated Configuration**: Template-based system with secure credential management
-5. **Comprehensive Backup**: Multi-tier protection against configuration loss
-
-**Result**: A system that previously required hours of expert configuration now works out-of-the-box for any user.
-
----
-
-## 💡 CONTINUE SESSION WITH
-
-**Recommended opening prompt for Christian:**
-
-"Continue with stinkster project integration testing. Read HANDOFF_SUMMARY.md for complete context. Start with running the full system integration test using `./src/orchestration/gps_kismet_wigle.sh` and verify all web interfaces are accessible. The HackRF/OpenWebRX integration is already working perfectly - focus on testing the GPS → Kismet → WigleToTAK data flow."
-
-**Expected session duration**: 2-3 hours for complete integration testing and production deployment validation.
-
-**Session focus**: System integration, performance validation, production readiness confirmation.
-
----
-
-*All context preserved - Ready for seamless session continuation*  
-*Project status: Production ready with comprehensive documentation*  
-*Next milestone: Complete integration testing and deployment validation*
+Continue with: **Task 1 - Install webhook dependencies**

@@ -1,0 +1,1 @@
+{"status":"healthy","service":"kismet-operations","timestamp":"2025-06-20T12:48:31.389Z","uptime":3452.344334651,"memory":{"rss":98689024,"heapTotal":31469568,"heapUsed":25491496,"external":3531094,"arrayBuffers":162905},"port":8002,"version":"2.0.0","openwebrx_connected":false,"fft_buffer_size":0,"connected_clients":0}

@@ -407,6 +407,9 @@ const scriptManager = new SimpleScriptManager();
 //   cacheTimeout: 10000
 // });
 
+// Trust proxy headers (required for correct client IP behind nginx)
+app.set('trust proxy', true);
+
 // Disable most helmet security features for development
 app.use(helmet({
   contentSecurityPolicy: false, // Disable CSP entirely for now
@@ -418,6 +421,10 @@ app.use(helmet({
 app.use(handlePreflight);
 app.use(cors(corsOptions));
 app.use(dynamicCors);
+// Configure Morgan to log the real client IP when behind a proxy
+morgan.token('remote-addr', (req) => {
+    return req.ip || req.headers['x-forwarded-for'] || req.headers['x-real-ip'] || req.socket.remoteAddress;
+});
 app.use(morgan('combined'));
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
@@ -617,21 +624,52 @@ app.get('/health', (req, res) => {
   });
 });
 
+// Debug endpoint to check IP detection
+app.get('/debug-ip', (req, res) => {
+  const ipInfo = {
+    'req.ip': req.ip,
+    'req.ips': req.ips,
+    'x-forwarded-for': req.headers['x-forwarded-for'],
+    'x-real-ip': req.headers['x-real-ip'],
+    'x-forwarded-host': req.headers['x-forwarded-host'],
+    'connection.remoteAddress': req.connection ? req.connection.remoteAddress : 'N/A',
+    'socket.remoteAddress': req.socket ? req.socket.remoteAddress : 'N/A',
+    'trust proxy setting': req.app.get('trust proxy'),
+    'all headers': req.headers
+  };
+  res.json(ipInfo);
+});
+
 // Info endpoint for system status (frontend compatibility)
 app.get('/info', (req, res) => {
-  const os = require('os');
-  const networkInterfaces = os.networkInterfaces();
+  // Get client IP address from various sources
+  let ipAddress = req.ip;
   
-  // Get primary IP address
-  let ipAddress = 'localhost';
-  for (const iface in networkInterfaces) {
-    for (const alias of networkInterfaces[iface]) {
-      if (alias.family === 'IPv4' && !alias.internal) {
-        ipAddress = alias.address;
-        break;
-      }
+  // If req.ip doesn't give us what we need, try other sources
+  if (!ipAddress || ipAddress === '::1' || ipAddress === '127.0.0.1' || ipAddress === '::ffff:127.0.0.1') {
+    ipAddress = req.headers['x-forwarded-for'] || 
+                req.headers['x-real-ip'] || 
+                req.connection.remoteAddress || 
+                req.socket.remoteAddress ||
+                req.ip;
+  }
+  
+  // Handle x-forwarded-for with multiple IPs (take the first one)
+  if (ipAddress && ipAddress.includes(',')) {
+    ipAddress = ipAddress.split(',')[0].trim();
+  }
+  
+  // Clean up IPv6 formatted IPv4 addresses (::ffff:192.168.1.1 -> 192.168.1.1)
+  if (ipAddress && ipAddress.includes('::ffff:')) {
+    ipAddress = ipAddress.replace('::ffff:', '');
+  }
+  
+  // Final cleanup - if still localhost, try to get from socket
+  if (ipAddress === '127.0.0.1' || ipAddress === '::1' || ipAddress === 'localhost') {
+    const socketAddr = req.socket.remoteAddress;
+    if (socketAddr && !socketAddr.includes('127.0.0.1') && !socketAddr.includes('::1')) {
+      ipAddress = socketAddr.replace('::ffff:', '');
     }
-    if (ipAddress !== 'localhost') break;
   }
   
   res.json({
@@ -1914,6 +1952,41 @@ app.post('/api/stop-script', (req, res) => {
             message: error.message
         });
     }
+});
+
+// Debug endpoint to test IP detection
+app.get('/api/debug/ip', (req, res) => {
+    const ipInfo = {
+        // Express IP detection (with trust proxy enabled)
+        'req.ip': req.ip,
+        'req.ips': req.ips,
+        
+        // Direct socket information
+        'req.socket.remoteAddress': req.socket ? req.socket.remoteAddress : null,
+        'req.connection.remoteAddress': req.connection ? req.connection.remoteAddress : null,
+        
+        // Headers that might contain IP information
+        'x-forwarded-for': req.headers['x-forwarded-for'],
+        'x-real-ip': req.headers['x-real-ip'],
+        'x-client-ip': req.headers['x-client-ip'],
+        'x-forwarded-host': req.headers['x-forwarded-host'],
+        'x-forwarded-proto': req.headers['x-forwarded-proto'],
+        
+        // All headers for debugging
+        'headers': req.headers,
+        
+        // Trust proxy setting
+        'app.trust_proxy': req.app.get('trust proxy'),
+        
+        // Final recommendation
+        'recommended_ip': req.ip || req.headers['x-forwarded-for'] || req.headers['x-real-ip'] || req.socket.remoteAddress
+    };
+    
+    res.json({
+        success: true,
+        timestamp: new Date().toISOString(),
+        ipInfo
+    });
 });
 
 // Error handling middleware (must be last)

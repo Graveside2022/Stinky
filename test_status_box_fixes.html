@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>System Status Box Fix Test</title>
+</head>
+<body>
+    <h1>Testing System Status Box Fixes</h1>
+    
+    <h2>1. Client IP Test</h2>
+    <p>Making request to /info endpoint...</p>
+    <pre id="ip-result"></pre>
+    
+    <h2>2. MGRS Calculation Test</h2>
+    <p>Testing MGRS calculation for San Francisco coordinates (37.7749, -122.4194):</p>
+    <pre id="mgrs-result"></pre>
+    
+    <h2>3. Live Page Test</h2>
+    <p>Open the actual page at: <a href="http://localhost:8002/" target="_blank">http://localhost:8002/</a></p>
+    <p>Check the System Status box to verify:</p>
+    <ul>
+        <li>IP Address shows YOUR IP (not 10.42.0.1)</li>
+        <li>MGRS shows calculated value (like "10SEG...")</li>
+    </ul>
+    
+    <script>
+        // Test 1: Client IP
+        fetch('/info')
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('ip-result').textContent = 
+                    `Response: ${JSON.stringify(data, null, 2)}\n\n` +
+                    `Your IP should be: ${data.ip}`;
+            })
+            .catch(error => {
+                document.getElementById('ip-result').textContent = `Error: ${error}`;
+            });
+            
+        // Test 2: MGRS (simulate the calculation)
+        // This tests if MGRS would be calculated correctly
+        const testLat = 37.7749;
+        const testLon = -122.4194;
+        
+        // Note: Since we don't have the mgrs library loaded here, 
+        // we'll just show what should happen
+        document.getElementById('mgrs-result').textContent = 
+            `Input: Lat=${testLat}, Lon=${testLon}\n` +
+            `Expected MGRS format: Something like "10SEG0195" (exact value depends on mgrs.js library)\n` +
+            `If MGRS shows "--" on the main page, the calculation isn't working.`;
+    </script>
+</body>
+</html>

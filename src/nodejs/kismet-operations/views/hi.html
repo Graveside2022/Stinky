@@ -1525,7 +1525,6 @@
                     document.getElementById('gps-mgrs').textContent = mgrs;
                     
                     document.getElementById('gps-time').textContent = gps.time ?? 'N/A';
-                    document.getElementById('gps-mgrs').textContent = data.gps.mgrs || '--';
                 })
                 .catch(error => {
                     document.getElementById('system-message').textContent = 'Error loading system status';

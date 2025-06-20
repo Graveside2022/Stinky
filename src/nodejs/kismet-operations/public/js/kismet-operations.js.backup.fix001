@@ -84,7 +84,6 @@ function updateSystemStatus() {
             document.getElementById('gps-lon').textContent = gps.lon ?? 'N/A';
             document.getElementById('gps-alt').textContent = gps.alt ?? 'N/A';
             document.getElementById('gps-time').textContent = gps.time ?? 'N/A';
-            document.getElementById('gps-mgrs').textContent = gps.mgrs ?? '--';
         })
         .catch(error => {
             console.error('Error updating system status:', error);

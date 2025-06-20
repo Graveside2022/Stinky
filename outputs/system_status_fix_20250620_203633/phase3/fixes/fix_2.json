@@ -1,0 +1,38 @@
+{
+  "fix_id": "FIX-002",
+  "title": "Add MGRS DOM Update",
+  "timestamp": "2025-06-20T20:37:12Z",
+  "status": "completed",
+  "file": "/home/pi/projects/stinkster_malone/stinkster/src/nodejs/kismet-operations/public/js/kismet-operations.js",
+  "changes": {
+    "location": {
+      "line": 87,
+      "after_line": 86,
+      "context": "After gps-time update"
+    },
+    "code_added": "document.getElementById('gps-mgrs').textContent = gps.mgrs ?? '--';",
+    "indentation": "            ",
+    "lines_modified": 1
+  },
+  "verification": {
+    "syntax_check": "passed",
+    "file_readable": true,
+    "implementation_notes": [
+      "Added MGRS DOM update line after gps-time update",
+      "Maintained consistent indentation with surrounding code",
+      "Used nullish coalescing operator (??) for default value '--'",
+      "Follows same pattern as other GPS field updates"
+    ]
+  },
+  "code_context": {
+    "before": [
+      "document.getElementById('gps-alt').textContent = gps.alt ?? 'N/A';",
+      "document.getElementById('gps-time').textContent = gps.time ?? 'N/A';"
+    ],
+    "added": "document.getElementById('gps-mgrs').textContent = gps.mgrs ?? '--';",
+    "after": [
+      "    })",
+      "    .catch(error => {"
+    ]
+  }
+}

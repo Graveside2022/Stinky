@@ -1,0 +1,37 @@
+{
+  "fix_id": "FIX-001",
+  "fix_title": "Correct Frontend API Endpoint",
+  "timestamp": "2025-06-20T18:49:05.239Z",
+  "file_path": "/home/pi/projects/stinkster_malone/stinkster/src/nodejs/kismet-operations/public/js/kismet-operations.js",
+  "line_number": 72,
+  "expected_change": {
+    "from": "const response = await fetch('/api/status', {",
+    "to": "const response = await fetch('/info', {"
+  },
+  "implementation": {
+    "status": "already_applied",
+    "details": "The fix was already applied. Line 72 shows fetch('/info', { instead of fetch('/api/status', {",
+    "backup_created": true,
+    "backup_path": "/home/pi/projects/stinkster_malone/stinkster/src/nodejs/kismet-operations/public/js/kismet-operations.js.backup.fix001"
+  },
+  "verification": {
+    "file_check": {
+      "status": "success",
+      "details": {
+        "actual_line": "fetch('/info', {",
+        "contains_correct_endpoint": true,
+        "line_number": 72
+      }
+    },
+    "endpoint_test": {
+      "status": "service_configuration",
+      "details": {
+        "note": "Service is running on port 3002, not 4000",
+        "actual_port": 3002,
+        "service_found": true
+      }
+    },
+    "overall_status": "success",
+    "notes": "Fix already applied. The endpoint has been corrected from /api/status to /info"
+  }
+}

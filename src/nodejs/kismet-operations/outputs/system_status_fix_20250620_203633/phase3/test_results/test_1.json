@@ -1,0 +1,76 @@
+{
+  "timestamp": "2025-06-20T18:53:12.938Z",
+  "testName": "FIX-001 API Endpoint Change Verification",
+  "fixDescription": "Change frontend to call /info instead of /api/status",
+  "tests": [
+    {
+      "name": "Test /info endpoint",
+      "passed": true,
+      "endpoint": "/info",
+      "response": {
+        "ip": "10.42.0.1",
+        "gps": {
+          "status": "Connected",
+          "lat": "37.7749",
+          "lon": "-122.4194",
+          "alt": "15.0m",
+          "time": "2025-06-20T18:53:12.994Z"
+        }
+      },
+      "message": "Endpoint exists and returns data"
+    },
+    {
+      "name": "Test /api/status endpoint",
+      "passed": true,
+      "endpoint": "/api/status",
+      "response": {
+        "connected": false,
+        "buffer_size": 0,
+        "config": {
+          "fft_size": 0,
+          "center_freq": 145000000,
+          "samp_rate": 2400000,
+          "fft_compression": "none",
+          "signal_threshold": -70
+        },
+        "last_update": null,
+        "last_signal_detection": null,
+        "signal_history_length": 0,
+        "reconnect_attempts": 0,
+        "max_buffer_size": 1000,
+        "server_uptime": 3818.542890563,
+        "connected_clients": 0,
+        "mode": "DEMO MODE",
+        "openwebrx_connected": false,
+        "real_data": false,
+        "fft_buffer_size": 0,
+        "last_fft_time": null
+      },
+      "message": "Legacy endpoint still exists"
+    },
+    {
+      "name": "Frontend endpoint usage check",
+      "passed": false,
+      "endpointFound": "/api/status",
+      "expectedEndpoint": "/info",
+      "actualEndpoint": "/api/status",
+      "message": "Frontend still uses /api/status instead of /info"
+    },
+    {
+      "name": "System status data structure check",
+      "passed": true,
+      "dataStructure": [
+        "ip",
+        "gps"
+      ],
+      "message": "Info endpoint returns expected data structure"
+    }
+  ],
+  "summary": {
+    "totalTests": 4,
+    "passed": 3,
+    "failed": 1,
+    "fixImplemented": false,
+    "recommendation": "FIX-001 is NOT implemented - frontend still calls /api/status"
+  }
+}

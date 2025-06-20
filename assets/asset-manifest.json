@@ -1,0 +1,152 @@
+{
+  "manifest_version": "1.0.0",
+  "created": "2025-06-20T22:07:39",
+  "description": "Asset manifest for Setup Pages Replicator",
+  
+  "assets": {
+    "stylesheets": [
+      {
+        "path": "css/common-styles.css",
+        "description": "Common styles shared across all setup pages",
+        "size": "7.2KB",
+        "features": [
+          "Base reset and typography",
+          "Background animations (gradient pan and dot pattern)",
+          "Top banner with glow effect",
+          "Grid layout system",
+          "Interactive button styles",
+          "Status indicator components",
+          "Responsive design breakpoints",
+          "Custom scrollbar styling"
+        ]
+      }
+    ],
+    
+    "javascript": [
+      {
+        "path": "js/kismet-control.js",
+        "description": "Interactive functionality for Kismet control page",
+        "size": "6.8KB",
+        "dependencies": [],
+        "features": [
+          "API communication for start/stop operations",
+          "Real-time status updates (5-second interval)",
+          "Visual notifications",
+          "Loading states",
+          "Error handling",
+          "Page visibility optimization"
+        ],
+        "api_endpoints": [
+          "/run-script",
+          "/stop-script",
+          "/status"
+        ]
+      },
+      {
+        "path": "js/common-utils.js",
+        "description": "Shared utility functions for all pages",
+        "size": "4.3KB",
+        "dependencies": [],
+        "features": [
+          "Smooth scrolling",
+          "Clipboard operations",
+          "Code block enhancements",
+          "External link handling",
+          "Responsive navigation",
+          "Fade-in animations",
+          "Timestamp formatting",
+          "Debounce utility"
+        ]
+      }
+    ],
+    
+    "images": [
+      {
+        "path": "images/dot-pattern.svg",
+        "description": "Background dot pattern for visual enhancement",
+        "size": "0.3KB",
+        "type": "vector",
+        "usage": "Alternative to inline SVG background pattern"
+      }
+    ],
+    
+    "external_dependencies": [
+      {
+        "type": "font",
+        "name": "Inter",
+        "url": "https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;700&display=swap",
+        "weights": ["300", "400", "500", "700"],
+        "description": "Primary typeface for all text content",
+        "fallbacks": ["Segoe UI", "Tahoma", "Geneva", "Verdana", "sans-serif"]
+      }
+    ]
+  },
+  
+  "color_palette": {
+    "primary": {
+      "cyan": "#00d2ff",
+      "cyan_hover": "#00ff88"
+    },
+    "background": {
+      "dark": "#030610",
+      "panel": "rgba(10, 15, 30, 0.6)",
+      "overlay": "rgba(10, 15, 30, 0.75)"
+    },
+    "text": {
+      "primary": "#d0d8f0",
+      "secondary": "#b8c5e0",
+      "muted": "#7a8a9a"
+    },
+    "status": {
+      "active": "#00ff88",
+      "inactive": "#ff4444",
+      "unknown": "#ffaa00"
+    },
+    "gradients": {
+      "background": ["#030610", "#0a0f1e", "#030610", "#1a1f3a", "#030610"],
+      "button": ["#1a1f3a", "#2a2f4a"],
+      "button_hover": ["#2a2f4a", "#3a3f5a"],
+      "control_button": ["#00d2ff", "#0099cc"]
+    }
+  },
+  
+  "animations": {
+    "background_pan": {
+      "duration": "15s",
+      "timing": "ease",
+      "iteration": "infinite"
+    },
+    "glow": {
+      "duration": "2s",
+      "timing": "ease-in-out",
+      "iteration": "infinite alternate"
+    },
+    "fade_in_up": {
+      "duration": "0.5s",
+      "timing": "ease",
+      "iteration": "forwards"
+    }
+  },
+  
+  "responsive_breakpoints": {
+    "mobile": "768px",
+    "tablet": "1024px",
+    "desktop": "1400px"
+  },
+  
+  "usage_notes": {
+    "css_import": "Link to common-styles.css in the <head> of each HTML page",
+    "js_import": "Include common-utils.js before page-specific scripts",
+    "kismet_js": "Only include kismet-control.js on the Kismet control page",
+    "font_loading": "Google Fonts are loaded via @import in the CSS file",
+    "background_pattern": "Can use either inline SVG or reference dot-pattern.svg"
+  },
+  
+  "optimization_recommendations": [
+    "Consider minifying CSS and JS files for production",
+    "Implement CSS and JS bundling for reduced HTTP requests",
+    "Add cache headers for static assets",
+    "Consider using a CDN for external dependencies",
+    "Implement lazy loading for non-critical resources"
+  ]
+}

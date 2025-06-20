@@ -1180,7 +1180,7 @@
     </main>
 
     <!-- Kismet Iframe Section -->
-    <div id="kismet-iframe" class="grid-item resizable-frame" style="position: relative; height: 400px; flex-shrink: 0; display: block; z-index: 5;">
+    <div id="kismet-iframe" class="grid-item resizable-frame" style="position: relative; height: 400px; flex-shrink: 0; display: none; z-index: 5;">
         <!-- Resize handle at the top -->
         <div class="resize-handle" id="resize-handle"></div>
         <div class="box-header" style="cursor: move;">
@@ -1227,6 +1227,18 @@
         const kismetUrl = 'http://10.42.0.1:2501';
         
         console.log('Setting Kismet iframe URL to proxy path:', kismetUrl);
+        
+        // Create minimized tab for Kismet iframe on page load
+        const minimizedTabs = document.getElementById('minimized-tabs');
+        if (minimizedTabs) {
+            const tab = document.createElement('div');
+            tab.className = 'minimized-tab kismet-minimized-tab';
+            tab.innerHTML = `
+                Kismet Live View
+                <button class="restore-button" onclick="toggleKismetIframe()">▲</button>
+            `;
+            minimizedTabs.appendChild(tab);
+        }
         
         let retryCount = 0;
         const maxRetries = 3;

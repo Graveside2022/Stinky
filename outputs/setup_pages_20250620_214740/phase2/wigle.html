@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kismet Setup Instructions</title>
+    <title>Wigle Setup Instructions</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;700&display=swap" rel="stylesheet">
     <style>
         html {
@@ -173,7 +173,6 @@
             overflow: hidden;
             margin-top: 2rem;
             width: 100%;
-            max-width: 1200px;
         }
 
         .back-button:hover {
@@ -181,73 +180,69 @@
             transform: translateY(-3px) scale(1.04);
             box-shadow: 0 8px 32px rgba(0, 210, 255, 0.25);
         }
-
-        @media (max-width: 768px) {
-            .main-content-area {
-                grid-template-columns: 1fr;
-                padding: 10px;
-            }
-            .top-banner h1 {
-                font-size: 1.4em;
-                letter-spacing: 3px;
-            }
-        }
     </style>
 </head>
 <body>
     <div class="top-banner">
-        <h1>Kismet Setup Instructions</h1>
+        <h1>Wigle Setup Instructions</h1>
     </div>
-
     <div class="main-content-area">
         <div class="grid-item">
-            <h2>Accessing Kismet</h2>
+            <h2>Instructions</h2>
             <div class="grid-item-content">
                 <div style="text-align: left; color: #d0d8f0; line-height: 1.6;">
+                    <h3 style="color: #a0e0ff; margin-top: 0;">Getting Started</h3>
                     <ol style="list-style-type: decimal; padding-left: 1.5rem;">
-                        <li>Click the "Kismet" button on the main page or go to <a href="http://10.42.0.1:2501" target="_blank" style="color: #00d2ff;">http://10.42.0.1:2501</a></li>
-                        <li>Log in with the default credentials:
-                            <ul style="list-style-type: disc; padding-left: 1.5rem; margin-top: 0.5rem;">
-                                <li><strong style="color: #00d2ff;">Username:</strong> admin</li>
-                                <li><strong style="color: #00d2ff;">Password:</strong> admin</li>
-                            </ul>
-                        </li>
+                        <li>Click "Open WigletoTak" on the main page</li>
+                        <li>Wait for the interface to load</li>
+                        <li>Follow the configuration steps in the middle box</li>
+                        <li>Click "Start" when ready to begin</li>
                     </ol>
                 </div>
             </div>
         </div>
-
         <div class="grid-item">
-            <h2>Using Kismet</h2>
+            <h2>Configuration</h2>
             <div class="grid-item-content">
                 <div style="text-align: left; color: #d0d8f0; line-height: 1.6;">
-                    <ol style="list-style-type: decimal; padding-left: 1.5rem;">
-                        <li>After logging in, you'll see the Kismet dashboard</li>
-                        <li>In the top left click the hamburger menu and select Wlan2 and then enable source</li>
-                        <li>The main view shows all detected wireless networks</li>
-                        <li>Use the filters at the top to search for specific networks</li>
-                        <li>The "Devices" view shows all detected wireless devices</li>
-                        <li>Use the "Alerts" view to monitor for specific types of wireless activity</li>
-                    </ol>
+                    <h3 style="color: #a0e0ff; margin-top: 0;">Configuration Steps</h3>
+                    
+                    <h4 style="color: #a0e0ff; margin-top: 1.5rem;">1. TAK Connection Settings</h4>
+                    <ul style="list-style-type: none; padding-left: 0;">
+                        <li><strong style="color: #00d2ff;">TAK Destination IP:</strong> Use your IP found in the Info tab</li>
+                        <li><strong style="color: #00d2ff;">TAK Destination Port:</strong> 18000</li>
+                    </ul>
+                    <p style="color: #00d2ff; margin-top: 0.5rem;">→ Save your changes</p>
+
+                    <h4 style="color: #a0e0ff; margin-top: 1.5rem;">2. Antenna Configuration</h4>
+                    <ul style="list-style-type: none; padding-left: 0;">
+                        <li><strong style="color: #00d2ff;">Antenna Type:</strong> Alpha Card</li>
+                    </ul>
+                    <p style="color: #00d2ff; margin-top: 0.5rem;">→ Save your changes</p>
+
+                    <h4 style="color: #a0e0ff; margin-top: 1.5rem;">3. Log Directory Setup</h4>
+                    <ul style="list-style-type: none; padding-left: 0;">
+                        <li><strong style="color: #00d2ff;">Wigle CSV Logs Directory:</strong> /home/pi/kismet_ops</li>
+                    </ul>
+                    <p style="color: #00d2ff; margin-top: 0.5rem;">→ After submitting, click Start</p>
                 </div>
             </div>
         </div>
-
         <div class="grid-item">
-            <h2>Important Notes</h2>
+            <h2>Additional Info</h2>
             <div class="grid-item-content">
                 <div style="text-align: left; color: #d0d8f0; line-height: 1.6;">
-                    <ol style="list-style-type: decimal; padding-left: 1.5rem;">
-                        <li>Kismet will automatically start when you click the "Start" button on the main page</li>
-                        <li>Make sure your wireless adapter is in monitor mode</li>
-                        <li>Data is automatically saved and can be exported in various formats</li>
-                        <li>Use the "Stop" button on the main page to properly shut down Kismet</li>
-                    </ol>
+                    <h3 style="color: #a0e0ff; margin-top: 0;">Tips & Notes</h3>
+                    <ul style="list-style-type: disc; padding-left: 1.5rem;">
+                        <li>Make sure Kismet is running before starting WigletoTak</li>
+                        <li>Check the System Status box for your current IP address</li>
+                        <li>Logs are automatically saved to the specified directory</li>
+                        <li>Use the "Stop" button to properly shut down WigletoTak</li>
+                    </ul>
                 </div>
             </div>
         </div>
     </div>
-
-    <button class="back-button" onclick="window.location.href='./hi.html'">← Back to Main</button>
+    <button class="back-button" onclick="window.location.href='hi.html'">← Back to Main</button>
 </body>
 </html>

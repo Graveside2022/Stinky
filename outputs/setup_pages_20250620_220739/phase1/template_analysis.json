@@ -1,0 +1,171 @@
+{
+  "analysis_timestamp": "2025-06-20T22:07:39",
+  "source_files": {
+    "wigle": "/var/www/html/wigle.html",
+    "atak": "/var/www/html/atak.html",
+    "kismet": "/var/www/html/kismet.html"
+  },
+  "common_template": {
+    "doctype": "<!DOCTYPE html>",
+    "html_lang": "en",
+    "meta_tags": [
+      {
+        "charset": "UTF-8"
+      },
+      {
+        "name": "viewport",
+        "content": "width=device-width, initial-scale=1.0"
+      }
+    ],
+    "external_dependencies": {
+      "fonts": [
+        "https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;700&display=swap"
+      ],
+      "css": [],
+      "javascript": []
+    },
+    "common_styles": {
+      "html_styles": "height: 100%; margin: 0; padding: 0; box-sizing: border-box;",
+      "body_styles": "height: 100%; margin: 0; padding: 0; font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #030610; color: #d0d8f0; display: flex; flex-direction: column; align-items: center; overflow: hidden; box-sizing: border-box;",
+      "background_animations": {
+        "body_before": "Diagonal gradient pattern with animation",
+        "body_after": "SVG dot pattern overlay",
+        "keyframe": "background-pan"
+      },
+      "top_banner": {
+        "class": "top-banner",
+        "styles": "width: 100%; background-color: rgba(10, 15, 30, 0.75); backdrop-filter: blur(8px); border-bottom: 1px solid rgba(0, 220, 255, 0.4); box-shadow: 0 2px 20px rgba(0, 220, 255, 0.35); padding: 12px 25px; text-align: center; box-sizing: border-box; flex-shrink: 0; z-index: 10;"
+      },
+      "banner_title": {
+        "selector": ".top-banner h1",
+        "styles": "color: #00d2ff; text-transform: uppercase; letter-spacing: 5px; font-size: 1.8em; font-weight: 700; margin: 0; text-shadow with animation"
+      },
+      "back_button": {
+        "class": "back-button",
+        "styles": "gradient background, rounded corners, hover effects",
+        "target": "hi.html"
+      }
+    }
+  },
+  "page_specific_content": {
+    "wigle": {
+      "title": "Wigle Setup Instructions",
+      "layout": "3-column grid (1fr 1.2fr 1fr)",
+      "sections": [
+        {
+          "title": "Instructions",
+          "content": "Getting Started steps for WigletoTak"
+        },
+        {
+          "title": "Configuration",
+          "content": "TAK Connection Settings, Antenna Configuration, Log Directory Setup"
+        },
+        {
+          "title": "Additional Info",
+          "content": "Tips & Notes for usage"
+        }
+      ],
+      "unique_elements": {
+        "grid_class": "main-content-area",
+        "grid_item_class": "grid-item",
+        "content_wrapper_class": "grid-item-content"
+      }
+    },
+    "atak": {
+      "title": "ATAK Setup Instructions",
+      "layout": "3-column grid (1fr 1.2fr 1fr)",
+      "sections": [
+        {
+          "title": "Instructions",
+          "content": "ATAK installation and server setup"
+        },
+        {
+          "title": "Configuration",
+          "content": "Connection Settings configuration steps"
+        },
+        {
+          "title": "Additional Info",
+          "content": "Important notes and tips"
+        }
+      ],
+      "unique_elements": {
+        "responsive_media_query": "@media (max-width: 768px)",
+        "max_width_constraint": "max-width: 1200px on back-button"
+      }
+    },
+    "kismet": {
+      "title": "Kismet Control",
+      "layout": "2-column grid (1fr 1fr)",
+      "sections": [
+        {
+          "title": "Control Panel",
+          "content": "Interactive buttons for Kismet control"
+        },
+        {
+          "title": "Status",
+          "content": "Live status indicators"
+        }
+      ],
+      "unique_elements": {
+        "javascript_functions": [
+          "startKismet()",
+          "stopKismet()",
+          "updateStatus()"
+        ],
+        "api_endpoints": [
+          "http://10.42.0.1:5000/run-script",
+          "http://10.42.0.1:5000/stop-script",
+          "http://10.42.0.1:5000/status"
+        ],
+        "external_links": [
+          "http://10.42.0.1:2501 (Kismet Web UI)",
+          "http://10.42.0.1:8000 (WigletoTak)"
+        ],
+        "status_update_interval": 5000
+      }
+    }
+  },
+  "path_conversions_needed": [
+    {
+      "type": "back_button_link",
+      "current": "hi.html",
+      "recommended": "../index.html or ./index.html depending on final structure"
+    },
+    {
+      "type": "api_endpoints",
+      "current": "http://10.42.0.1:xxxx",
+      "recommended": "Consider relative paths or environment-based URLs"
+    }
+  ],
+  "common_css_classes": {
+    "layout": [
+      "top-banner",
+      "main-content-area",
+      "back-button"
+    ],
+    "grid_items": [
+      "grid-item",
+      "grid-item-content",
+      "panel-title"
+    ],
+    "interactive": [
+      "control-button",
+      "status-indicator",
+      "status-dot"
+    ]
+  },
+  "recommendations": {
+    "template_extraction": [
+      "Extract common HTML structure into a base template",
+      "Create reusable CSS file for common styles",
+      "Modularize the background animations and effects",
+      "Create consistent grid layouts with configurable columns"
+    ],
+    "improvements": [
+      "Add error handling for missing dependencies",
+      "Implement responsive design consistently across all pages",
+      "Create environment configuration for API endpoints",
+      "Add loading states for interactive elements"
+    ]
+  }
+}

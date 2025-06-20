@@ -1,0 +1,57 @@
+{
+  "template_structure": {
+    "html_meta": {
+      "charset": "UTF-8",
+      "viewport": "width=device-width, initial-scale=1.0",
+      "font_import": "https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;700&display=swap"
+    },
+    "common_styles": {
+      "background_color": "#030610",
+      "text_color": "#d0d8f0",
+      "accent_color": "#00d2ff",
+      "highlight_color": "#a0e0ff",
+      "border_color": "rgba(0, 190, 215, 0.35)",
+      "font_family": "'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif",
+      "background_patterns": {
+        "grid_pattern": "linear-gradient(45deg, rgba(0, 200, 220, 0.02) 25%, transparent 25%, transparent 75%, rgba(0, 200, 220, 0.02) 75%)",
+        "noise_pattern": "SVG circles pattern",
+        "animation": "background-pan 80s linear infinite"
+      }
+    },
+    "layout_components": {
+      "top_banner": {
+        "background": "rgba(10, 15, 30, 0.75)",
+        "backdrop_filter": "blur(8px)",
+        "border_bottom": "1px solid rgba(0, 220, 255, 0.4)",
+        "box_shadow": "0 2px 20px rgba(0, 220, 255, 0.35)",
+        "title_animation": "pulse-glow-banner 2.5s infinite alternate"
+      },
+      "main_content_area": {
+        "display": "grid",
+        "grid_template_columns": "1fr 1.2fr 1fr",
+        "gap": "10px",
+        "padding": "10px"
+      },
+      "grid_item": {
+        "background": "rgba(12, 22, 48, 0.65)",
+        "backdrop_filter": "blur(12px)",
+        "border": "1px solid rgba(0, 190, 215, 0.35)",
+        "border_radius": "8px",
+        "hover_effect": "transform: translateY(-3px)"
+      },
+      "back_button": {
+        "gradient": "linear-gradient(90deg, #00d2ff 0%, #222 100%)",
+        "hover_gradient": "linear-gradient(90deg, #222 0%, #00d2ff 100%)",
+        "padding": "0.9em 2.2em",
+        "border_radius": "30px",
+        "destination": "hi.html"
+      }
+    },
+    "scrollbar_styling": {
+      "width": "6px",
+      "track_background": "rgba(3, 6, 16, 0.3)",
+      "thumb_background": "rgba(0, 220, 255, 0.4)",
+      "thumb_hover": "rgba(0, 220, 255, 0.6)"
+    }
+  }
+}

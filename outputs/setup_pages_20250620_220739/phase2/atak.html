@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kismet Setup Instructions</title>
+    <title>ATAK Setup Instructions</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;700&display=swap" rel="stylesheet">
     <style>
         html {
@@ -196,20 +196,24 @@
 </head>
 <body>
     <div class="top-banner">
-        <h1>Kismet Setup Instructions</h1>
+        <h1>ATAK Setup Instructions</h1>
     </div>
 
     <div class="main-content-area">
         <div class="grid-item">
-            <h2>Accessing Kismet</h2>
+            <h2>Instructions</h2>
             <div class="grid-item-content">
                 <div style="text-align: left; color: #d0d8f0; line-height: 1.6;">
+                    <h3 style="color: #a0e0ff; margin-top: 0;">ATAK Setup</h3>
                     <ol style="list-style-type: decimal; padding-left: 1.5rem;">
-                        <li>Click the "Kismet" button on the main page or go to <a href="http://10.42.0.1:2501" target="_blank" style="color: #00d2ff;">http://10.42.0.1:2501</a></li>
-                        <li>Log in with the default credentials:
-                            <ul style="list-style-type: disc; padding-left: 1.5rem; margin-top: 0.5rem;">
-                                <li><strong style="color: #00d2ff;">Username:</strong> admin</li>
-                                <li><strong style="color: #00d2ff;">Password:</strong> admin</li>
+                        <li>Install ATAK from the official website or app store</li>
+                        <li>Open ATAK and go to Settings > Network > TAK Server</li>
+                        <li>Add a new server with the following details:
+                            <ul style="list-style-type: disc; padding-left: 1.5rem;">
+                                <li>Server Address: 10.42.0.1</li>
+                                <li>Port: 8089</li>
+                                <li>Username: admin</li>
+                                <li>Password: admin</li>
                             </ul>
                         </li>
                     </ol>
@@ -218,36 +222,37 @@
         </div>
 
         <div class="grid-item">
-            <h2>Using Kismet</h2>
+            <h2>Configuration</h2>
             <div class="grid-item-content">
                 <div style="text-align: left; color: #d0d8f0; line-height: 1.6;">
+                    <h3 style="color: #a0e0ff; margin-top: 0;">Connection Settings</h3>
                     <ol style="list-style-type: decimal; padding-left: 1.5rem;">
-                        <li>After logging in, you'll see the Kismet dashboard</li>
-                        <li>In the top left click the hamburger menu and select Wlan2 and then enable source</li>
-                        <li>The main view shows all detected wireless networks</li>
-                        <li>Use the filters at the top to search for specific networks</li>
-                        <li>The "Devices" view shows all detected wireless devices</li>
-                        <li>Use the "Alerts" view to monitor for specific types of wireless activity</li>
+                        <li>Enable "Auto Connect" in the server settings</li>
+                        <li>Set "Connection Type" to "WiFi"</li>
+                        <li>Enable "SSL/TLS" for secure connection</li>
+                        <li>Set "Keep Alive" to 30 seconds</li>
+                        <li>Enable "Location Sharing" in ATAK settings</li>
                     </ol>
                 </div>
             </div>
         </div>
 
         <div class="grid-item">
-            <h2>Important Notes</h2>
+            <h2>Additional Info</h2>
             <div class="grid-item-content">
                 <div style="text-align: left; color: #d0d8f0; line-height: 1.6;">
+                    <h3 style="color: #a0e0ff; margin-top: 0;">Important Notes</h3>
                     <ol style="list-style-type: decimal; padding-left: 1.5rem;">
-                        <li>Kismet will automatically start when you click the "Start" button on the main page</li>
-                        <li>Make sure your wireless adapter is in monitor mode</li>
-                        <li>Data is automatically saved and can be exported in various formats</li>
-                        <li>Use the "Stop" button on the main page to properly shut down Kismet</li>
+                        <li>Make sure your device is connected to the same network as the server</li>
+                        <li>GPS must be enabled on your device for location sharing</li>
+                        <li>ATAK will automatically reconnect if the connection is lost</li>
+                        <li>Use the "Disconnect" button in ATAK to manually disconnect from the server</li>
                     </ol>
                 </div>
             </div>
         </div>
     </div>
 
-    <button class="back-button" onclick="window.location.href='./hi.html'">← Back to Main</button>
+    <button class="back-button" onclick="window.location.href='./index.html'">← Back to Main</button>
 </body>
 </html>

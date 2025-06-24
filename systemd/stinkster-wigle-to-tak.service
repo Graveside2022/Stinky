@@ -1,0 +1,51 @@
+[Unit]
+Description=Stinkster WigleToTAK - WiFi to TAK Converter (Node.js)
+Documentation=https://github.com/yourusername/stinkster
+After=network.target stinkster-kismet.service
+Wants=stinkster-kismet.service
+PartOf=stinkster.target
+
+[Service]
+Type=simple
+User=pi
+Group=pi
+WorkingDirectory=/home/pi/projects/stinkster_christian/stinkster/src/nodejs/wigle-to-tak
+Environment="NODE_ENV=production"
+Environment="PATH=/usr/bin:/usr/local/bin:/home/pi/.nvm/versions/node/v18.17.0/bin"
+Environment="PORT=8000"
+Environment="FLASK_PORT=8000"
+Environment="TAK_PORT=6969"
+
+ExecStart=/usr/bin/node server.js
+
+Restart=always
+RestartSec=10
+StartLimitBurst=5
+StartLimitIntervalSec=60
+
+# Logging
+StandardOutput=append:/var/log/stinkster-wigle-to-tak.log
+StandardError=append:/var/log/stinkster-wigle-to-tak.log
+
+# Process management
+KillMode=mixed
+KillSignal=SIGTERM
+TimeoutStopSec=10
+
+# Security
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=read-only
+ReadWritePaths=/home/pi/projects/stinkster_christian/stinkster/src/nodejs/wigle-to-tak
+ReadWritePaths=/home/pi/projects/stinkster_christian/stinkster/data/kismet
+ReadWritePaths=/var/log
+ReadWritePaths=/home/pi/tmp
+ReadWritePaths=/home/pi/WigletoTAK
+
+# Network access for TAK broadcasting
+RestrictAddressFamilies=AF_INET AF_INET6 AF_UNIX
+IPAddressDeny=
+
+[Install]
+WantedBy=stinkster.target

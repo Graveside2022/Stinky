@@ -1,0 +1,290 @@
+/* HackRF Spectrum Analyzer Styles */
+
+/* Phase 3.1: Foundation Changes - CSS Reset and Box Sizing */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  touch-action: manipulation;
+}
+
+body {
+  font-family: 'Courier New', monospace;
+  background: #000;
+  color: #0f0;
+  margin: 0;
+  padding: 20px;
+}
+
+/* Phase 3.2: Mobile viewport adjustments */
+@media (max-width: 768px) {
+  body {
+    padding: 10px;
+  }
+}
+
+.header {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.status-panel {
+  background: #111;
+  border: 2px solid #0f0;
+  padding: 15px;
+  margin-bottom: 20px;
+  border-radius: 5px;
+}
+
+.mode-indicator {
+  font-size: 24px;
+  font-weight: bold;
+  text-align: center;
+  padding: 10px;
+  margin: 10px 0;
+  border-radius: 5px;
+}
+
+.real-data-mode {
+  background: #004400;
+  color: #00ff00;
+  border: 2px solid #00ff00;
+}
+
+.demo-mode {
+  background: #440000;
+  color: #ff4444;
+  border: 2px solid #ff4444;
+}
+
+.controls {
+  background: #111;
+  border: 2px solid #0f0;
+  padding: 15px;
+  margin-bottom: 20px;
+  border-radius: 5px;
+}
+
+.scan-profiles {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 15px;
+  flex-wrap: wrap;
+}
+
+/* Phase 3.3: Mobile optimization for scan profiles */
+@media (max-width: 480px) {
+  .scan-profiles {
+    flex-direction: column;
+  }
+
+  .profile-btn {
+    width: 100%;
+  }
+}
+
+.profile-btn {
+  background: #003300;
+  color: #0f0;
+  border: 1px solid #0f0;
+  padding: 10px 15px;
+  cursor: pointer;
+  border-radius: 3px;
+  font-family: inherit;
+  transition: background-color 0.3s;
+}
+
+/* Phase 3.2: Touch Target Enhancement */
+@media (max-width: 768px) {
+  .profile-btn {
+    min-height: 48px;
+    padding: 12px 15px;
+  }
+}
+
+.profile-btn:hover {
+  background: #004400;
+}
+
+.profile-btn.active {
+  background: #0f0;
+  color: #000;
+}
+
+.control-buttons {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+/* Phase 3.3: Control buttons mobile stacking */
+@media (max-width: 480px) {
+  .control-buttons {
+    flex-direction: column;
+  }
+}
+
+.control-btn {
+  background: #003300;
+  color: #0f0;
+  border: 1px solid #0f0;
+  padding: 8px 12px;
+  cursor: pointer;
+  border-radius: 3px;
+  font-family: inherit;
+  transition: background-color 0.3s;
+}
+
+/* Phase 3.2: Touch targets for control buttons */
+@media (max-width: 768px) {
+  .control-btn {
+    min-height: 48px;
+    padding: 12px;
+    width: 100%;
+  }
+}
+
+.control-btn:hover {
+  background: #004400;
+}
+
+.control-btn:disabled {
+  background: #222;
+  color: #666;
+  cursor: not-allowed;
+}
+
+.spectrum-display {
+  background: #111;
+  border: 2px solid #0f0;
+  padding: 15px;
+  margin-bottom: 20px;
+  border-radius: 5px;
+  height: 400px;
+}
+
+/* Phase 3.2: Responsive height for spectrum display */
+@media (max-width: 768px) {
+  .spectrum-display {
+    height: 250px;
+    padding: 10px;
+  }
+}
+
+.signals-list {
+  background: #111;
+  border: 2px solid #0f0;
+  padding: 15px;
+  border-radius: 5px;
+}
+
+.signal-item {
+  background: #002200;
+  border: 1px solid #0f0;
+  padding: 10px;
+  margin: 5px 0;
+  border-radius: 3px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.signal-item.demo {
+  background: #220000;
+  border-color: #ff4444;
+  color: #ff4444;
+}
+
+.signal-item.real {
+  background: #002200;
+  border-color: #00ff00;
+  color: #00ff00;
+}
+
+.frequency {
+  font-weight: bold;
+  font-size: 16px;
+}
+
+.signal-details {
+  font-size: 12px;
+  opacity: 0.8;
+}
+
+.loading {
+  text-align: center;
+  color: #ff0;
+  font-size: 18px;
+  margin: 20px 0;
+}
+
+.error {
+  color: #f00;
+  background: #400;
+  border: 1px solid #f00;
+  padding: 10px;
+  border-radius: 3px;
+  margin: 10px 0;
+}
+
+.log-output {
+  background: #000;
+  border: 1px solid #333;
+  padding: 10px;
+  height: 200px;
+  overflow-y: auto;
+  font-size: 11px;
+  margin-top: 20px;
+}
+
+.log-output h4 {
+  margin-top: 0;
+  color: #0f0;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  body {
+    padding: 10px;
+  }
+
+  .scan-profiles {
+    flex-direction: column;
+  }
+
+  .profile-btn {
+    margin-bottom: 5px;
+  }
+
+  .control-buttons {
+    flex-direction: column;
+  }
+
+  .spectrum-display {
+    height: 300px;
+  }
+
+  .signal-item {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .signal-details {
+    margin-top: 5px;
+  }
+}
+
+@media (max-width: 480px) {
+  .spectrum-display {
+    height: 250px;
+    padding: 10px;
+  }
+
+  .log-output {
+    height: 150px;
+  }
+}

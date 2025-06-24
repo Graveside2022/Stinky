@@ -1,0 +1,39 @@
+[Unit]
+Description=GPS Bridge (MAVLink to GPSD) - Node.js Service
+Documentation=https://github.com/yourusername/stinkster
+After=network.target
+Before=kismet.service
+
+[Service]
+Type=simple
+User=pi
+Group=pi
+WorkingDirectory=/home/pi/projects/stinkster_christian/stinkster/src/nodejs/gps-bridge
+Environment="NODE_ENV=production"
+Environment="PORT=2947"
+Environment="PATH=/usr/bin:/usr/local/bin:/home/pi/.nvm/versions/node/v18.17.0/bin"
+EnvironmentFile=-/home/pi/projects/stinkster_christian/stinkster/.env.production
+ExecStart=/usr/bin/node index.js
+Restart=always
+RestartSec=10
+
+# Logging
+StandardOutput=append:/var/log/gps-bridge.log
+StandardError=append:/var/log/gps-bridge.log
+
+# Process management
+KillMode=mixed
+KillSignal=SIGTERM
+TimeoutStopSec=10
+
+# Security hardening
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=read-only
+ReadWritePaths=/home/pi/projects/stinkster_christian/stinkster/src/nodejs/gps-bridge
+ReadWritePaths=/var/log
+ReadWritePaths=/home/pi/tmp
+
+[Install]
+WantedBy=multi-user.target

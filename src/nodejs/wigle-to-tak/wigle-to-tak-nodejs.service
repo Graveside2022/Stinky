@@ -1,0 +1,40 @@
+[Unit]
+Description=WigleToTAK Node.js Service
+Documentation=https://github.com/stinkster/wigle-to-tak
+After=network.target gpsd.service
+
+[Service]
+Type=simple
+User=pi
+Group=pi
+WorkingDirectory=/home/pi/projects/stinkster_christian/stinkster/src/nodejs/wigle-to-tak
+
+# Environment variables
+Environment="NODE_ENV=production"
+Environment="NODE_OPTIONS=--max-old-space-size=512"
+
+# Start command with configurable options
+ExecStart=/usr/bin/node server.js \
+    --directory /home/pi/kismet_ops \
+    --port 6969 \
+    --flask-port 8000
+
+# Restart policy
+Restart=on-failure
+RestartSec=10
+StartLimitInterval=60
+StartLimitBurst=3
+
+# Logging
+StandardOutput=append:/home/pi/tmp/wigle-to-tak-nodejs.log
+StandardError=append:/home/pi/tmp/wigle-to-tak-nodejs.log
+
+# Security hardening
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=read-only
+ReadWritePaths=/home/pi/kismet_ops /home/pi/tmp /home/pi/projects/stinkster_christian/stinkster/src/nodejs/wigle-to-tak/uploads
+
+[Install]
+WantedBy=multi-user.target

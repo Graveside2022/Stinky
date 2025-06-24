@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Signal Stream Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #1a1a1a;
+            color: #00ff00;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .status {
+            padding: 10px;
+            margin-bottom: 20px;
+            border: 1px solid #00ff00;
+            background-color: #002200;
+        }
+        .signals {
+            border: 1px solid #00ff00;
+            padding: 10px;
+            height: 400px;
+            overflow-y: auto;
+            background-color: #000;
+        }
+        .signal {
+            margin-bottom: 10px;
+            padding: 10px;
+            border: 1px solid #004400;
+            background-color: #001100;
+        }
+        .signal.kismet {
+            border-color: #0088ff;
+        }
+        .signal.hackrf {
+            border-color: #ff8800;
+        }
+        .controls {
+            margin: 20px 0;
+        }
+        button {
+            background-color: #00ff00;
+            color: #000;
+            border: none;
+            padding: 10px 20px;
+            margin-right: 10px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #00cc00;
+        }
+        .stats {
+            margin-top: 20px;
+            padding: 10px;
+            border: 1px solid #00ff00;
+            background-color: #002200;
+        }
+    </style>
+    <script src="/socket.io/socket.io.js"></script>
+</head>
+<body>
+    <div class="container">
+        <h1>Signal Stream Test</h1>
+        
+        <div class="status" id="status">
+            Status: <span id="status-text">Disconnected</span>
+        </div>
+        
+        <div class="controls">
+            <button onclick="connectToSignalStream()">Connect</button>
+            <button onclick="disconnectFromSignalStream()">Disconnect</button>
+            <button onclick="clearSignals()">Clear</button>
+            <button onclick="querySignals()">Query All</button>
+            <button onclick="queryKismetSignals()">Query Kismet</button>
+            <button onclick="queryHackRFSignals()">Query HackRF</button>
+        </div>
+        
+        <div class="stats" id="stats">
+            Total Signals: <span id="total-signals">0</span> | 
+            Kismet: <span id="kismet-signals">0</span> | 
+            HackRF: <span id="hackrf-signals">0</span> |
+            Last Update: <span id="last-update">Never</span>
+        </div>
+        
+        <h2>Signal Stream</h2>
+        <div class="signals" id="signals"></div>
+    </div>
+
+    <script>
+        let socket = null;
+        let signalCount = { total: 0, kismet: 0, hackrf: 0 };
+        
+        function connectToSignalStream() {
+            if (socket && socket.connected) {
+                console.log('Already connected');
+                return;
+            }
+            
+            // Connect to the signal namespace
+            socket = io('/signal-stream', {
+                transports: ['websocket', 'polling']
+            });
+            
+            socket.on('connect', () => {
+                console.log('Connected to signal stream');
+                document.getElementById('status-text').textContent = 'Connected';
+                document.getElementById('status').style.borderColor = '#00ff00';
+                
+                // Subscribe to all sources
+                socket.emit('subscribe', {
+                    sources: ['kismet', 'hackrf']
+                });
+            });
+            
+            socket.on('disconnect', () => {
+                console.log('Disconnected from signal stream');
+                document.getElementById('status-text').textContent = 'Disconnected';
+                document.getElementById('status').style.borderColor = '#ff0000';
+            });
+            
+            socket.on('subscribed', (data) => {
+                console.log('Subscribed to sources:', data);
+                addMessage(`Subscribed to: ${data.sources.join(', ')}`);
+            });
+            
+            socket.on('signal', (data) => {
+                console.log('New signal:', data);
+                if (data.type === 'signal' && data.data) {
+                    addSignal(data.data);
+                }
+            });
+            
+            socket.on('batch', (data) => {
+                console.log('Batch signals:', data);
+                if (data.type === 'batch' && Array.isArray(data.data)) {
+                    data.data.forEach(signal => addSignal(signal));
+                }
+            });
+            
+            socket.on('heartbeat', (data) => {
+                console.log('Heartbeat:', data);
+                document.getElementById('last-update').textContent = new Date(data.timestamp).toLocaleTimeString();
+            });
+            
+            socket.on('queryResult', (data) => {
+                console.log('Query result:', data);
+                clearSignals();
+                if (data.data && Array.isArray(data.data)) {
+                    data.data.forEach(signal => addSignal(signal));
+                }
+                addMessage(`Query returned ${data.count} signals`);
+            });
+            
+            socket.on('error', (error) => {
+                console.error('Socket error:', error);
+                addMessage(`Error: ${error}`, 'error');
+            });
+        }
+        
+        function disconnectFromSignalStream() {
+            if (socket) {
+                socket.disconnect();
+                socket = null;
+            }
+        }
+        
+        function clearSignals() {
+            document.getElementById('signals').innerHTML = '';
+            signalCount = { total: 0, kismet: 0, hackrf: 0 };
+            updateStats();
+        }
+        
+        function querySignals(source = null) {
+            if (!socket || !socket.connected) {
+                alert('Not connected to signal stream');
+                return;
+            }
+            
+            const filters = {};
+            if (source) {
+                filters.source = source;
+            }
+            
+            socket.emit('query', filters);
+        }
+        
+        function queryKismetSignals() {
+            querySignals('kismet');
+        }
+        
+        function queryHackRFSignals() {
+            querySignals('hackrf');
+        }
+        
+        function addSignal(signal) {
+            const signalsDiv = document.getElementById('signals');
+            const signalDiv = document.createElement('div');
+            signalDiv.className = `signal ${signal.source}`;
+            
+            const time = new Date(signal.timestamp).toLocaleTimeString();
+            const freq = signal.frequency ? ` | Freq: ${(signal.frequency / 1e6).toFixed(3)} MHz` : '';
+            
+            signalDiv.innerHTML = `
+                <strong>${signal.source.toUpperCase()}</strong> - ${time}<br>
+                ID: ${signal.id}<br>
+                Location: ${signal.lat.toFixed(6)}, ${signal.lon.toFixed(6)}<br>
+                Signal: ${signal.signal_strength} dBm${freq}<br>
+                ${signal.metadata ? `Metadata: ${JSON.stringify(signal.metadata, null, 2)}` : ''}
+            `;
+            
+            // Add to top of list
+            signalsDiv.insertBefore(signalDiv, signalsDiv.firstChild);
+            
+            // Update counts
+            signalCount.total++;
+            signalCount[signal.source]++;
+            updateStats();
+            
+            // Keep only last 100 signals in view
+            while (signalsDiv.children.length > 100) {
+                signalsDiv.removeChild(signalsDiv.lastChild);
+            }
+        }
+        
+        function addMessage(message, type = 'info') {
+            const signalsDiv = document.getElementById('signals');
+            const messageDiv = document.createElement('div');
+            messageDiv.style.color = type === 'error' ? '#ff0000' : '#ffff00';
+            messageDiv.style.borderColor = type === 'error' ? '#ff0000' : '#ffff00';
+            messageDiv.className = 'signal';
+            messageDiv.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+            signalsDiv.insertBefore(messageDiv, signalsDiv.firstChild);
+        }
+        
+        function updateStats() {
+            document.getElementById('total-signals').textContent = signalCount.total;
+            document.getElementById('kismet-signals').textContent = signalCount.kismet;
+            document.getElementById('hackrf-signals').textContent = signalCount.hackrf;
+        }
+        
+        // Auto-connect on load
+        window.addEventListener('load', () => {
+            connectToSignalStream();
+        });
+    </script>
+</body>
+</html>

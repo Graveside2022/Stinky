@@ -1,0 +1,35 @@
+# Dependencies
+node_modules/
+
+# Build outputs
+dist/
+build/
+out/
+.next/
+.nuxt/
+.cache/
+
+# Coverage reports
+coverage/
+.nyc_output/
+
+# Generated files
+*.generated.*
+*.min.*
+*.d.ts
+
+# Config files
+*.config.js
+*.config.ts
+!eslint.config.js
+
+# Third party
+vendor/
+public/libs/
+
+# Temporary
+tmp/
+temp/
+
+# Documentation
+docs/

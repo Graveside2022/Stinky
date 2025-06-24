@@ -1,0 +1,442 @@
+/* HackRF Control Interface Styles */
+
+.hackrf-control-panel {
+    background: var(--bg-content, rgba(20, 20, 20, 0.85));
+    backdrop-filter: var(--backdrop-blur, blur(12px));
+    border: 1px solid var(--border-primary, rgba(0, 210, 255, 0.3));
+    border-radius: 8px;
+    padding: 1rem;
+    color: var(--text-primary, #d0d8f0);
+    font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+}
+
+.control-section {
+    background: var(--bg-input, rgba(26, 31, 58, 1));
+    border: 1px solid var(--border-primary);
+    border-radius: 6px;
+    padding: 1rem;
+    margin-bottom: 1rem;
+    transition: all 0.3s ease;
+}
+
+.control-section:last-child {
+    margin-bottom: 0;
+}
+
+.control-section h3 {
+    color: var(--text-accent, #00d2ff);
+    font-size: 0.875rem;
+    font-weight: 600;
+    margin: 0 0 0.75rem 0;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+/* Frequency Controls */
+.frequency-display {
+    text-align: center;
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--text-accent);
+    margin-bottom: 1rem;
+    font-family: 'Courier New', monospace;
+    text-shadow: 0 0 10px rgba(0, 210, 255, 0.5);
+}
+
+#freq-slider {
+    width: 100%;
+    margin: 0.5rem 0;
+    -webkit-appearance: none;
+    appearance: none;
+    height: 6px;
+    background: rgba(0, 210, 255, 0.2);
+    outline: none;
+    border-radius: 3px;
+}
+
+#freq-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 18px;
+    height: 18px;
+    background: var(--text-accent);
+    cursor: pointer;
+    border-radius: 50%;
+    box-shadow: 0 0 10px rgba(0, 210, 255, 0.5);
+}
+
+#freq-slider::-moz-range-thumb {
+    width: 18px;
+    height: 18px;
+    background: var(--text-accent);
+    cursor: pointer;
+    border-radius: 50%;
+    box-shadow: 0 0 10px rgba(0, 210, 255, 0.5);
+}
+
+.frequency-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 0.25rem;
+    margin: 0.75rem 0;
+}
+
+.freq-step {
+    background: rgba(0, 210, 255, 0.1);
+    border: 1px solid var(--border-primary);
+    color: var(--text-secondary);
+    padding: 0.5rem 0.75rem;
+    cursor: pointer;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    transition: all 0.2s ease;
+    min-width: 2.5rem;
+}
+
+.freq-step:hover {
+    background: rgba(0, 210, 255, 0.2);
+    color: var(--text-accent);
+    transform: translateY(-1px);
+}
+
+.direct-entry {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 0.75rem;
+}
+
+#freq-direct {
+    flex: 1;
+    background: var(--bg-primary);
+    border: 1px solid var(--border-primary);
+    color: var(--text-primary);
+    padding: 0.5rem;
+    border-radius: 4px;
+    font-family: 'Courier New', monospace;
+}
+
+/* Gain Controls */
+.gain-control {
+    margin-bottom: 0.75rem;
+}
+
+.gain-control label {
+    display: block;
+    font-size: 0.813rem;
+    color: var(--text-secondary);
+    margin-bottom: 0.25rem;
+}
+
+.gain-control input[type="range"] {
+    width: 100%;
+    margin-top: 0.25rem;
+}
+
+/* Toggle Switch */
+.toggle-switch {
+    position: relative;
+    width: 40px;
+    height: 20px;
+    -webkit-appearance: none;
+    appearance: none;
+    background: rgba(128, 128, 128, 0.3);
+    outline: none;
+    cursor: pointer;
+    border-radius: 20px;
+    transition: background 0.3s;
+}
+
+.toggle-switch:checked {
+    background: var(--text-accent);
+}
+
+.toggle-switch:before {
+    content: '';
+    position: absolute;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    top: 2px;
+    left: 2px;
+    background: white;
+    transition: transform 0.3s;
+}
+
+.toggle-switch:checked:before {
+    transform: translateX(20px);
+}
+
+/* Scan Mode Selector */
+.scan-mode-buttons {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.5rem;
+    margin-bottom: 0.75rem;
+}
+
+.scan-mode-btn {
+    background: rgba(0, 210, 255, 0.1);
+    border: 1px solid var(--border-primary);
+    color: var(--text-secondary);
+    padding: 0.75rem;
+    cursor: pointer;
+    border-radius: 4px;
+    font-size: 0.813rem;
+    transition: all 0.2s ease;
+}
+
+.scan-mode-btn:hover {
+    background: rgba(0, 210, 255, 0.2);
+    color: var(--text-accent);
+}
+
+.scan-mode-btn.active {
+    background: var(--text-accent);
+    color: var(--bg-primary);
+    font-weight: 600;
+}
+
+.scan-settings {
+    background: var(--bg-primary);
+    border-radius: 4px;
+    padding: 0.75rem;
+}
+
+.scan-setting {
+    margin-bottom: 0.5rem;
+}
+
+.scan-setting label {
+    display: block;
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    margin-bottom: 0.25rem;
+}
+
+.scan-setting input,
+.scan-setting textarea {
+    width: 100%;
+    background: var(--bg-input);
+    border: 1px solid var(--border-primary);
+    color: var(--text-primary);
+    padding: 0.5rem;
+    border-radius: 4px;
+    font-size: 0.813rem;
+}
+
+/* Recording Controls */
+.recording-status {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.75rem;
+    padding: 0.5rem;
+    background: var(--bg-primary);
+    border-radius: 4px;
+}
+
+.status-indicator {
+    font-size: 0.875rem;
+    color: #666;
+}
+
+#record-time {
+    font-family: 'Courier New', monospace;
+    color: var(--text-accent);
+}
+
+.recording-buttons {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 0.75rem;
+}
+
+.control-btn {
+    background: rgba(0, 210, 255, 0.1);
+    border: 1px solid var(--border-primary);
+    color: var(--text-primary);
+    padding: 0.5rem 1rem;
+    cursor: pointer;
+    border-radius: 4px;
+    font-size: 0.813rem;
+    transition: all 0.2s ease;
+}
+
+.control-btn:hover:not(:disabled) {
+    background: rgba(0, 210, 255, 0.2);
+    color: var(--text-accent);
+    transform: translateY(-1px);
+}
+
+.control-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.record-btn {
+    background: rgba(255, 0, 0, 0.1);
+    border-color: rgba(255, 0, 0, 0.3);
+}
+
+.record-btn:hover:not(:disabled) {
+    background: rgba(255, 0, 0, 0.2);
+}
+
+.record-icon {
+    font-size: 1rem;
+}
+
+.recording-options,
+.recording-format {
+    margin-top: 0.5rem;
+}
+
+.recording-options label {
+    display: block;
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    margin-bottom: 0.25rem;
+    cursor: pointer;
+}
+
+.recording-options input[type="checkbox"] {
+    margin-right: 0.5rem;
+}
+
+/* Device Status */
+.status-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.75rem;
+}
+
+.status-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.5rem;
+    background: var(--bg-primary);
+    border-radius: 4px;
+    font-size: 0.75rem;
+}
+
+.status-label {
+    color: var(--text-secondary);
+}
+
+.status-value {
+    color: var(--text-accent);
+    font-weight: 500;
+}
+
+/* Advanced Settings */
+.expandable {
+    cursor: pointer;
+    user-select: none;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.expand-icon {
+    transition: transform 0.3s ease;
+}
+
+.advanced-content {
+    margin-top: 0.75rem;
+}
+
+.advanced-control {
+    margin-bottom: 0.75rem;
+}
+
+.advanced-control label {
+    display: block;
+    font-size: 0.813rem;
+    color: var(--text-secondary);
+    margin-bottom: 0.25rem;
+}
+
+.advanced-control select,
+.advanced-control input[type="number"] {
+    width: 100%;
+    background: var(--bg-primary);
+    border: 1px solid var(--border-primary);
+    color: var(--text-primary);
+    padding: 0.5rem;
+    border-radius: 4px;
+}
+
+/* Notifications */
+.gain-notification {
+    position: fixed;
+    top: 2rem;
+    right: 2rem;
+    background: var(--bg-accent);
+    border: 1px solid var(--text-accent);
+    color: var(--text-accent);
+    padding: 1rem;
+    border-radius: 4px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    animation: slideIn 0.3s ease;
+    z-index: 1000;
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+    .frequency-buttons {
+        flex-wrap: wrap;
+    }
+    
+    .scan-mode-buttons {
+        grid-template-columns: 1fr;
+    }
+    
+    .status-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .recording-buttons {
+        flex-direction: column;
+    }
+    
+    .control-btn {
+        width: 100%;
+    }
+}
+
+/* Dark Theme Integration */
+[data-theme="dark"] .hackrf-control-panel {
+    --bg-primary: #030610;
+    --bg-secondary: #0a1628;
+    --bg-accent: rgba(12, 22, 48, 0.95);
+    --bg-content: rgba(12, 22, 48, 0.85);
+    --bg-input: rgba(26, 31, 58, 1);
+    --text-primary: #d0d8f0;
+    --text-secondary: #b8c5e0;
+    --text-accent: #00d2ff;
+    --border-primary: rgba(0, 210, 255, 0.3);
+}
+
+/* Light Theme (if needed) */
+[data-theme="light"] .hackrf-control-panel {
+    --bg-primary: #ffffff;
+    --bg-secondary: #f5f5f5;
+    --bg-accent: rgba(240, 240, 240, 0.95);
+    --bg-content: rgba(250, 250, 250, 0.85);
+    --bg-input: rgba(255, 255, 255, 1);
+    --text-primary: #333333;
+    --text-secondary: #666666;
+    --text-accent: #0066cc;
+    --border-primary: rgba(0, 102, 204, 0.3);
+}

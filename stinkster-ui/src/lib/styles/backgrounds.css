@@ -1,0 +1,407 @@
+/* ==========================================================================
+   Backgrounds - Geometric and Animated Background Effects
+   ========================================================================== */
+
+/* ==========================================================================
+   GEOMETRIC PATTERNS
+   ========================================================================== */
+
+/* Grid Pattern Background */
+.bg-grid {
+  position: relative;
+  overflow: hidden;
+}
+
+.bg-grid::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image:
+    linear-gradient(rgba(0, 210, 255, 0.02) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 210, 255, 0.02) 1px, transparent 1px);
+  background-size: 50px 50px;
+  z-index: -1;
+}
+
+/* Animated Grid Pattern */
+.bg-grid-animated::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 200%;
+  height: 200%;
+  background:
+    linear-gradient(
+      45deg,
+      rgba(0, 210, 255, 0.02) 25%,
+      transparent 25%,
+      transparent 75%,
+      rgba(0, 210, 255, 0.02) 75%
+    ),
+    linear-gradient(
+      -45deg,
+      rgba(0, 210, 255, 0.02) 25%,
+      transparent 25%,
+      transparent 75%,
+      rgba(0, 210, 255, 0.02) 75%
+    );
+  background-size: 70px 70px;
+  animation: background-pan var(--bg-animation-speed) linear infinite;
+  z-index: -1;
+  opacity: 0.4;
+}
+
+/* Dot Pattern Background */
+.bg-dots {
+  position: relative;
+}
+
+.bg-dots::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: radial-gradient(circle, rgba(0, 210, 255, 0.1) 1px, transparent 1px);
+  background-size: 20px 20px;
+  z-index: -1;
+}
+
+/* Hexagon Pattern */
+.bg-hexagon {
+  position: relative;
+}
+
+.bg-hexagon::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background:
+    linear-gradient(
+      30deg,
+      transparent 32%,
+      rgba(0, 210, 255, 0.02) 32%,
+      rgba(0, 210, 255, 0.02) 38%,
+      transparent 38%
+    ),
+    linear-gradient(
+      150deg,
+      transparent 32%,
+      rgba(0, 210, 255, 0.02) 32%,
+      rgba(0, 210, 255, 0.02) 38%,
+      transparent 38%
+    ),
+    linear-gradient(
+      90deg,
+      transparent 46%,
+      rgba(0, 210, 255, 0.02) 46%,
+      rgba(0, 210, 255, 0.02) 54%,
+      transparent 54%
+    );
+  background-size: 40px 70px;
+  z-index: -1;
+}
+
+/* Circuit Pattern */
+.bg-circuit {
+  position: relative;
+}
+
+.bg-circuit::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: url('data:image/svg+xml;charset=UTF-8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><path d="M10 10h10v10h10" stroke="%2300d2ff" stroke-width="0.5" fill="none" opacity="0.1"/><circle cx="30" cy="20" r="2" fill="%2300d2ff" opacity="0.2"/><path d="M40 20h20v20h-20z" stroke="%2300d2ff" stroke-width="0.5" fill="none" opacity="0.1"/><path d="M70 20h10v10h10" stroke="%2300d2ff" stroke-width="0.5" fill="none" opacity="0.1"/><circle cx="80" cy="40" r="2" fill="%2300d2ff" opacity="0.2"/><path d="M20 50h30" stroke="%2300d2ff" stroke-width="0.5" opacity="0.1"/><circle cx="50" cy="50" r="3" fill="%2300d2ff" opacity="0.15"/><path d="M50 50v20h20" stroke="%2300d2ff" stroke-width="0.5" fill="none" opacity="0.1"/></svg>');
+  background-size: 200px 200px;
+  z-index: -1;
+  opacity: 0.3;
+}
+
+/* ==========================================================================
+   ANIMATED BACKGROUNDS
+   ========================================================================== */
+
+/* Starfield Background */
+.bg-starfield {
+  position: relative;
+  overflow: hidden;
+}
+
+.bg-starfield::before,
+.bg-starfield::after {
+  content: '';
+  position: absolute;
+  width: 200%;
+  height: 200%;
+  top: -50%;
+  left: -50%;
+  z-index: -1;
+}
+
+.bg-starfield::before {
+  background-image:
+    radial-gradient(2px 2px at 20px 30px, rgba(255, 255, 255, 0.3), transparent),
+    radial-gradient(2px 2px at 40px 70px, rgba(255, 255, 255, 0.1), transparent),
+    radial-gradient(1px 1px at 50px 160px, rgba(255, 255, 255, 0.2), transparent),
+    radial-gradient(1px 1px at 130px 40px, rgba(255, 255, 255, 0.2), transparent),
+    radial-gradient(2px 2px at 180px 190px, rgba(255, 255, 255, 0.1), transparent);
+  background-size: 200px 200px;
+  animation: starfield-drift 100s linear infinite;
+}
+
+.bg-starfield::after {
+  background-image: url('data:image/svg+xml;charset=UTF-8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle fill="%23ffffff" cx="10" cy="10" r="0.3" opacity="0.3"/><circle fill="%23ffffff" cx="30" cy="30" r="0.2" opacity="0.2"/><circle fill="%23ffffff" cx="50" cy="50" r="0.4" opacity="0.1"/><circle fill="%23ffffff" cx="70" cy="70" r="0.1" opacity="0.3"/><circle fill="%23ffffff" cx="90" cy="90" r="0.3" opacity="0.2"/><circle fill="%23ffffff" cx="10" cy="90" r="0.2" opacity="0.1"/><circle fill="%23ffffff" cx="90" cy="10" r="0.4" opacity="0.2"/></svg>');
+  background-size: 150px 150px;
+  animation: starfield-drift 150s linear infinite reverse;
+  opacity: 0.4;
+}
+
+/* Matrix Rain Background */
+.bg-matrix {
+  position: relative;
+  overflow: hidden;
+}
+
+.bg-matrix::before {
+  content: '01010110101001010110101010010101';
+  position: absolute;
+  top: -100%;
+  left: 0;
+  width: 100%;
+  height: 200%;
+  color: var(--accent-primary);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  line-height: 10px;
+  word-wrap: break-word;
+  opacity: 0.05;
+  animation: matrix-rain 20s linear infinite;
+  z-index: -1;
+}
+
+/* Gradient Animated Background */
+.bg-gradient-animated {
+  background: linear-gradient(-45deg, #0a192f, #020c1b, #030610, #0c1628);
+  background-size: 400% 400%;
+  animation: gradient-shift 15s ease infinite;
+}
+
+@keyframes gradient-shift {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+/* Noise Texture Background */
+.bg-noise {
+  position: relative;
+}
+
+.bg-noise::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: url('data:image/svg+xml;charset=UTF-8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200"><filter id="noise"><feTurbulence baseFrequency="0.9" numOctaves="4" /></filter><rect width="100%" height="100%" filter="url(%23noise)" opacity="0.02"/></svg>');
+  z-index: -1;
+  opacity: 0.4;
+  mix-blend-mode: overlay;
+}
+
+/* ==========================================================================
+   OVERLAY EFFECTS
+   ========================================================================== */
+
+/* Scan Lines Overlay */
+.overlay-scanlines {
+  position: relative;
+}
+
+.overlay-scanlines::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(0, 0, 0, 0.1) 2px,
+    rgba(0, 0, 0, 0.1) 4px
+  );
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Vignette Effect */
+.overlay-vignette {
+  position: relative;
+}
+
+.overlay-vignette::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(ellipse at center, transparent 0%, rgba(0, 0, 0, 0.4) 100%);
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Glass Overlay */
+.overlay-glass {
+  position: relative;
+}
+
+.overlay-glass::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.05) 0%, transparent 50%);
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* ==========================================================================
+   COMBINED BACKGROUND EFFECTS
+   ========================================================================== */
+
+/* Cyber Background - Full effect */
+.bg-cyber {
+  position: relative;
+  background: var(--gradient-primary);
+  overflow: hidden;
+}
+
+.bg-cyber::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 200%;
+  height: 200%;
+  background:
+    linear-gradient(
+      45deg,
+      rgba(0, 210, 255, 0.02) 25%,
+      transparent 25%,
+      transparent 75%,
+      rgba(0, 210, 255, 0.02) 75%
+    ),
+    linear-gradient(
+      -45deg,
+      rgba(0, 210, 255, 0.02) 25%,
+      transparent 25%,
+      transparent 75%,
+      rgba(0, 210, 255, 0.02) 75%
+    );
+  background-size: 70px 70px;
+  animation: background-pan var(--bg-animation-speed) linear infinite;
+  z-index: -2;
+  opacity: 0.4;
+}
+
+.bg-cyber::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: url('data:image/svg+xml;charset=UTF-8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle fill="%23003050" cx="10" cy="10" r="0.3"/><circle fill="%23003050" cx="30" cy="30" r="0.2"/><circle fill="%23003050" cx="50" cy="50" r="0.4"/><circle fill="%23003050" cx="70" cy="70" r="0.1"/><circle fill="%23003050" cx="90" cy="90" r="0.3"/></svg>');
+  background-size: 100px 100px;
+  opacity: 0.08;
+  z-index: -1;
+}
+
+/* ==========================================================================
+   UTILITY CLASSES
+   ========================================================================== */
+
+/* Background blur utilities */
+.bg-blur-sm {
+  backdrop-filter: blur(4px);
+}
+.bg-blur-md {
+  backdrop-filter: blur(8px);
+}
+.bg-blur-lg {
+  backdrop-filter: blur(12px);
+}
+.bg-blur-xl {
+  backdrop-filter: blur(16px);
+}
+
+/* Background opacity utilities */
+.bg-opacity-10 {
+  background-color: rgba(0, 0, 0, 0.1);
+}
+.bg-opacity-20 {
+  background-color: rgba(0, 0, 0, 0.2);
+}
+.bg-opacity-30 {
+  background-color: rgba(0, 0, 0, 0.3);
+}
+.bg-opacity-40 {
+  background-color: rgba(0, 0, 0, 0.4);
+}
+.bg-opacity-50 {
+  background-color: rgba(0, 0, 0, 0.5);
+}
+
+/* Overlay utilities */
+.overlay-dark {
+  position: relative;
+}
+
+.overlay-dark::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 0;
+}
+
+.overlay-gradient {
+  position: relative;
+}
+
+.overlay-gradient::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(to bottom, transparent 0%, rgba(0, 0, 0, 0.7) 100%);
+  z-index: 0;
+}

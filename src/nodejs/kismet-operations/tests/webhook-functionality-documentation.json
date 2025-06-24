@@ -1,0 +1,180 @@
+{
+  "endpoints": [
+    {
+      "method": "POST",
+      "path": "/api/webhook/run-script",
+      "description": "Start Kismet and/or GPS services",
+      "body": {
+        "script": "kismet|gps|both",
+        "options": {
+          "interface": "string (optional)",
+          "config": "string (optional)"
+        }
+      },
+      "responses": {
+        "200": "Script started successfully",
+        "409": "Script already running",
+        "500": "Execution failed"
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/api/webhook/stop-script",
+      "description": "Stop running Kismet and/or GPS services",
+      "body": {
+        "script": "kismet|gps|both",
+        "force": "boolean (optional)"
+      },
+      "responses": {
+        "200": "Script stopped successfully",
+        "404": "Script not running",
+        "500": "Stop failed"
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/api/webhook/script-status",
+      "description": "Get current status of services",
+      "query": {
+        "script": "kismet|gps|both (optional)"
+      },
+      "responses": {
+        "200": "Status retrieved"
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/api/webhook/info",
+      "description": "Get system information and service configuration",
+      "responses": {
+        "200": "System info retrieved"
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/api/webhook/kismet-data",
+      "description": "Get data from Kismet service",
+      "query": {
+        "type": "devices|networks|alerts|all (optional)",
+        "limit": "number 1-1000 (optional)",
+        "since": "ISO8601 date (optional)",
+        "format": "json|csv (optional)"
+      },
+      "responses": {
+        "200": "Data retrieved",
+        "503": "Kismet unavailable"
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/api/webhook/health",
+      "description": "Health check endpoint",
+      "responses": {
+        "200": "Service healthy",
+        "503": "Service unhealthy"
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/api/webhook/cache/clear",
+      "description": "Clear cache (admin endpoint)",
+      "body": {
+        "key": "string (optional)"
+      },
+      "responses": {
+        "200": "Cache cleared"
+      }
+    }
+  ],
+  "websockets": [
+    {
+      "namespace": "/webhook",
+      "description": "WebSocket namespace for webhook events",
+      "events": {
+        "server": [
+          {
+            "name": "status",
+            "description": "Script status updates",
+            "data": {
+              "script": "string",
+              "status": "started|stopped|error",
+              "details": "object"
+            }
+          },
+          {
+            "name": "error",
+            "description": "Error notifications",
+            "data": {
+              "message": "string",
+              "code": "string",
+              "timestamp": "ISO8601"
+            }
+          }
+        ],
+        "client": [
+          {
+            "name": "subscribe",
+            "description": "Subscribe to specific script updates",
+            "data": {
+              "script": "kismet|gps|both"
+            }
+          },
+          {
+            "name": "unsubscribe",
+            "description": "Unsubscribe from script updates",
+            "data": {
+              "script": "kismet|gps|both"
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "features": [
+    {
+      "name": "Kismet Service",
+      "type": "HTTP API",
+      "url": "http://localhost:2501",
+      "description": "Connects to Kismet REST API for device/network data",
+      "authentication": "Basic Auth (if configured)",
+      "dataFlow": "Kismet → Webhook Service → Client"
+    },
+    {
+      "name": "GPS Service",
+      "type": "Process Management",
+      "command": "mavgps.py",
+      "description": "Manages GPS data collection process",
+      "pidFile": "/tmp/kismet-operations/gps.pid",
+      "dataFlow": "GPS Device → mavgps.py → GPSD → Kismet"
+    },
+    {
+      "name": "Script Management",
+      "type": "Shell Scripts",
+      "scripts": {
+        "start_kismet": "Starts Kismet with configured parameters",
+        "gps_kismet_wigle": "Orchestrates GPS, Kismet, and Wigle services",
+        "start_mediamtx": "Starts media streaming service"
+      },
+      "pidDir": "/tmp/kismet-operations",
+      "description": "Manages background processes via shell scripts"
+    },
+    {
+      "name": "Cache System",
+      "type": "In-Memory Cache",
+      "description": "Caches API responses for performance",
+      "timeout": "10 seconds for data, 60 seconds for system info",
+      "maxSize": "1000 entries (monitored for memory leaks)"
+    },
+    {
+      "name": "Rate Limiting",
+      "type": "Middleware",
+      "description": "Prevents API abuse",
+      "limits": {
+        "window": "1 minute",
+        "maxRequests": 100,
+        "perClient": "IP-based"
+      }
+    }
+  ],
+  "timestamp": "2025-06-16T08:34:06.298Z"
+}

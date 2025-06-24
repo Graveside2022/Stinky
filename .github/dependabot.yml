@@ -1,0 +1,64 @@
+version: 2
+updates:
+  # Enable version updates for Python dependencies
+  - package-ecosystem: 'pip'
+    directory: '/'
+    schedule:
+      interval: 'weekly'
+      day: 'monday'
+      time: '06:00'
+    open-pull-requests-limit: 10
+    reviewers:
+      - 'username' # Replace with actual maintainer usernames
+    assignees:
+      - 'username'
+    commit-message:
+      prefix: 'deps'
+      include: 'scope'
+    labels:
+      - 'dependencies'
+      - 'python'
+    allow:
+      - dependency-type: 'direct'
+      - dependency-type: 'indirect'
+    ignore:
+      # Ignore major version updates for critical dependencies that might break compatibility
+      - dependency-name: 'docker'
+        update-types: ['version-update:semver-major']
+      - dependency-name: 'flask'
+        update-types: ['version-update:semver-major']
+
+  # Enable version updates for Docker dependencies
+  - package-ecosystem: 'docker'
+    directory: '/'
+    schedule:
+      interval: 'weekly'
+      day: 'tuesday'
+      time: '06:00'
+    open-pull-requests-limit: 5
+    reviewers:
+      - 'username'
+    commit-message:
+      prefix: 'docker'
+      include: 'scope'
+    labels:
+      - 'dependencies'
+      - 'docker'
+
+  # Enable version updates for GitHub Actions
+  - package-ecosystem: 'github-actions'
+    directory: '/'
+    schedule:
+      interval: 'weekly'
+      day: 'wednesday'
+      time: '06:00'
+    open-pull-requests-limit: 5
+    reviewers:
+      - 'username'
+    commit-message:
+      prefix: 'ci'
+      include: 'scope'
+    labels:
+      - 'dependencies'
+      - 'github-actions'
+      - 'ci'

@@ -1,0 +1,25 @@
+[Unit]
+Description=Kismet GPS WiFi Orchestration Service
+After=network.target
+
+[Service]
+Type=forking
+PIDFile=/home/pi/projects/stinkster/logs/gps_kismet_wigle.pids
+WorkingDirectory=/home/pi/projects/stinkster_malone/stinkster
+ExecStart=/home/pi/projects/stinkster_malone/stinkster/src/orchestration/gps_kismet_wigle.sh
+ExecStop=/bin/bash -c 'pkill -f "gps_kismet_wigle"; pkill -f "kismet"; pkill -f "WigleToTak2"; pkill -f "mavgps"'
+User=root
+Restart=on-failure
+RestartSec=10
+
+# Environment
+Environment="LOG_DIR=/home/pi/projects/stinkster/logs"
+Environment="KISMET_DATA_DIR=/home/pi/projects/stinkster/data/kismet"
+
+# Logging
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=kismet-orchestration
+
+[Install]
+WantedBy=multi-user.target

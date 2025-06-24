@@ -1,0 +1,850 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="cache-control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="pragma" content="no-cache">
+    <meta http-equiv="expires" content="0">
+    <title>Kismet Operations Center</title>
+    <!-- HackRF Theme Fonts - Exact Match -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* HackRF Professional Theme Variables */
+        :root {
+            /* Backgrounds - HackRF Style */
+            --bg-primary: #0a0a0a;
+            --bg-secondary: #141414;
+            --bg-card: #141414;
+            --bg-input: #1a1a1a;
+            --bg-hover: #2d2d2d;
+            --bg-button: #404040;
+            
+            /* Accent Colors - HackRF Lime Green */
+            --accent-primary: #BFFF00;
+            --accent-hover: #D4FF00;
+            --accent-muted: #A3D500;
+            --accent-active: #8FBF00;
+            
+            /* Text Colors */
+            --text-primary: #FFFFFF;
+            --text-secondary: #a3a3a3;
+            --text-tertiary: #737373;
+            --text-muted: #525252;
+            --text-disabled: #525252;
+            
+            /* Signal Strength Colors */
+            --signal-none: #FFFFFF;
+            --signal-weak: #60A5FA;
+            --signal-moderate: #FBBF24;
+            --signal-strong: #FF6B35;
+            --signal-very-strong: #DC2626;
+            
+            /* Borders */
+            --border-primary: #262626;
+            --border-hover: #2d2d2d;
+            
+            /* Shadows */
+            --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.3);
+            --shadow-lg: 0 8px 16px rgba(0, 0, 0, 0.4);
+            
+            /* Typography - Exact HackRF Match */
+            --font-heading: Inter, system-ui, -apple-system, sans-serif;
+            --font-body: Inter, system-ui, -apple-system, sans-serif;
+            --font-mono: 'JetBrains Mono', 'Fira Code', 'Consolas', 'Monaco', monospace;
+        }
+
+        /* Reset and Base Styles */
+        *, *::before, *::after {
+            box-sizing: border-box;
+        }
+        
+        html {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            -webkit-text-size-adjust: 100%;
+            touch-action: manipulation;
+        }
+
+        body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            font-family: var(--font-body);
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            overflow: hidden;
+            box-sizing: border-box;
+        }
+        
+        /* Mobile body overflow fix */
+        @media (max-width: 768px) {
+            body {
+                overflow: auto;
+                height: auto;
+                min-height: 100vh;
+            }
+        }
+
+        /* Header Styling - HackRF Theme */
+        .top-banner {
+            width: 100%;
+            background: linear-gradient(90deg,
+                rgba(20, 20, 20, 0.95) 0%,
+                rgba(20, 20, 20, 0.85) 50%,
+                rgba(20, 20, 20, 0.95) 100%);
+            backdrop-filter: blur(12px);
+            border-bottom: 2px solid var(--accent-primary);
+            box-shadow: 
+                0 2px 20px rgba(104, 211, 145, 0.35),
+                0 0 40px rgba(104, 211, 145, 0.15);
+            padding: 15px 25px;
+            text-align: center;
+            box-sizing: border-box;
+            flex-shrink: 0;
+            z-index: 10;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .top-banner::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 200%;
+            height: 100%;
+            background: linear-gradient(90deg,
+                transparent 0%,
+                rgba(191, 255, 0, 0.1) 25%,
+                rgba(191, 255, 0, 0.2) 50%,
+                rgba(191, 255, 0, 0.1) 75%,
+                transparent 100%);
+            animation: banner-scan 4s linear infinite;
+        }
+
+        .top-banner h1 {
+            color: #fff;
+            text-transform: uppercase;
+            letter-spacing: 12px;
+            font-size: 2.4em;
+            font-weight: 800;
+            margin: 0;
+            text-shadow: 
+                0 0 10px rgba(191, 255, 0, 0.8),
+                0 0 20px rgba(191, 255, 0, 0.6),
+                0 0 30px rgba(191, 255, 0, 0.4);
+            position: relative;
+            font-family: var(--font-heading);
+            background: linear-gradient(90deg, 
+                #fff 0%,
+                var(--accent-primary) 25%,
+                #fff 50%,
+                var(--accent-primary) 75%,
+                #fff 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-size: 200% auto;
+            animation: shine 3s linear infinite;
+        }
+        
+        /* Mobile header optimization */
+        @media (max-width: 768px) {
+            .top-banner h1 {
+                font-size: clamp(1.5rem, 5vw, 3rem);
+                padding: 1rem;
+                letter-spacing: 6px;
+            }
+        }
+
+        @keyframes banner-scan {
+            0% { left: -100%; }
+            100% { left: 100%; }
+        }
+
+        @keyframes shine {
+            to { background-position: 200% center; }
+        }
+
+        /* Main Content Grid */
+        .page-container {
+            position: fixed;
+            top: 100px;
+            left: 0;
+            right: 0;
+            bottom: 60px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .main-content-area {
+            display: grid;
+            grid-template-columns: repeat(12, 1fr);
+            grid-template-rows: repeat(4, 1fr);
+            gap: 8px;
+            width: 100%;
+            height: 100%;
+            padding: 8px;
+            margin: 0;
+            box-sizing: border-box;
+            overflow: hidden;
+            flex: 1;
+        }
+        
+        /* Responsive Grid */
+        @media (max-width: 600px) {
+            .main-content-area {
+                grid-template-columns: 1fr;
+                grid-template-rows: auto;
+                height: auto;
+                overflow: visible;
+                gap: 8px;
+            }
+        }
+        
+        @media (min-width: 601px) and (max-width: 1023px) {
+            .main-content-area {
+                grid-template-columns: repeat(2, 1fr);
+                grid-template-rows: auto;
+                height: auto;
+                overflow: visible;
+                gap: 8px;
+            }
+        }
+
+        /* Grid Item Styling - Exact HackRF Match */
+        .grid-item {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-primary);
+            box-shadow: var(--shadow-lg);
+            border-radius: 12px;
+            padding: 0;
+            position: relative;
+            transition: all 0.2s ease;
+        }
+
+        .grid-item:hover {
+            border-color: var(--border-hover);
+        }
+        
+        @media (max-width: 768px) {
+            .grid-item {
+                height: auto;
+                min-height: 200px;
+                max-height: 90vh;
+            }
+        }
+
+        /* Box Header */
+        .box-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 20px;
+            border-bottom: 1px solid var(--border-primary);
+            background: var(--bg-secondary);
+            border-radius: 12px 12px 0 0;
+        }
+
+        .box-header h2 {
+            color: var(--accent-primary);
+            margin: 0;
+            letter-spacing: 1.5px;
+            font-weight: 600;
+            font-size: 1.1em;
+            font-family: var(--font-heading);
+        }
+
+        .box-controls {
+            display: flex;
+            gap: 5px;
+        }
+
+        /* Grid Item Content - HackRF Container Match */
+        .grid-item-content {
+            padding: 24px;
+        }
+
+        /* Button Styling - Exact HackRF Match */
+        .control-button {
+            background: var(--accent-primary);
+            color: #000000;
+            border: 1px solid var(--accent-active);
+            border-radius: 8px;
+            padding: 12px 28px;
+            font-size: 1rem;
+            font-family: var(--font-heading);
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .control-button:hover {
+            background: var(--accent-hover);
+            border-color: var(--accent-primary);
+            transform: translateY(-1px);
+        }
+
+        .control-button:focus {
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(191, 255, 0, 0.1);
+        }
+
+        /* Start/Stop Button Variants */
+        .control-button.start-button {
+            background: #10b981;
+            color: #ffffff;
+            border-color: #059669;
+        }
+
+        .control-button.start-button:hover {
+            background: #059669;
+            border-color: #047857;
+        }
+
+        .control-button.stop-button {
+            background: #ef4444;
+            color: #ffffff;
+            border-color: #dc2626;
+        }
+
+        .control-button.stop-button:hover {
+            background: #dc2626;
+            border-color: #b91c1c;
+        }
+
+        .control-button-small {
+            background: none;
+            border: none;
+            color: var(--accent-primary);
+            cursor: pointer;
+            font-size: 1.2em;
+            padding: 0 2px;
+            transition: all 0.3s ease;
+            z-index: 2;
+            text-shadow: 
+                0 0 10px rgba(191, 255, 0, 0.8),
+                0 0 20px rgba(191, 255, 0, 0.6);
+        }
+
+        .control-button-small:hover {
+            color: #fff;
+            text-shadow: 
+                0 0 15px rgba(191, 255, 0, 0.9),
+                0 0 25px rgba(191, 255, 0, 0.7);
+            transform: translateY(-2px);
+        }
+
+        /* Button Group */
+        .button-group {
+            display: grid;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        /* Status Indicators - HackRF Theme */
+        .service-status {
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid var(--border-primary);
+        }
+
+        .status-indicator {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px;
+            background: var(--bg-input);
+            border-radius: 6px;
+            margin-bottom: 10px;
+            border: 1px solid var(--border-primary);
+        }
+
+        .status-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #ff4444;
+            transition: all 0.3s ease;
+        }
+
+        .status-dot.online {
+            background: var(--accent-primary);
+            box-shadow: 0 0 10px rgba(191, 255, 0, 0.6);
+        }
+
+        /* Tab Navigation */
+        .tab-nav {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .tab-button {
+            background: var(--bg-button);
+            color: var(--text-primary);
+            border: 1px solid var(--border-primary);
+            border-radius: 6px;
+            padding: 8px 16px;
+            text-decoration: none;
+            font-size: 0.9em;
+            font-family: var(--font-heading);
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .tab-button:hover,
+        .tab-button.active-tab {
+            background: var(--accent-primary);
+            color: #000000;
+            border-color: var(--accent-primary);
+        }
+
+        /* Data Feed Styling - HackRF Match */
+        .feed-item {
+            padding: 12px 16px;
+            background: var(--bg-input);
+            border: 1px solid var(--border-primary);
+            border-radius: 8px;
+            margin-bottom: 8px;
+            font-family: var(--font-mono);
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+        }
+
+        /* Input Field Styling - HackRF Match */
+        input[type="text"], select {
+            padding: 12px 16px;
+            border: 1px solid var(--border-primary);
+            border-radius: 8px;
+            background-color: var(--bg-input);
+            color: var(--text-primary);
+            font-size: 1rem;
+            font-family: var(--font-body);
+            transition: all 0.2s ease;
+        }
+
+        input[type="text"]:focus, select:focus {
+            outline: none;
+            border-color: var(--accent-primary);
+            box-shadow: 0 0 0 3px rgba(191, 255, 0, 0.1);
+        }
+
+        /* Layout Classes */
+        .side-stack {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .left-stack {
+            grid-column: 1 / 4;
+            grid-row: 1 / 5;
+        }
+
+        .right-stack {
+            grid-column: 10 / 13;
+            grid-row: 1 / 5;
+        }
+
+        .middle-long-box {
+            grid-column: 4 / 10;
+            grid-row: 1 / 5;
+        }
+
+        /* Mobile Layout Adjustments */
+        @media (max-width: 600px) {
+            .left-stack,
+            .right-stack,
+            .middle-long-box {
+                grid-column: 1;
+                grid-row: auto;
+            }
+        }
+
+        @media (min-width: 601px) and (max-width: 1023px) {
+            .left-stack {
+                grid-column: 1;
+                grid-row: auto;
+            }
+            .middle-long-box {
+                grid-column: 1 / 3;
+                grid-row: auto;
+            }
+            .right-stack {
+                grid-column: 2;
+                grid-row: auto;
+            }
+        }
+
+        /* Iframe Section */
+        .resizable-frame {
+            background: var(--bg-card);
+            border: 1px solid var(--border-primary);
+            border-radius: 12px;
+            box-shadow: var(--shadow-lg);
+        }
+
+        /* Status Message */
+        .status-message {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--bg-card);
+            border: 1px solid var(--accent-primary);
+            color: var(--accent-primary);
+            padding: 15px 30px;
+            border-radius: 8px;
+            box-shadow: var(--shadow-lg);
+            z-index: 1000;
+            font-family: var(--font-mono);
+            display: none;
+        }
+
+        .status-message.success {
+            background: rgba(104, 211, 145, 0.1);
+            border-color: var(--accent-primary);
+            color: var(--accent-primary);
+        }
+
+        .status-message.error {
+            background: rgba(239, 68, 68, 0.1);
+            border-color: #ef4444;
+            color: #ef4444;
+        }
+
+        .status-message.info {
+            background: rgba(96, 165, 250, 0.1);
+            border-color: #60A5FA;
+            color: #60A5FA;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        /* Special Data Display */
+        .data-grid {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+            padding: 10px;
+            background: var(--bg-input);
+            border-radius: 4px;
+            border: 1px solid var(--border-primary);
+        }
+
+        .data-item {
+            text-align: center;
+        }
+
+        .data-label {
+            color: var(--accent-primary);
+            font-size: 0.9em;
+            font-family: var(--font-heading);
+            font-weight: 500;
+        }
+
+        .data-value {
+            color: var(--text-primary);
+            font-size: 1.2em;
+            font-weight: bold;
+            font-family: var(--font-mono);
+        }
+
+        .section-title {
+            color: var(--accent-primary);
+            margin: 0 0 10px 0;
+            font-size: 1em;
+            font-family: var(--font-heading);
+            font-weight: 600;
+        }
+
+        /* Responsive Typography */
+        @media (max-width: 768px) {
+            .control-button, .control-button-small {
+                min-width: 48px;
+                min-height: 48px;
+                padding: 12px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .button-group {
+                grid-template-columns: 1fr;
+            }
+            
+            .tab-nav {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="status-message" class="status-message hidden"></div>
+
+    <header class="top-banner">
+        <h1>Kismet Operations Center</h1>
+    </header>
+
+    <div class="page-container">
+        <main class="main-content-area">
+            <div class="side-stack left-stack">
+                <div id="hackrf-one" class="grid-item">
+                    <div class="box-header">
+                        <h2>HackRF One</h2>
+                        <div class="box-controls">
+                            <button class="control-button-small" data-action="minimize">▼</button>
+                        </div>
+                    </div>
+                    <div class="grid-item-content">
+                        <div class="button-group" style="grid-template-columns: 1fr;">
+                            <button class="control-button" data-action="addLoadProfile">Add Load Profile</button>
+                            <button class="control-button" data-action="hackRFSweep">HackRF Sweep</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div id="instructions" class="grid-item">
+                    <div class="box-header">
+                        <h2>Setup Instructions</h2>
+                        <div class="box-controls">
+                            <button class="control-button-small" data-action="minimize">▼</button>
+                        </div>
+                    </div>
+                    <div class="grid-item-content">
+                        <div class="tab-nav">
+                            <a href="wigle.html" class="tab-button active-tab" target="_blank">Wigle</a>
+                            <a href="atak.html" class="tab-button" target="_blank">ATAK</a>
+                            <a href="kismet2.html" class="tab-button" target="_blank">Kismet</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="kismet-data-feed" class="grid-item middle-long-box">
+                <div class="box-header">
+                    <h2>Kismet Data Feed</h2>
+                    <div class="box-controls">
+                        <button class="control-button-small" data-action="minimize">▼</button>
+                    </div>
+                </div>
+                <div class="grid-item-content" style="overflow-y: auto;">
+                    <div class="data-grid">
+                        <div class="data-item">
+                            <div class="data-label">Devices</div>
+                            <div id="devices-count" class="data-value">0</div>
+                        </div>
+                        <div class="data-item">
+                            <div class="data-label">Networks</div>
+                            <div id="networks-count" class="data-value">0</div>
+                        </div>
+                        <div class="data-item">
+                            <div class="data-label">Last Update</div>
+                            <div id="last-update" class="data-value">--</div>
+                        </div>
+                    </div>
+                    
+                    <div style="margin-bottom: 15px;">
+                        <h3 class="section-title">Recent Devices</h3>
+                        <div id="devices-list" style="max-height: 200px; overflow-y: auto;">
+                            <div class="feed-item">No devices detected</div>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <h3 class="section-title">Activity Feed</h3>
+                        <div id="kismet-feed" style="max-height: 200px; overflow-y: auto;">
+                            <div class="feed-item">Waiting for activity...</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="side-stack right-stack">
+                <div id="start-menu" class="grid-item">
+                    <div class="box-header">
+                        <h2>Start Menu</h2>
+                        <div class="box-controls">
+                            <button class="control-button-small" data-action="minimize">▼</button>
+                        </div>
+                    </div>
+                    <div class="grid-item-content">
+                        <div class="button-group" style="grid-template-columns: repeat(2, 1fr);">
+                            <button class="control-button start-button" data-action="startKismet">Start Kismet</button>
+                            <button class="control-button stop-button" data-action="stopKismet">Stop Kismet</button>
+                            <a href="#" onclick="window.open('http://' + window.location.hostname + ':2501', '_blank'); return false;" class="control-button">Open Kismet Web UI</a>
+                            <a href="#" onclick="window.open('http://' + window.location.hostname + ':8000', '_blank'); return false;" class="control-button">Open WigletoTak</a>
+                        </div>
+                        
+                        <div class="service-status">
+                            <div class="status-indicator">
+                                <div class="status-dot" id="kismet-status"></div>
+                                <span style="color: var(--text-secondary); font-size: 0.9em;">Kismet</span>
+                            </div>
+                            <div class="status-indicator">
+                                <div class="status-dot" id="wigle-status"></div>
+                                <span style="color: var(--text-secondary); font-size: 0.9em;">WigletoTak</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div id="system-status" class="grid-item">
+                    <div class="box-header">
+                        <h2>System Status</h2>
+                        <div class="box-controls">
+                            <button class="control-button-small" data-action="minimize">▼</button>
+                        </div>
+                    </div>
+                    <div class="grid-item-content">
+                        <div id="system-message" style="margin-bottom: 1rem; font-family: var(--font-mono); font-size: 0.9em;">Loading system status...</div>
+                        <div id="gps-info" style="color: var(--text-secondary); line-height: 1.6; font-family: var(--font-mono); font-size: 0.85em;">
+                            <p><strong style="color: var(--accent-primary);">IP Address:</strong> <span id="ip-address">Loading...</span></p>
+                            <p><strong style="color: var(--accent-primary);">GPS Status:</strong> <span id="gps-status">Loading...</span></p>
+                            <p><strong style="color: var(--accent-primary);">Latitude:</strong> <span id="gps-lat">--</span></p>
+                            <p><strong style="color: var(--accent-primary);">Longitude:</strong> <span id="gps-lon">--</span></p>
+                            <p><strong style="color: var(--accent-primary);">Altitude:</strong> <span id="gps-alt">--</span></p>
+                            <p><strong style="color: var(--accent-primary);">MGRS Grid:</strong> <span id="gps-mgrs">--</span></p>
+                            <p><strong style="color: var(--accent-primary);">GPS Time:</strong> <span id="gps-time">--</span></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // Notification system
+        function showNotification(message, type = 'info') {
+            const notification = document.getElementById('status-message');
+            notification.textContent = message;
+            notification.className = `status-message ${type}`;
+            notification.style.display = 'block';
+            
+            setTimeout(() => {
+                notification.style.display = 'none';
+            }, 5000);
+        }
+
+        // Status checking functions
+        async function checkServiceStatus() {
+            try {
+                const response = await fetch('/api/system/status');
+                const data = await response.json();
+                
+                // Update Kismet status
+                const kismetStatus = document.getElementById('kismet-status');
+                if (data.services && data.services.kismet && data.services.kismet.running) {
+                    kismetStatus.classList.add('online');
+                } else {
+                    kismetStatus.classList.remove('online');
+                }
+                
+                // Update WigleToTak status
+                const wigleStatus = document.getElementById('wigle-status');
+                if (data.services && data.services.wigletotak && data.services.wigletotak.running) {
+                    wigleStatus.classList.add('online');
+                } else {
+                    wigleStatus.classList.remove('online');
+                }
+                
+            } catch (error) {
+                console.error('Error checking service status:', error);
+            }
+        }
+
+        // Initialize the interface
+        document.addEventListener('DOMContentLoaded', function() {
+            // Check service status on load
+            checkServiceStatus();
+            
+            // Check service status every 5 seconds
+            setInterval(checkServiceStatus, 5000);
+            
+            // Button event handlers
+            document.querySelectorAll('[data-action]').forEach(button => {
+                button.addEventListener('click', function() {
+                    const action = this.getAttribute('data-action');
+                    
+                    switch(action) {
+                        case 'startKismet':
+                            startKismet();
+                            break;
+                        case 'stopKismet':
+                            stopKismet();
+                            break;
+                        case 'hackRFSweep':
+                            window.open('http://' + window.location.hostname + ':3002', '_blank');
+                            break;
+                        case 'addLoadProfile':
+                            showNotification('Load Profile functionality coming soon', 'info');
+                            break;
+                        case 'minimize':
+                            // Minimize functionality would go here
+                            break;
+                    }
+                });
+            });
+        });
+
+        // Service control functions
+        async function startKismet() {
+            try {
+                showNotification('Starting Kismet...', 'info');
+                const response = await fetch('/api/system/services', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ action: 'start', service: 'kismet' })
+                });
+                
+                if (response.ok) {
+                    showNotification('Kismet started successfully', 'success');
+                    setTimeout(checkServiceStatus, 2000);
+                } else {
+                    showNotification('Failed to start Kismet', 'error');
+                }
+            } catch (error) {
+                console.error('Error starting Kismet:', error);
+                showNotification('Error starting Kismet', 'error');
+            }
+        }
+
+        async function stopKismet() {
+            try {
+                showNotification('Stopping Kismet...', 'info');
+                const response = await fetch('/api/system/services', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ action: 'stop', service: 'kismet' })
+                });
+                
+                if (response.ok) {
+                    showNotification('Kismet stopped successfully', 'success');
+                    setTimeout(checkServiceStatus, 2000);
+                } else {
+                    showNotification('Failed to stop Kismet', 'error');
+                }
+            } catch (error) {
+                console.error('Error stopping Kismet:', error);
+                showNotification('Error stopping Kismet', 'error');
+            }
+        }
+    </script>
+</body>
+</html>

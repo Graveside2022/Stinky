@@ -1,0 +1,458 @@
+/* ==========================================================================
+   Animations - Keyframes and Motion Effects
+   ========================================================================== */
+
+/* ==========================================================================
+   BACKGROUND ANIMATIONS
+   ========================================================================== */
+
+/* Geometric grid pan animation */
+@keyframes background-pan {
+  0% {
+    background-position: 0% 0%;
+  }
+  100% {
+    background-position: 1200px 1200px;
+  }
+}
+
+/* Starfield drift animation */
+@keyframes starfield-drift {
+  0% {
+    transform: translateX(0) translateY(0);
+  }
+  100% {
+    transform: translateX(-100px) translateY(-100px);
+  }
+}
+
+/* Matrix rain effect */
+@keyframes matrix-rain {
+  0% {
+    transform: translateY(-100%);
+    opacity: 0;
+  }
+  10% {
+    opacity: 1;
+  }
+  90% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(100vh);
+    opacity: 0;
+  }
+}
+
+/* ==========================================================================
+   GLOW ANIMATIONS
+   ========================================================================== */
+
+/* Pulse glow effect */
+@keyframes pulse-glow {
+  0% {
+    box-shadow: 0 0 5px var(--accent-primary);
+  }
+  50% {
+    box-shadow:
+      0 0 20px var(--accent-primary),
+      0 0 40px var(--accent-primary);
+  }
+  100% {
+    box-shadow: 0 0 5px var(--accent-primary);
+  }
+}
+
+/* Breathing glow effect */
+@keyframes breathe {
+  0%,
+  100% {
+    opacity: var(--pulse-opacity-min);
+  }
+  50% {
+    opacity: var(--pulse-opacity-max);
+  }
+}
+
+/* Neon flicker effect */
+@keyframes neon-flicker {
+  0%,
+  100% {
+    opacity: 1;
+    text-shadow:
+      0 0 5px var(--accent-primary),
+      0 0 10px var(--accent-primary),
+      0 0 20px var(--accent-primary);
+  }
+  88% {
+    opacity: 1;
+    text-shadow:
+      0 0 5px var(--accent-primary),
+      0 0 10px var(--accent-primary),
+      0 0 20px var(--accent-primary);
+  }
+  92% {
+    opacity: 0.8;
+    text-shadow: none;
+  }
+  96% {
+    opacity: 1;
+    text-shadow:
+      0 0 5px var(--accent-primary),
+      0 0 10px var(--accent-primary);
+  }
+}
+
+/* ==========================================================================
+   SCAN ANIMATIONS
+   ========================================================================== */
+
+/* Horizontal scan line */
+@keyframes scan-horizontal {
+  0% {
+    left: -100%;
+  }
+  100% {
+    left: 100%;
+  }
+}
+
+/* Vertical scan line */
+@keyframes scan-vertical {
+  0% {
+    top: -2px;
+  }
+  100% {
+    top: 100%;
+  }
+}
+
+/* Radar sweep effect */
+@keyframes radar-sweep {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+/* Banner scan effect */
+@keyframes banner-scan {
+  0% {
+    left: -100%;
+  }
+  100% {
+    left: 100%;
+  }
+}
+
+/* ==========================================================================
+   LOADING ANIMATIONS
+   ========================================================================== */
+
+/* Spinner rotation */
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+/* Dots loading animation */
+@keyframes dots {
+  0%,
+  80%,
+  100% {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+  40% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Progress bar animation */
+@keyframes progress {
+  0% {
+    width: 0%;
+  }
+  100% {
+    width: 100%;
+  }
+}
+
+/* Shimmer loading effect */
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+/* ==========================================================================
+   TRANSITION ANIMATIONS
+   ========================================================================== */
+
+/* Fade in */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Fade in up */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Fade in down */
+@keyframes fadeInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Slide in from right */
+@keyframes slideInRight {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+/* Slide in from left */
+@keyframes slideInLeft {
+  from {
+    transform: translateX(-100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+/* Scale in */
+@keyframes scaleIn {
+  from {
+    transform: scale(0.9);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* ==========================================================================
+   PULSE ANIMATIONS
+   ========================================================================== */
+
+/* Status dot pulse */
+@keyframes pulse-ring {
+  0% {
+    opacity: 0.3;
+    transform: scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.5);
+  }
+}
+
+/* Button pulse */
+@keyframes pulse-button {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+/* Alert pulse */
+@keyframes pulse-alert {
+  0% {
+    box-shadow: 0 0 0 0 rgba(255, 68, 68, 0.7);
+  }
+  70% {
+    box-shadow: 0 0 0 10px rgba(255, 68, 68, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(255, 68, 68, 0);
+  }
+}
+
+/* ==========================================================================
+   GLITCH ANIMATIONS
+   ========================================================================== */
+
+/* Text glitch effect */
+@keyframes glitch {
+  0% {
+    text-shadow:
+      0.05em 0 0 rgba(255, 0, 0, 0.75),
+      -0.025em -0.05em 0 rgba(0, 255, 0, 0.75),
+      0.025em 0.05em 0 rgba(0, 0, 255, 0.75);
+  }
+  15% {
+    text-shadow:
+      0.05em 0 0 rgba(255, 0, 0, 0.75),
+      -0.05em -0.025em 0 rgba(0, 255, 0, 0.75),
+      -0.025em 0.05em 0 rgba(0, 0, 255, 0.75);
+  }
+  50% {
+    text-shadow:
+      -0.025em 0.025em 0 rgba(255, 0, 0, 0.75),
+      0.025em 0.025em 0 rgba(0, 255, 0, 0.75),
+      -0.05em -0.05em 0 rgba(0, 0, 255, 0.75);
+  }
+  100% {
+    text-shadow:
+      0.025em 0.05em 0 rgba(255, 0, 0, 0.75),
+      0.05em 0 0 rgba(0, 255, 0, 0.75),
+      0 -0.05em 0 rgba(0, 0, 255, 0.75);
+  }
+}
+
+/* Digital noise effect */
+@keyframes noise {
+  0%,
+  100% {
+    background-position: 0 0;
+  }
+  10% {
+    background-position: -5% -10%;
+  }
+  20% {
+    background-position: -15% 5%;
+  }
+  30% {
+    background-position: 7% -25%;
+  }
+  40% {
+    background-position: 20% 25%;
+  }
+  50% {
+    background-position: -25% 10%;
+  }
+  60% {
+    background-position: 15% 5%;
+  }
+  70% {
+    background-position: 0% 15%;
+  }
+  80% {
+    background-position: 25% 35%;
+  }
+  90% {
+    background-position: -10% 10%;
+  }
+}
+
+/* ==========================================================================
+   UTILITY CLASSES FOR ANIMATIONS
+   ========================================================================== */
+
+/* Animation delays */
+.delay-100 {
+  animation-delay: 100ms;
+}
+.delay-200 {
+  animation-delay: 200ms;
+}
+.delay-300 {
+  animation-delay: 300ms;
+}
+.delay-400 {
+  animation-delay: 400ms;
+}
+.delay-500 {
+  animation-delay: 500ms;
+}
+
+/* Animation durations */
+.duration-fast {
+  animation-duration: var(--animation-duration-fast);
+}
+.duration-base {
+  animation-duration: var(--animation-duration-base);
+}
+.duration-slow {
+  animation-duration: var(--animation-duration-slow);
+}
+.duration-slower {
+  animation-duration: var(--animation-duration-slower);
+}
+
+/* Animation classes */
+.animate-spin {
+  animation: spin 1s linear infinite;
+}
+.animate-pulse {
+  animation: breathe 2s ease-in-out infinite;
+}
+.animate-ping {
+  animation: pulse-ring 1s cubic-bezier(0, 0, 0.2, 1) infinite;
+}
+.animate-bounce {
+  animation: pulse-button 1s infinite;
+}
+.animate-fade-in {
+  animation: fadeIn 0.5s ease-out;
+}
+.animate-fade-in-up {
+  animation: fadeInUp 0.5s ease-out;
+}
+.animate-fade-in-down {
+  animation: fadeInDown 0.5s ease-out;
+}
+.animate-slide-in-right {
+  animation: slideInRight 0.5s ease-out;
+}
+.animate-slide-in-left {
+  animation: slideInLeft 0.5s ease-out;
+}
+.animate-scale-in {
+  animation: scaleIn 0.3s ease-out;
+}
+.animate-glitch {
+  animation: glitch 0.3s infinite;
+}
+.animate-neon-flicker {
+  animation: neon-flicker 3s infinite;
+}
+.animate-scan {
+  animation: scan-vertical 3s linear infinite;
+}
+.animate-shimmer {
+  animation: shimmer 1.5s infinite;
+}

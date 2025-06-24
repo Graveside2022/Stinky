@@ -1,0 +1,777 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kismet Operations Center</title>
+    <!-- Exact HackRF Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@300;400;500;600;700&family=Fira+Code:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        'sans': ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
+                        'mono': ['JetBrains Mono', 'Fira Code', 'Consolas', 'Monaco', 'monospace'],
+                        'body': ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
+                        'heading': ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
+                        'display': ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
+                    },
+                    colors: {
+                        // Monochromatic palette - exact match
+                        'bg-primary': '#0a0a0a',
+                        'bg-secondary': '#141414',
+                        'bg-card': '#141414',
+                        'bg-input': '#1a1a1a',
+                        'bg-hover': '#2d2d2d',
+                        'bg-button': '#404040',
+                        
+                        // Text colors
+                        'text-primary': '#ffffff',
+                        'text-secondary': '#a3a3a3',
+                        'text-tertiary': '#737373',
+                        'text-muted': '#525252',
+                        'text-disabled': '#525252',
+                        
+                        // Borders
+                        'border-primary': '#262626',
+                        'border-hover': '#404040',
+                        
+                        // Accent colors - monochrome
+                        'accent-primary': '#ffffff',
+                        'accent-hover': '#a3a3a3',
+                        'accent-muted': '#737373',
+                        'accent-active': '#525252',
+                        
+                        // Signal strength - colorful
+                        'signal-none': '#525252',
+                        'signal-weak': '#60A5FA',
+                        'signal-moderate': '#FBBF24',
+                        'signal-strong': '#FF6B35',
+                        'signal-very-strong': '#DC2626',
+                        
+                        // Neon accent
+                        'neon-cyan': '#00d2ff',
+                        'neon-cyan-light': '#33daff',
+                        'neon-cyan-dark': '#0099cc',
+                    },
+                    boxShadow: {
+                        'mono-glow': '0 0 10px rgba(255, 255, 255, 0.05)',
+                        'mono-glow-sm': '0 0 5px rgba(255, 255, 255, 0.03)',
+                        'mono-glow-lg': '0 0 15px rgba(255, 255, 255, 0.08)',
+                        'neon-glow': '0 0 10px rgba(0, 212, 255, 0.4)',
+                    },
+                    animation: {
+                        'blob': 'blob 7s infinite',
+                        'neon-pulse': 'neonPulse 2s ease-in-out infinite',
+                        'scan-line': 'scanLine 4s linear infinite',
+                        'text-glow': 'textGlow 3s ease-in-out infinite',
+                    },
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Exact HackRF Geometric Background System */
+        .geometric-background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -10;
+            overflow: hidden;
+            pointer-events: none;
+        }
+        
+        .floating-shapes {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            opacity: 0.03;
+            background-image: 
+                radial-gradient(circle at 25% 25%, rgba(59, 130, 246, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 75% 75%, rgba(0, 212, 255, 0.08) 0%, transparent 50%),
+                radial-gradient(circle at 50% 10%, rgba(147, 51, 234, 0.06) 0%, transparent 40%);
+            animation: float-shapes 40s ease-in-out infinite;
+        }
+        
+        @keyframes float-shapes {
+            0%, 100% { transform: translate(0, 0) rotate(0deg); }
+            25% { transform: translate(30px, -20px) rotate(90deg); }
+            50% { transform: translate(-20px, 30px) rotate(180deg); }
+            75% { transform: translate(20px, -30px) rotate(270deg); }
+        }
+        
+        .grid-pattern {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0.02;
+            background-image: 
+                linear-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+            background-size: 50px 50px;
+            animation: grid-drift 60s linear infinite;
+        }
+        
+        @keyframes grid-drift {
+            0% { transform: translate(0, 0); }
+            100% { transform: translate(50px, 50px); }
+        }
+        
+        .hexagon-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0.015;
+            background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M30 15l13 7.5v15L30 45l-13-7.5v-15z' fill='none' stroke='rgba(255,255,255,0.1)' stroke-width='1'/%3E%3C/svg%3E");
+            animation: hexagon-float 45s ease-in-out infinite reverse;
+        }
+        
+        @keyframes hexagon-float {
+            0%, 100% { transform: translate(0, 0); }
+            50% { transform: translate(-30px, 20px); }
+        }
+        
+        /* Glass morphism effects - exact match */
+        .glass-panel {
+            background: rgba(17, 17, 17, 0.6) !important;
+            backdrop-filter: blur(12px) !important;
+            -webkit-backdrop-filter: blur(12px) !important;
+            border: 1px solid rgba(255, 255, 255, 0.1) !important;
+            box-shadow: 
+                0 8px 32px rgba(0, 0, 0, 0.4),
+                0 2px 12px rgba(0, 0, 0, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.05),
+                inset 0 0 20px rgba(255, 255, 255, 0.02);
+        }
+        
+        .glass-header {
+            background: rgba(0, 0, 0, 0.6) !important;
+            backdrop-filter: blur(20px) !important;
+            -webkit-backdrop-filter: blur(20px) !important;
+            border-bottom: 1px solid rgba(59, 130, 246, 0.3) !important;
+            box-shadow: 
+                0 4px 24px rgba(0, 0, 0, 0.5),
+                0 1px 3px rgba(0, 0, 0, 0.3),
+                inset 0 -1px 0 rgba(255, 255, 255, 0.05);
+        }
+        
+        /* Neon glow effects from HackRF */
+        .neon-text {
+            color: #00d4ff;
+            text-shadow: 
+                0 0 5px rgba(0, 212, 255, 0.8),
+                0 0 10px rgba(0, 212, 255, 0.6),
+                0 0 15px rgba(0, 212, 255, 0.4),
+                0 0 20px rgba(0, 212, 255, 0.2);
+        }
+        
+        @keyframes neonPulse {
+            0%, 100% {
+                box-shadow: 0 0 5px rgba(0, 212, 255, 0.4), 0 0 10px rgba(0, 212, 255, 0.2);
+            }
+            50% {
+                box-shadow: 0 0 10px rgba(0, 212, 255, 0.6), 0 0 20px rgba(0, 212, 255, 0.4);
+            }
+        }
+        
+        @keyframes textGlow {
+            0%, 100% {
+                text-shadow: 
+                    0 0 10px rgba(0, 212, 255, 0.5),
+                    0 0 20px rgba(0, 212, 255, 0.3),
+                    0 0 30px rgba(0, 212, 255, 0.1);
+            }
+            50% {
+                text-shadow: 
+                    0 0 15px rgba(0, 212, 255, 0.7),
+                    0 0 30px rgba(0, 212, 255, 0.5),
+                    0 0 45px rgba(0, 212, 255, 0.3);
+            }
+        }
+        
+        @keyframes blob {
+            0%, 100% {
+                transform: translate(0px, 0px) scale(1);
+            }
+            33% {
+                transform: translate(30px, -50px) scale(1.1);
+            }
+            66% {
+                transform: translate(-20px, 20px) scale(0.9);
+            }
+        }
+        
+        /* Saasfly component styling */
+        .saasfly-feature-card {
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .saasfly-feature-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, rgba(0, 212, 255, 0.3), transparent);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        
+        .saasfly-feature-card:hover::before {
+            opacity: 1;
+        }
+        
+        .saasfly-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1.5rem;
+            font-size: 0.875rem;
+            font-weight: 600;
+            border-radius: 0.75rem;
+            transition: all 0.2s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .saasfly-btn-primary {
+            background: #ffffff;
+            color: #000000;
+            border: 1px solid #ffffff;
+        }
+        
+        .saasfly-btn-primary:hover {
+            background: #a3a3a3;
+            transform: translateY(-1px);
+        }
+        
+        .saasfly-btn-secondary {
+            background: #404040;
+            color: #ffffff;
+            border: 1px solid #262626;
+        }
+        
+        .saasfly-btn-secondary:hover {
+            background: #2d2d2d;
+            border-color: #404040;
+        }
+        
+        .saasfly-btn-ghost {
+            background: transparent;
+            color: #a3a3a3;
+            border: 1px solid #262626;
+        }
+        
+        .saasfly-btn-ghost:hover {
+            background: rgba(255, 255, 255, 0.05);
+            color: #ffffff;
+            border-color: #404040;
+        }
+        
+        .nav-link {
+            color: rgba(255, 255, 255, 0.7);
+            text-decoration: none;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        
+        .nav-link:hover {
+            color: #00d4ff;
+            background-color: rgba(0, 212, 255, 0.05);
+        }
+        
+        .nav-link.active {
+            color: #00d4ff;
+            background-color: rgba(0, 212, 255, 0.1);
+            border: 1px solid rgba(0, 212, 255, 0.3);
+            box-shadow: 0 0 10px rgba(0, 212, 255, 0.2);
+        }
+        
+        /* Status indicators */
+        .status-online {
+            background: #10b981;
+            box-shadow: 0 0 10px rgba(16, 185, 129, 0.6);
+        }
+        
+        .status-offline {
+            background: #ef4444;
+        }
+        
+        /* Override button hover effects */
+        button:hover {
+            background-color: rgba(0, 212, 255, 0.1) !important;
+            border-color: rgba(0, 212, 255, 0.5) !important;
+            box-shadow: 
+                0 0 10px rgba(0, 212, 255, 0.5),
+                0 0 20px rgba(0, 212, 255, 0.3) !important;
+            color: #00d4ff !important;
+        }
+    </style>
+</head>
+<body class="font-body text-white flex flex-col min-h-screen leading-normal">
+    <!-- Exact HackRF Geometric Background -->
+    <div class="geometric-background">
+        <!-- Base depth gradient -->
+        <div class="absolute inset-0 bg-gradient-to-br from-blue-900/20 via-purple-900/20 to-pink-900/20"></div>
+        
+        <!-- Floating shapes -->
+        <div class="floating-shapes"></div>
+        
+        <!-- Grid pattern -->
+        <div class="grid-pattern"></div>
+        
+        <!-- Hexagon overlay -->
+        <div class="hexagon-overlay"></div>
+        
+        <!-- Animated blobs -->
+        <div class="absolute inset-0 opacity-30">
+            <div class="absolute top-0 -left-4 w-72 h-72 bg-purple-500 rounded-full mix-blend-multiply filter blur-xl animate-blob"></div>
+            <div class="absolute top-0 -right-4 w-72 h-72 bg-yellow-500 rounded-full mix-blend-multiply filter blur-xl animate-blob" style="animation-delay: 2s;"></div>
+            <div class="absolute -bottom-8 left-20 w-72 h-72 bg-pink-500 rounded-full mix-blend-multiply filter blur-xl animate-blob" style="animation-delay: 4s;"></div>
+            <div class="absolute -bottom-8 right-20 w-72 h-72 bg-blue-500 rounded-full mix-blend-multiply filter blur-xl animate-blob" style="animation-delay: 6s;"></div>
+        </div>
+        
+        <!-- Complex SVG patterns -->
+        <svg class="absolute inset-0 w-full h-full" style="opacity: 0.02; z-index: -9;" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+                <pattern id="nodePattern" x="0" y="0" width="200" height="200" patternUnits="userSpaceOnUse">
+                    <polygon points="100,40 130,60 130,100 100,120 70,100 70,60" 
+                             fill="none" stroke="rgba(0,212,255,0.1)" stroke-width="1"/>
+                    <line x1="100" y1="40" x2="100" y2="0" stroke="rgba(59,130,246,0.08)" stroke-width="1"/>
+                    <line x1="130" y1="60" x2="170" y2="30" stroke="rgba(59,130,246,0.08)" stroke-width="1"/>
+                    <circle cx="100" cy="80" r="2" fill="rgba(0,212,255,0.1)"/>
+                </pattern>
+            </defs>
+            <rect width="100%" height="100%" fill="url(#nodePattern)">
+                <animateTransform attributeName="transform" type="translate" 
+                                  values="0,0;50,30;0,0" dur="45s" repeatCount="indefinite"/>
+            </rect>
+        </svg>
+    </div>
+
+    <!-- Main content with z-index -->
+    <div class="relative z-10 flex flex-col min-h-screen">
+        <!-- Professional Navigation Header -->
+        <header class="glass-header relative overflow-hidden sticky top-0 z-50">
+            <div class="max-w-7xl mx-auto px-6">
+                <div class="flex items-center justify-between h-16">
+                    <!-- Brand Section -->
+                    <div class="flex items-center space-x-4">
+                        <div class="flex flex-col">
+                            <h1 class="font-heading text-lg font-semibold tracking-tight">
+                                <span class="text-white">Kismet</span> <span class="text-white font-bold">Operations</span>
+                            </h1>
+                            <span class="font-mono text-xs uppercase tracking-widest text-text-muted">WiFi Monitoring Platform</span>
+                        </div>
+                    </div>
+
+                    <!-- Desktop Navigation -->
+                    <nav class="hidden lg:flex items-center space-x-8">
+                        <a href="#dashboard" class="nav-link active flex items-center space-x-2 px-3 py-2 rounded-lg">
+                            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4z"/>
+                            </svg>
+                            <span class="font-heading text-sm font-medium">Dashboard</span>
+                        </a>
+                        <a href="#services" class="nav-link flex items-center space-x-2 px-3 py-2 rounded-lg">
+                            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M9.383 3.076A1 1 0 0110 4v12a1 1 0 01-1.707.707L4.586 13H2a1 1 0 01-1-1V8a1 1 0 011-1h2.586l3.707-3.707a1 1 0 011.09-.217z"/>
+                            </svg>
+                            <span class="font-heading text-sm font-medium">Services</span>
+                        </a>
+                        <a href="#analysis" class="nav-link flex items-center space-x-2 px-3 py-2 rounded-lg">
+                            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M2 11a1 1 0 011-1h2a1 1 0 011 1v5a1 1 0 01-1 1H3a1 1 0 01-1-1v-5z"/>
+                            </svg>
+                            <span class="font-heading text-sm font-medium">Analysis</span>
+                        </a>
+                    </nav>
+
+                    <!-- Status Section -->
+                    <div class="flex items-center space-x-4">
+                        <div class="hidden md:flex items-center space-x-3 px-3 py-2 glass-panel rounded-lg">
+                            <div class="flex items-center space-x-2">
+                                <div class="w-2 h-2 rounded-full status-online"></div>
+                                <span class="font-mono text-xs text-text-secondary">Connected</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Scanning line effect -->
+            <div class="absolute bottom-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-neon-cyan to-transparent opacity-30"></div>
+        </header>
+
+        <!-- Main Dashboard -->
+        <section class="py-16 lg:py-24">
+            <div class="container mx-auto px-4 lg:px-8 max-w-7xl">
+                <div class="grid grid-cols-1 xl:grid-cols-3 gap-8 lg:gap-12">
+                    
+                    <!-- Left Column - Controls -->
+                    <div class="xl:col-span-1">
+                        <div class="sticky top-24 space-y-8">
+                            
+                            <!-- HackRF Controls -->
+                            <div class="saasfly-feature-card group rounded-2xl p-8 glass-panel">
+                                <div class="flex items-center mb-6">
+                                    <div class="p-3 bg-gradient-to-br from-neon-cyan/20 to-neon-cyan/10 rounded-xl mr-4 border border-neon-cyan/20">
+                                        <svg class="w-6 h-6 text-neon-cyan" fill="currentColor" viewBox="0 0 24 24">
+                                            <path d="M3 12h4l3-9 4 18 3-9h4"/>
+                                        </svg>
+                                    </div>
+                                    <div>
+                                        <h3 class="font-heading text-xl font-semibold text-white mb-1">HackRF Controls</h3>
+                                        <p class="text-sm text-text-muted">External analysis tools</p>
+                                    </div>
+                                </div>
+                                
+                                <div class="space-y-4">
+                                    <button class="saasfly-btn saasfly-btn-primary w-full" onclick="showNotification('Load Profile functionality coming soon', 'info')">
+                                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                            <path d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4z"/>
+                                        </svg>
+                                        Add Load Profile
+                                    </button>
+                                    <button class="saasfly-btn saasfly-btn-secondary w-full" onclick="window.open('http://' + window.location.hostname + ':3002', '_blank')">
+                                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                            <path d="M2 11a1 1 0 011-1h2a1 1 0 011 1v5a1 1 0 01-1 1H3a1 1 0 01-1-1v-5z"/>
+                                        </svg>
+                                        HackRF Sweep
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Service Controls -->
+                            <div class="saasfly-feature-card group rounded-2xl p-8 glass-panel">
+                                <div class="flex items-center mb-6">
+                                    <div class="p-3 bg-gradient-to-br from-accent-primary/20 to-accent-primary/10 rounded-xl mr-4 border border-accent-primary/20">
+                                        <svg class="w-6 h-6 text-accent-primary" fill="currentColor" viewBox="0 0 20 20">
+                                            <path d="M4 4a2 2 0 00-2 2v4a2 2 0 002 2V6h10a2 2 0 00-2-2H4z"/>
+                                        </svg>
+                                    </div>
+                                    <div>
+                                        <h3 class="font-heading text-xl font-semibold text-white mb-1">Service Control</h3>
+                                        <p class="text-sm text-text-muted">Manage Kismet services</p>
+                                    </div>
+                                </div>
+                                
+                                <div class="space-y-4 mb-6">
+                                    <button class="saasfly-btn saasfly-btn-primary w-full" onclick="startKismet()">
+                                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z"/>
+                                        </svg>
+                                        Start Kismet
+                                    </button>
+                                    <button class="saasfly-btn saasfly-btn-secondary w-full" onclick="stopKismet()">
+                                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8 7a1 1 0 012 0v6a1 1 0 11-2 0V7z"/>
+                                        </svg>
+                                        Stop Kismet
+                                    </button>
+                                </div>
+                                
+                                <div class="space-y-3">
+                                    <div class="flex items-center justify-between p-3 glass-panel rounded-lg">
+                                        <span class="text-sm text-text-secondary">Kismet Service</span>
+                                        <div class="flex items-center space-x-2">
+                                            <div class="w-2 h-2 rounded-full" id="kismet-status"></div>
+                                            <span class="text-xs font-mono" id="kismet-status-text">Offline</span>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-center justify-between p-3 glass-panel rounded-lg">
+                                        <span class="text-sm text-text-secondary">WigleToTAK</span>
+                                        <div class="flex items-center space-x-2">
+                                            <div class="w-2 h-2 rounded-full" id="wigle-status"></div>
+                                            <span class="text-xs font-mono" id="wigle-status-text">Offline</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Quick Access -->
+                            <div class="saasfly-feature-card group rounded-2xl p-8 glass-panel">
+                                <div class="flex items-center mb-6">
+                                    <div class="p-3 bg-gradient-to-br from-purple-500/20 to-purple-500/10 rounded-xl mr-4 border border-purple-400/20">
+                                        <svg class="w-6 h-6 text-purple-400" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fill-rule="evenodd" d="M3 4a1 1 0 011-1h4a1 1 0 010 2H6.414l2.293 2.293a1 1 0 01.293.707V12a1 1 0 01-.293.707l-2.293 2.293H8a1 1 0 010 2H4a1 1 0 01-1-1v-4a1 1 0 01.293-.707L5.586 9 3.293 6.707A1 1 0 013 6V4z"/>
+                                        </svg>
+                                    </div>
+                                    <div>
+                                        <h3 class="font-heading text-xl font-semibold text-white mb-1">Quick Access</h3>
+                                        <p class="text-sm text-text-muted">External tools</p>
+                                    </div>
+                                </div>
+                                
+                                <div class="space-y-3">
+                                    <a href="#" onclick="window.open('http://' + window.location.hostname + ':2501', '_blank'); return false;" class="saasfly-btn saasfly-btn-ghost w-full">
+                                        Kismet Web UI
+                                    </a>
+                                    <a href="#" onclick="window.open('http://' + window.location.hostname + ':8000', '_blank'); return false;" class="saasfly-btn saasfly-btn-ghost w-full">
+                                        WigleToTAK
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Center Column - Data Feed -->
+                    <div class="xl:col-span-2">
+                        <div class="space-y-8">
+                            
+                            <!-- Kismet Data Feed -->
+                            <div class="saasfly-feature-card group rounded-2xl p-8 glass-panel">
+                                <div class="flex items-center mb-8">
+                                    <div class="p-3 bg-gradient-to-br from-yellow-500/20 to-yellow-500/10 rounded-xl mr-4 border border-yellow-400/20">
+                                        <svg class="w-6 h-6 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
+                                            <path d="M2 11a1 1 0 011-1h2a1 1 0 011 1v5a1 1 0 01-1 1H3a1 1 0 01-1-1v-5z"/>
+                                        </svg>
+                                    </div>
+                                    <div>
+                                        <h3 class="font-heading text-2xl font-semibold text-white mb-1">Kismet Data Feed</h3>
+                                        <p class="text-text-muted">Real-time WiFi monitoring</p>
+                                    </div>
+                                </div>
+                                
+                                <!-- Data Overview -->
+                                <div class="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-8">
+                                    <div class="p-6 glass-panel rounded-xl">
+                                        <div class="text-sm text-text-muted font-medium uppercase tracking-wide mb-2">Devices</div>
+                                        <div id="devices-count" class="font-mono text-3xl font-bold text-accent-primary">0</div>
+                                    </div>
+                                    <div class="p-6 glass-panel rounded-xl">
+                                        <div class="text-sm text-text-muted font-medium uppercase tracking-wide mb-2">Networks</div>
+                                        <div id="networks-count" class="font-mono text-3xl font-bold text-neon-cyan">0</div>
+                                    </div>
+                                    <div class="p-6 glass-panel rounded-xl">
+                                        <div class="text-sm text-text-muted font-medium uppercase tracking-wide mb-2">Last Update</div>
+                                        <div id="last-update" class="font-mono text-3xl font-bold text-text-primary">--</div>
+                                    </div>
+                                </div>
+
+                                <!-- Recent Devices -->
+                                <div class="mb-8">
+                                    <h4 class="text-lg font-semibold text-accent-primary mb-4 uppercase tracking-wide">Recent Devices</h4>
+                                    <div id="devices-list" class="space-y-3 max-h-64 overflow-y-auto">
+                                        <div class="p-4 glass-panel rounded-lg">No devices detected</div>
+                                    </div>
+                                </div>
+
+                                <!-- Activity Feed -->
+                                <div>
+                                    <h4 class="text-lg font-semibold text-accent-primary mb-4 uppercase tracking-wide">Activity Feed</h4>
+                                    <div id="activity-feed" class="space-y-3 max-h-64 overflow-y-auto">
+                                        <div class="p-4 glass-panel rounded-lg">Waiting for activity...</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- System Status -->
+                            <div class="saasfly-feature-card group rounded-2xl p-8 glass-panel">
+                                <div class="flex items-center mb-6">
+                                    <div class="p-3 bg-gradient-to-br from-green-500/20 to-green-500/10 rounded-xl mr-4 border border-green-400/20">
+                                        <svg class="w-6 h-6 text-green-400" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"/>
+                                        </svg>
+                                    </div>
+                                    <div>
+                                        <h3 class="font-heading text-xl font-semibold text-white mb-1">System Status</h3>
+                                        <p class="text-sm text-text-muted">Current system information</p>
+                                    </div>
+                                </div>
+                                
+                                <div class="font-mono text-sm text-text-secondary leading-relaxed space-y-2" id="system-info">
+                                    <p><strong class="text-accent-primary">IP Address:</strong> <span id="ip-address">Loading...</span></p>
+                                    <p><strong class="text-accent-primary">GPS Status:</strong> <span id="gps-status">Loading...</span></p>
+                                    <p><strong class="text-accent-primary">Latitude:</strong> <span id="gps-lat">--</span></p>
+                                    <p><strong class="text-accent-primary">Longitude:</strong> <span id="gps-lon">--</span></p>
+                                    <p><strong class="text-accent-primary">Altitude:</strong> <span id="gps-alt">--</span></p>
+                                    <p><strong class="text-accent-primary">MGRS Grid:</strong> <span id="gps-mgrs">--</span></p>
+                                    <p><strong class="text-accent-primary">GPS Time:</strong> <span id="gps-time">--</span></p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- Notification System -->
+    <div id="notification" class="fixed top-4 right-4 p-4 glass-panel rounded-lg transform translate-x-full transition-transform duration-300 z-50">
+        <div class="flex items-center space-x-3">
+            <div class="w-2 h-2 rounded-full bg-neon-cyan"></div>
+            <span class="text-white text-sm"></span>
+        </div>
+    </div>
+
+    <script>
+        // Notification system
+        function showNotification(message, type = 'info') {
+            const notification = document.getElementById('notification');
+            notification.querySelector('span').textContent = message;
+            notification.classList.remove('translate-x-full');
+            
+            setTimeout(() => {
+                notification.classList.add('translate-x-full');
+            }, 5000);
+        }
+
+        // Service control functions
+        async function startKismet() {
+            try {
+                showNotification('Starting Kismet...', 'info');
+                const response = await fetch('/api/system/services', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ action: 'start', service: 'kismet' })
+                });
+                
+                if (response.ok) {
+                    showNotification('Kismet started successfully', 'success');
+                    setTimeout(updateServiceStatus, 2000);
+                } else {
+                    showNotification('Failed to start Kismet', 'error');
+                }
+            } catch (error) {
+                console.error('Error starting Kismet:', error);
+                showNotification('Error starting Kismet', 'error');
+            }
+        }
+
+        async function stopKismet() {
+            try {
+                showNotification('Stopping Kismet...', 'info');
+                const response = await fetch('/api/system/services', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ action: 'stop', service: 'kismet' })
+                });
+                
+                if (response.ok) {
+                    showNotification('Kismet stopped successfully', 'success');
+                    setTimeout(updateServiceStatus, 2000);
+                } else {
+                    showNotification('Failed to stop Kismet', 'error');
+                }
+            } catch (error) {
+                console.error('Error stopping Kismet:', error);
+                showNotification('Error stopping Kismet', 'error');
+            }
+        }
+
+        // Status update functions
+        async function updateServiceStatus() {
+            try {
+                const response = await fetch('/api/system/status');
+                const data = await response.json();
+                
+                const kismetStatus = document.getElementById('kismet-status');
+                const kismetStatusText = document.getElementById('kismet-status-text');
+                const wigleStatus = document.getElementById('wigle-status');
+                const wigleStatusText = document.getElementById('wigle-status-text');
+                
+                if (data.services?.kismet?.running) {
+                    kismetStatus.classList.add('status-online');
+                    kismetStatus.classList.remove('status-offline');
+                    kismetStatusText.textContent = 'Online';
+                } else {
+                    kismetStatus.classList.remove('status-online');
+                    kismetStatus.classList.add('status-offline');
+                    kismetStatusText.textContent = 'Offline';
+                }
+                
+                if (data.services?.wigletotak?.running) {
+                    wigleStatus.classList.add('status-online');
+                    wigleStatus.classList.remove('status-offline');
+                    wigleStatusText.textContent = 'Online';
+                } else {
+                    wigleStatus.classList.remove('status-online');
+                    wigleStatus.classList.add('status-offline');
+                    wigleStatusText.textContent = 'Offline';
+                }
+            } catch (error) {
+                console.error('Error updating service status:', error);
+            }
+        }
+
+        async function updateSystemInfo() {
+            try {
+                const response = await fetch('/api/system/status');
+                const data = await response.json();
+                
+                if (data.system) {
+                    document.getElementById('ip-address').textContent = data.system.ip || 'Unknown';
+                    document.getElementById('gps-status').textContent = data.gps?.status || 'Unknown';
+                    document.getElementById('gps-lat').textContent = data.gps?.lat || '--';
+                    document.getElementById('gps-lon').textContent = data.gps?.lon || '--';
+                    document.getElementById('gps-alt').textContent = data.gps?.alt || '--';
+                    document.getElementById('gps-mgrs').textContent = data.gps?.mgrs || '--';
+                    document.getElementById('gps-time').textContent = data.gps?.time || '--';
+                }
+            } catch (error) {
+                console.error('Error updating system info:', error);
+            }
+        }
+
+        async function updateKismetData() {
+            try {
+                const response = await fetch('/api/kismet/devices');
+                if (!response.ok) return;
+                
+                const data = await response.json();
+                
+                document.getElementById('devices-count').textContent = data.devices?.length || '0';
+                document.getElementById('networks-count').textContent = data.networks?.length || '0';
+                document.getElementById('last-update').textContent = new Date().toLocaleTimeString();
+                
+                // Update device list
+                const devicesList = document.getElementById('devices-list');
+                devicesList.innerHTML = '';
+                
+                if (data.devices && data.devices.length > 0) {
+                    data.devices.slice(0, 5).forEach(device => {
+                        const deviceElement = document.createElement('div');
+                        deviceElement.className = 'p-4 glass-panel rounded-lg';
+                        deviceElement.innerHTML = `
+                            <strong class="text-white">${device.name || 'Unknown Device'}</strong><br>
+                            <span class="text-text-secondary">Type: ${device.type || 'Unknown'}</span><br>
+                            <span class="text-text-secondary">Signal: ${device.signal || 'Unknown'} dBm</span>
+                        `;
+                        devicesList.appendChild(deviceElement);
+                    });
+                } else {
+                    devicesList.innerHTML = '<div class="p-4 glass-panel rounded-lg">No devices detected</div>';
+                }
+            } catch (error) {
+                console.error('Error updating Kismet data:', error);
+            }
+        }
+
+        // Initialize
+        function initializeApp() {
+            updateServiceStatus();
+            updateSystemInfo();
+            updateKismetData();
+            
+            // Set up periodic updates
+            setInterval(updateServiceStatus, 5000);
+            setInterval(updateSystemInfo, 10000);
+            setInterval(updateKismetData, 3000);
+        }
+
+        // Initialize when DOM loads
+        document.addEventListener('DOMContentLoaded', initializeApp);
+    </script>
+</body>
+</html>

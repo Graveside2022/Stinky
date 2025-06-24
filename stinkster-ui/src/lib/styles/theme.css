@@ -1,0 +1,302 @@
+/* ==========================================================================
+   Design System Theme - Core Variables and Tokens
+   Based on Monochrome Theme with Cyan Accents
+   ========================================================================== */
+
+:root {
+  /* ==========================================================================
+     COLOR PALETTE
+     ========================================================================== */
+  
+  /* Base Colors - Dark Monochrome */
+  --color-base-darkest: #030610;      /* Darkest background */
+  --color-base-darker: #0a192f;       /* Dark background */
+  --color-base-dark: #020c1b;         /* Alternative dark */
+  --color-base-medium: #0c1628;       /* Medium dark */
+  --color-base-light: #1a2332;        /* Light dark */
+  
+  /* Background Colors with Transparency */
+  --bg-primary: var(--color-base-darkest);
+  --bg-secondary: rgba(12, 22, 48, 0.65);
+  --bg-tertiary: rgba(12, 22, 48, 0.85);
+  --bg-panel: rgba(12, 22, 48, 0.95);
+  --bg-overlay: rgba(3, 6, 16, 0.8);
+  
+  /* Text Colors */
+  --text-primary: #d0d8f0;
+  --text-secondary: rgba(0, 220, 255, 0.8);
+  --text-muted: #737373;
+  --text-disabled: #4a5568;
+  --text-inverse: #030610;
+  
+  /* Border Colors */
+  --border-primary: rgba(0, 190, 215, 0.35);
+  --border-secondary: rgba(0, 190, 215, 0.25);
+  --border-subtle: rgba(0, 190, 215, 0.15);
+  --border-strong: rgba(0, 190, 215, 0.5);
+  
+  /* Accent Colors */
+  --accent-primary: #00d2ff;         /* Cyan */
+  --accent-success: #44ff44;         /* Green */
+  --accent-error: #ff4444;           /* Red */
+  --accent-warning: #f59e0b;         /* Amber */
+  --accent-info: #3b82f6;            /* Blue */
+  
+  /* Gradient Colors */
+  --gradient-primary: linear-gradient(135deg, #0a192f 0%, #020c1b 100%);
+  --gradient-panel: linear-gradient(90deg, rgba(10, 15, 30, 0.95) 0%, rgba(10, 15, 30, 0.85) 50%, rgba(10, 15, 30, 0.95) 100%);
+  --gradient-header: linear-gradient(90deg, var(--bg-tertiary) 0%, var(--bg-secondary) 100%);
+  
+  /* ==========================================================================
+     SHADOWS AND GLOWS
+     ========================================================================== */
+  
+  /* Box Shadows */
+  --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.3);
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.2);
+  --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.1);
+  --shadow-xl: 0 20px 25px rgba(0, 0, 0, 0.1);
+  --shadow-2xl: 0 25px 50px rgba(0, 0, 0, 0.25);
+  
+  /* Glow Effects */
+  --glow-primary: 0 0 20px rgba(0, 220, 255, 0.5);
+  --glow-success: 0 0 20px rgba(68, 255, 68, 0.5);
+  --glow-error: 0 0 20px rgba(255, 68, 68, 0.5);
+  --glow-warning: 0 0 20px rgba(245, 158, 11, 0.5);
+  --glow-subtle: 0 0 8px rgba(0, 210, 255, 0.3);
+  --glow-strong: 0 0 40px rgba(0, 210, 255, 0.6);
+  
+  /* Text Shadows */
+  --text-shadow-sm: 0 0 5px rgba(0, 210, 255, 0.3);
+  --text-shadow-md: 0 0 10px rgba(0, 210, 255, 0.5);
+  --text-shadow-lg: 0 0 20px rgba(0, 210, 255, 0.7);
+  
+  /* ==========================================================================
+     TYPOGRAPHY
+     ========================================================================== */
+  
+  /* Font Families */
+  --font-primary: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-mono: 'Courier New', 'SF Mono', Monaco, 'Cascadia Code', monospace;
+  
+  /* Font Sizes */
+  --text-xs: 0.65rem;      /* 10.4px */
+  --text-sm: 0.75rem;      /* 12px */
+  --text-base: 0.875rem;   /* 14px */
+  --text-lg: 1rem;         /* 16px */
+  --text-xl: 1.25rem;      /* 20px */
+  --text-2xl: 1.5rem;      /* 24px */
+  --text-3xl: 1.875rem;    /* 30px */
+  --text-4xl: 2.4rem;      /* 38.4px */
+  
+  /* Font Weights */
+  --font-light: 300;
+  --font-normal: 400;
+  --font-medium: 500;
+  --font-semibold: 600;
+  --font-bold: 700;
+  --font-extrabold: 800;
+  
+  /* Line Heights */
+  --leading-tight: 1.2;
+  --leading-normal: 1.4;
+  --leading-relaxed: 1.6;
+  --leading-loose: 2;
+  
+  /* Letter Spacing */
+  --tracking-tight: -0.02em;
+  --tracking-normal: 0;
+  --tracking-wide: 0.5px;
+  --tracking-wider: 2px;
+  --tracking-widest: 12px;
+  
+  /* ==========================================================================
+     SPACING
+     ========================================================================== */
+  
+  --spacing-xs: 0.25rem;    /* 4px */
+  --spacing-sm: 0.5rem;     /* 8px */
+  --spacing-md: 0.75rem;    /* 12px */
+  --spacing-lg: 1rem;       /* 16px */
+  --spacing-xl: 1.5rem;     /* 24px */
+  --spacing-2xl: 2rem;      /* 32px */
+  --spacing-3xl: 3rem;      /* 48px */
+  
+  /* ==========================================================================
+     BORDERS AND RADIUS
+     ========================================================================== */
+  
+  --border-width-thin: 1px;
+  --border-width-medium: 2px;
+  --border-width-thick: 3px;
+  
+  --radius-none: 0;
+  --radius-sm: 2px;
+  --radius-md: 4px;
+  --radius-lg: 8px;
+  --radius-xl: 12px;
+  --radius-2xl: 16px;
+  --radius-full: 9999px;
+  
+  /* ==========================================================================
+     TRANSITIONS
+     ========================================================================== */
+  
+  --transition-fast: all 0.15s ease;
+  --transition-base: all 0.2s ease;
+  --transition-slow: all 0.3s ease;
+  --transition-slower: all 0.5s ease;
+  
+  /* ==========================================================================
+     Z-INDEX LAYERS
+     ========================================================================== */
+  
+  --z-background: -2;
+  --z-below: -1;
+  --z-base: 0;
+  --z-dropdown: 10;
+  --z-sticky: 20;
+  --z-fixed: 30;
+  --z-modal-backdrop: 40;
+  --z-modal: 50;
+  --z-popover: 60;
+  --z-tooltip: 70;
+  
+  /* ==========================================================================
+     GLASS MORPHISM
+     ========================================================================== */
+  
+  --glass-blur: blur(12px);
+  --glass-blur-strong: blur(20px);
+  --glass-opacity: 0.85;
+  --glass-border: 1px solid rgba(255, 255, 255, 0.1);
+  
+  /* ==========================================================================
+     ANIMATIONS
+     ========================================================================== */
+  
+  --animation-duration-fast: 0.2s;
+  --animation-duration-base: 0.3s;
+  --animation-duration-slow: 0.5s;
+  --animation-duration-slower: 1s;
+  
+  /* Pulse Animation Values */
+  --pulse-opacity-min: 0.4;
+  --pulse-opacity-max: 1;
+  
+  /* Background Animation Speed */
+  --bg-animation-speed: 80s;
+}
+
+/* ==========================================================================
+   DARK THEME OVERRIDES
+   ========================================================================== */
+
+[data-theme="dark"] {
+  /* Slightly different dark theme */
+  --color-base-darkest: #0f172a;
+  --color-base-darker: #1e293b;
+  --color-base-dark: #334155;
+  
+  --bg-primary: var(--color-base-darkest);
+  --bg-secondary: rgba(30, 41, 59, 0.65);
+  --bg-tertiary: rgba(51, 65, 85, 0.85);
+  --bg-panel: rgba(30, 41, 59, 0.95);
+  
+  --text-primary: #f8fafc;
+  --text-secondary: #cbd5e1;
+  --text-muted: #94a3b8;
+  
+  --border-primary: rgba(71, 85, 105, 0.35);
+  --border-secondary: rgba(56, 189, 248, 0.25);
+  
+  --accent-primary: #38bdf8;
+  --accent-success: #10b981;
+  --accent-error: #ef4444;
+  --accent-warning: #f59e0b;
+  
+  --glow-primary: 0 0 20px rgba(56, 189, 248, 0.6);
+  --glow-success: 0 0 20px rgba(16, 185, 129, 0.5);
+  --glow-error: 0 0 20px rgba(239, 68, 68, 0.5);
+}
+
+/* ==========================================================================
+   LIGHT THEME (Optional)
+   ========================================================================== */
+
+[data-theme="light"] {
+  --color-base-darkest: #ffffff;
+  --color-base-darker: #f9fafb;
+  --color-base-dark: #f3f4f6;
+  
+  --bg-primary: var(--color-base-darkest);
+  --bg-secondary: rgba(249, 250, 251, 0.85);
+  --bg-tertiary: rgba(243, 244, 246, 0.9);
+  --bg-panel: rgba(255, 255, 255, 0.95);
+  
+  --text-primary: #111827;
+  --text-secondary: #4b5563;
+  --text-muted: #9ca3af;
+  
+  --border-primary: rgba(0, 0, 0, 0.1);
+  --border-secondary: rgba(0, 0, 0, 0.05);
+  
+  --accent-primary: #0ea5e9;
+  --accent-success: #22c55e;
+  --accent-error: #ef4444;
+  --accent-warning: #f59e0b;
+  
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.05);
+  --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.05);
+  
+  --glow-primary: 0 0 20px rgba(14, 165, 233, 0.3);
+  --glow-success: 0 0 20px rgba(34, 197, 94, 0.3);
+  --glow-error: 0 0 20px rgba(239, 68, 68, 0.3);
+}
+
+/* ==========================================================================
+   UTILITY CLASSES
+   ========================================================================== */
+
+/* Text utilities */
+.text-primary { color: var(--text-primary); }
+.text-secondary { color: var(--text-secondary); }
+.text-muted { color: var(--text-muted); }
+.text-accent { color: var(--accent-primary); }
+
+/* Background utilities */
+.bg-primary { background-color: var(--bg-primary); }
+.bg-secondary { background-color: var(--bg-secondary); }
+.bg-tertiary { background-color: var(--bg-tertiary); }
+.bg-panel { background-color: var(--bg-panel); }
+
+/* Border utilities */
+.border-primary { border-color: var(--border-primary); }
+.border-secondary { border-color: var(--border-secondary); }
+.border-accent { border-color: var(--accent-primary); }
+
+/* Shadow utilities */
+.shadow-sm { box-shadow: var(--shadow-sm); }
+.shadow-md { box-shadow: var(--shadow-md); }
+.shadow-lg { box-shadow: var(--shadow-lg); }
+
+/* Glow utilities */
+.glow-primary { box-shadow: var(--glow-primary); }
+.glow-success { box-shadow: var(--glow-success); }
+.glow-error { box-shadow: var(--glow-error); }
+.glow-subtle { box-shadow: var(--glow-subtle); }
+
+/* Glass morphism utility */
+.glass {
+  background: var(--bg-secondary);
+  backdrop-filter: var(--glass-blur);
+  border: var(--glass-border);
+}
+
+.glass-strong {
+  background: var(--bg-tertiary);
+  backdrop-filter: var(--glass-blur-strong);
+  border: var(--glass-border);
+}

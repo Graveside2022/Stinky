@@ -1,0 +1,65 @@
+<\!DOCTYPE html>
+<html>
+<head>
+    <script src="https://cesium.com/downloads/cesiumjs/releases/1.119/Build/Cesium/Cesium.js"></script>
+    <link href="https://cesium.com/downloads/cesiumjs/releases/1.119/Build/Cesium/Widgets/widgets.css" rel="stylesheet">
+    <style>
+        #cesiumContainer { width: 100%; height: 400px; }
+        #status { padding: 10px; background: #333; color: #fff; }
+    </style>
+</head>
+<body>
+    <div id="status">Testing imagery providers...</div>
+    <div id="cesiumContainer"></div>
+    <script>
+        Cesium.Ion.defaultAccessToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiJlYWE1OWUxNy1mMWZiLTQzYjYtYTQ0OS1kMWFjYmFkNjc5YzAiLCJpZCI6NTc3MzMsImlhdCI6MTYyNzg0NTE4Mn0.XcKpgANiY19MC4bdFUXMVEBToBmqS8kuYpUlxJHYZxk';
+        
+        const viewer = new Cesium.Viewer('cesiumContainer', {
+            terrainProvider: new Cesium.EllipsoidTerrainProvider(),
+            baseLayerPicker: false,
+            geocoder: false,
+            animation: false,
+            timeline: false
+        });
+        
+        const status = document.getElementById('status');
+        
+        // Test different providers
+        const providers = [
+            {
+                name: 'ArcGIS/Esri',
+                url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'
+            },
+            {
+                name: 'CartoDB',
+                url: 'https://a.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png'
+            },
+            {
+                name: 'OpenStreetMap',
+                url: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png'
+            }
+        ];
+        
+        providers.forEach(p => {
+            const img = new Image();
+            img.onload = () => status.innerHTML += '<br>✓ ' + p.name + ' - Working';
+            img.onerror = () => status.innerHTML += '<br>✗ ' + p.name + ' - Failed';
+            img.src = p.url.replace('{z}', '0').replace('{x}', '0').replace('{y}', '0');
+        });
+        
+        // Try to add imagery
+        try {
+            viewer.imageryLayers.removeAll();
+            const provider = new Cesium.UrlTemplateImageryProvider({
+                url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+                credit: 'Test',
+                maximumLevel: 19
+            });
+            viewer.imageryLayers.addImageryProvider(provider);
+            status.innerHTML += '<br>✓ Cesium imagery provider added';
+        } catch (e) {
+            status.innerHTML += '<br>✗ Cesium error: ' + e.message;
+        }
+    </script>
+</body>
+</html>

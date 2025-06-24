@@ -1,0 +1,88 @@
+[Unit]
+Description=Kismet Operations Center - Production Node.js WiFi Monitoring Dashboard
+Documentation=https://github.com/yourusername/stinkster
+After=network.target network-online.target
+Wants=network-online.target
+# Start after Kismet if it's installed
+After=kismet.service
+
+[Service]
+Type=simple
+User=pi
+Group=pi
+WorkingDirectory=/opt/kismet-operations-center/current
+Environment="NODE_ENV=production"
+Environment="PATH=/usr/bin:/usr/local/bin:/home/pi/.nvm/versions/node/v18.17.0/bin"
+
+# Production optimizations
+Environment="NODE_OPTIONS=--max-old-space-size=512"
+Environment="UV_THREADPOOL_SIZE=4"
+
+# Service execution
+ExecStartPre=/bin/bash -c 'test -f /opt/kismet-operations-center/current/server.js || exit 1'
+ExecStart=/usr/bin/node server.js
+Restart=always
+RestartSec=10
+
+# Process limits
+LimitNOFILE=65536
+LimitNPROC=4096
+
+# Logging
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=kismet-operations
+
+# Health monitoring
+# Watchdog monitoring (systemd 232+)
+#WatchdogSec=30s
+#NotifyAccess=all
+
+# Process management
+KillMode=mixed
+KillSignal=SIGTERM
+TimeoutStartSec=30
+TimeoutStopSec=30
+SendSIGKILL=yes
+
+# Security hardening
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=read-only
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+RestrictRealtime=true
+RestrictSUIDSGID=true
+RemoveIPC=true
+LockPersonality=true
+
+# Filesystem access
+ReadWritePaths=/opt/kismet-operations-center
+ReadWritePaths=/var/log
+ReadWritePaths=/home/pi/tmp
+ReadWritePaths=/home/pi/kismet_ops
+ReadWritePaths=/home/pi/WigletoTAK
+ReadOnlyPaths=/home/pi/.nvm
+ReadOnlyPaths=/usr/bin
+ReadOnlyPaths=/usr/local/bin
+
+# Network restrictions
+RestrictAddressFamilies=AF_INET AF_INET6 AF_UNIX
+IPAccounting=yes
+
+# Resource accounting
+CPUAccounting=yes
+MemoryAccounting=yes
+TasksAccounting=yes
+IOAccounting=yes
+
+# Resource limits
+MemoryMax=1G
+MemoryHigh=768M
+CPUQuota=200%
+TasksMax=100
+
+[Install]
+WantedBy=multi-user.target

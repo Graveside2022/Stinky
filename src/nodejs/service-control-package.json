@@ -1,0 +1,31 @@
+{
+  "name": "stinkster-service-control-api",
+  "version": "1.0.0",
+  "description": "REST API server for controlling Stinkster backend services",
+  "main": "service-control-api.js",
+  "scripts": {
+    "start": "node service-control-api.js",
+    "dev": "node service-control-api.js --debug",
+    "test": "node test-service-control-api.js"
+  },
+  "keywords": [
+    "stinkster",
+    "api",
+    "service-control",
+    "raspberry-pi",
+    "sdr",
+    "wifi-scanning"
+  ],
+  "author": "Stinkster Team",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.18.2",
+    "cors": "^2.8.5"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1"
+  },
+  "engines": {
+    "node": ">=14.0.0"
+  }
+}

@@ -1,0 +1,637 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kismet Operations Center</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/kismet-operations-extracted.css">
+</head>
+<body>
+    <div id="notification" class="notification"></div>
+    <div id="status-message" class="status-message hidden"></div>
+    <header class="top-banner">
+        <h1>Kismet Operations Center</h1>
+    </header>
+    <div id="minimized-tabs" class="minimized-tabs"></div>
+
+    <main class="main-content-area">
+        <div class="side-stack left-stack">
+            <div id="hackrf-one" class="grid-item">
+                <div class="box-header">
+                    <h2>HackRF One</h2>
+                    <div class="box-controls">
+                        <button class="control-button-small" onclick="toggleMinimize(this)">▼</button>
+                </div>
+            </div>
+                <div class="grid-item-content">
+                    <div class="button-group" style="display: grid; grid-template-columns: 1fr; gap: 10px; margin-bottom: 15px;">
+                        <button class="control-button" onclick="addLoadProfile()">Add Load Profile</button>
+                        <button class="control-button" onclick="hackRFSweep()">HackRF Sweep</button>
+                    </div>
+                </div>
+            </div>
+            <div id="instructions" class="grid-item">
+                <div class="box-header">
+                <h2>Setup Instructions</h2>
+                    <div class="box-controls">
+                        <button class="control-button-small" onclick="toggleMinimize(this)">▼</button>
+                    </div>
+                </div>
+                <div class="grid-item-content">
+                    <div class="tab-nav">
+                        <a href="wigle.html" class="tab-button active-tab" target="_blank">Wigle</a>
+                        <a href="atak.html" class="tab-button" target="_blank">ATAK</a>
+                        <a href="kismet2.html" class="tab-button" target="_blank">Kismet</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="kismet-data-feed" class="grid-item middle-long-box">
+            <div class="box-header">
+                <h2>Kismet Data Feed</h2>
+                <div class="box-controls">
+                    <button class="control-button-small" onclick="toggleMinimize(this)">▼</button>
+                </div>
+            </div>
+            <div class="grid-item-content" style="padding: 10px; overflow-y: auto;">
+                <div style="display: flex; justify-content: space-between; margin-bottom: 15px; padding: 10px; background: rgba(0, 0, 0, 0.2); border-radius: 4px;">
+                    <div style="text-align: center;">
+                        <div style="color: #00d2ff; font-size: 0.9em;">Devices</div>
+                        <div id="devices-count" style="color: #fff; font-size: 1.2em; font-weight: bold;">0</div>
+                    </div>
+                    <div style="text-align: center;">
+                        <div style="color: #00d2ff; font-size: 0.9em;">Networks</div>
+                        <div id="networks-count" style="color: #fff; font-size: 1.2em; font-weight: bold;">0</div>
+                    </div>
+                    <div style="text-align: center;">
+                        <div style="color: #00d2ff; font-size: 0.9em;">Last Update</div>
+                        <div id="last-update" style="color: #fff; font-size: 0.8em;">--</div>
+                    </div>
+                </div>
+                <div style="margin-bottom: 15px;">
+                    <h3 style="color: #00d2ff; margin: 0 0 10px 0; font-size: 1em;">Recent Devices</h3>
+                    <div id="devices-list" style="max-height: 200px; overflow-y: auto;">
+                        <div class="feed-item">No devices detected</div>
+                    </div>
+                </div>
+                <div>
+                    <h3 style="color: #00d2ff; margin: 0 0 10px 0; font-size: 1em;">Activity Feed</h3>
+                    <div id="kismet-feed" style="max-height: 200px; overflow-y: auto;">
+                        <div class="feed-item">Waiting for activity...</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="side-stack right-stack">
+            <div id="start-menu" class="grid-item">
+                <div class="box-header">
+                <h2>Start Menu</h2>
+                    <div class="box-controls">
+                        <button class="control-button-small" onclick="toggleMinimize(this)">▼</button>
+                    </div>
+                </div>
+                <div class="grid-item-content">
+                    <div class="button-group" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 15px;">
+                        <button class="control-button" onclick="startKismet()">Start Kismet</button>
+                        <button class="control-button" onclick="stopKismet()">Stop Kismet</button>
+                        <a href="http://localhost:2501" class="control-button" target="_blank">Open Kismet Web UI</a>
+                        <a href="http://localhost:8000" class="control-button" target="_blank">Open WigletoTak</a>
+                    </div>
+                    <div class="service-status" style="margin-top: 15px; padding-top: 15px; border-top: 1px solid rgba(0, 200, 220, 0.3);">
+                        <div class="status-indicator" style="display: flex; align-items: center; gap: 10px; padding: 10px; background: rgba(0, 0, 0, 0.2); border-radius: 6px; margin-bottom: 10px;">
+                            <div class="status-dot" id="kismet-status" style="width: 12px; height: 12px; border-radius: 50%; background: #ff4444;"></div>
+                            <span style="color: #d0d8f0; font-size: 0.9em;">Kismet</span>
+                        </div>
+                        <div class="status-indicator" style="display: flex; align-items: center; gap: 10px; padding: 10px; background: rgba(0, 0, 0, 0.2); border-radius: 6px;">
+                            <div class="status-dot" id="wigle-status" style="width: 12px; height: 12px; border-radius: 50%; background: #ff4444;"></div>
+                            <span style="color: #d0d8f0; font-size: 0.9em;">WigletoTak</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div id="system-status" class="grid-item">
+                <div class="box-header">
+                <h2>System Status</h2>
+                    <div class="box-controls">
+                        <button class="control-button-small" onclick="toggleMinimize(this)">▼</button>
+                    </div>
+                </div>
+                <div class="grid-item-content">
+                    <div id="system-message" style="margin-bottom: 1rem;">Loading system status...</div>
+                    <div id="gps-info" style="color: #d0d8f0; line-height: 1.6;">
+                        <p><strong style="color: #00d2ff;">IP Address:</strong> <span id="ip-address">Loading...</span></p>
+                        <p><strong style="color: #00d2ff;">GPS Status:</strong> <span id="gps-status">Loading...</span></p>
+                        <p><strong style="color: #00d2ff;">Latitude:</strong> <span id="gps-lat">--</span></p>
+                        <p><strong style="color: #00d2ff;">Longitude:</strong> <span id="gps-lon">--</span></p>
+                        <p><strong style="color: #00d2ff;">Altitude:</strong> <span id="gps-alt">--</span></p>
+                        <p><strong style="color: #00d2ff;">GPS Time:</strong> <span id="gps-time">--</span></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-text">
+                <span class="footer-symbol">⚡</span>
+                Property of
+                <span class="footer-separator">|</span>
+                SSG Malone, Darren
+                <span class="footer-separator">|</span>
+                SPC Peirson, Christian
+                <span class="footer-symbol">⚡</span>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        const messages = [
+            "Calibrating Chroniton Emitters...",
+            "Quantum Field Sync: 99.97%",
+            "Reality Matrix Stabilized.",
+            "Interface Online. Welcome, Commander."
+        ];
+        let messageIndex = 0;
+        const planetaryMessageElement = document.getElementById('planetary-message');
+        const systemMessageElement = document.getElementById('system-message');
+        const dynamicTextElements = document.querySelectorAll('.dynamic-text');
+
+        function updateSystemMessage() {
+            if (planetaryMessageElement) {
+                planetaryMessageElement.style.opacity = 0;
+                setTimeout(() => {
+                    planetaryMessageElement.textContent = messages[messageIndex];
+                    planetaryMessageElement.style.opacity = 1;
+                    messageIndex = (messageIndex + 1) % messages.length;
+                }, 500);
+            }
+        }
+
+        // Initial call and interval
+        if (messages.length > 0) {
+            updateSystemMessage();
+            setInterval(updateSystemMessage, 7000); // Change message every 7 seconds
+        }
+
+        // Update system status
+        function updateSystemStatus() {
+            fetch('/info', {
+                method: 'GET',
+                headers: {
+                    'Accept': 'application/json'
+                }
+            })
+                .then(response => response.json())
+                .then(data => {
+                    const gps = data.gps;
+                    document.getElementById('ip-address').textContent = data.ip;
+                    document.getElementById('gps-status').textContent = gps.status;
+                    document.getElementById('gps-lat').textContent = gps.lat ?? 'N/A';
+                    document.getElementById('gps-lon').textContent = gps.lon ?? 'N/A';
+                    document.getElementById('gps-alt').textContent = gps.alt ?? 'N/A';
+                    document.getElementById('gps-time').textContent = gps.time ?? 'N/A';
+                })
+                .catch(error => {
+                    document.getElementById('system-message').textContent = 'Error loading system status';
+                });
+        }
+
+        // Update Kismet data
+        function updateKismetData() {
+            fetch('/kismet-data', {
+                method: 'GET',
+                headers: {
+                    'Accept': 'application/json'
+                }
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    console.log('Kismet data received:', data);  // Debug log
+                    
+                    // Update device counts
+                    document.getElementById('devices-count').textContent = data.devices_count || '0';
+                    document.getElementById('networks-count').textContent = data.networks_count || '0';
+                    document.getElementById('last-update').textContent = new Date().toLocaleTimeString();
+                    
+                    // Update recent devices
+                    const recentDevicesList = document.getElementById('devices-list');
+                    recentDevicesList.innerHTML = '';
+                    
+                    if (data.recent_devices && data.recent_devices.length > 0) {
+                        data.recent_devices.forEach(device => {
+                            const deviceElement = document.createElement('div');
+                            deviceElement.className = 'feed-item';
+                            deviceElement.innerHTML = `
+                                <strong>${device.name || 'Unknown Device'}</strong><br>
+                                Type: ${device.type || 'Unknown'}<br>
+                                Channel: ${device.channel || 'Unknown'}<br>
+                                Signal: ${device.signal || 'Unknown'} dBm
+                            `;
+                            recentDevicesList.appendChild(deviceElement);
+                        });
+                    } else {
+                        recentDevicesList.innerHTML = '<div class="feed-item">No devices detected</div>';
+                    }
+                    
+                    // Update feed
+                    const feedContainer = document.getElementById('kismet-feed');
+                    feedContainer.innerHTML = ''; // Clear existing feed items
+                    
+                    if (data.feed_items && data.feed_items.length > 0) {
+                        data.feed_items.forEach(item => {
+                            const feedItem = document.createElement('div');
+                            feedItem.className = 'feed-item';
+                            feedItem.innerHTML = `
+                                <strong>${item.type || 'Activity'}</strong>: ${item.message || 'Unknown activity'}
+                            `;
+                            feedContainer.appendChild(feedItem);
+                            
+                            // Add highlight effect for new items
+                            feedItem.classList.add('feed-item-blink');
+                            setTimeout(() => feedItem.classList.remove('feed-item-blink'), 2000);
+                        });
+                        
+                        // Keep only last 10 items
+                        while (feedContainer.children.length > 10) {
+                            feedContainer.removeChild(feedContainer.firstChild);
+                        }
+                        
+                        // Scroll to bottom
+                        feedContainer.scrollTop = feedContainer.scrollHeight;
+                    } else {
+                        feedContainer.innerHTML = '<div class="feed-item">Waiting for activity...</div>';
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching Kismet data:', error);
+                    document.getElementById('devices-count').textContent = '0';
+                    document.getElementById('networks-count').textContent = '0';
+                    document.getElementById('last-update').textContent = 'Error';
+                    document.getElementById('devices-list').innerHTML = '<div class="feed-item">Failed to get data from Kismet</div>';
+                    document.getElementById('kismet-feed').innerHTML = '<div class="feed-item">Failed to get data from Kismet</div>';
+                });
+        }
+
+        // Start periodic updates
+        setInterval(updateSystemStatus, 5000);
+        setInterval(updateKismetData, 2000);
+
+        // Initial updates
+        updateSystemStatus();
+        updateKismetData();
+
+        function showNotification(message, type = 'info') {
+            const notification = document.getElementById('notification');
+            notification.textContent = message;
+            notification.className = 'notification show ' + type;
+            
+            // Hide notification after 5 seconds
+            setTimeout(() => {
+                notification.className = 'notification';
+            }, 5000);
+        }
+
+        function updateKismetStatus() {
+            fetch('/script-status')
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    console.log('Kismet status response:', data); // Debug log
+                    const kismetStatus = document.getElementById('kismet-status');
+                    const wigleStatus = document.getElementById('wigle-status');
+                    
+                    // Update Kismet status
+                    if (data && data.kismet_running === true) {
+                        console.log('Setting Kismet status to running'); // Debug log
+                        kismetStatus.style.background = '#44ff44';
+                        kismetStatus.style.boxShadow = '0 0 10px #44ff44';
+                    } else {
+                        console.log('Setting Kismet status to not running'); // Debug log
+                        kismetStatus.style.background = '#ff4444';
+                        kismetStatus.style.boxShadow = 'none';
+                    }
+
+                    // Update WigletoTak status
+                    if (data && data.wigle_running === true) {
+                        wigleStatus.style.background = '#44ff44';
+                        wigleStatus.style.boxShadow = '0 0 10px #44ff44';
+                    } else {
+                        wigleStatus.style.background = '#ff4444';
+                        wigleStatus.style.boxShadow = 'none';
+                    }
+                })
+                .catch(error => {
+                    console.error('Error checking Kismet status:', error);
+                    // Set both indicators to error state
+                    const kismetStatus = document.getElementById('kismet-status');
+                    const wigleStatus = document.getElementById('wigle-status');
+                    kismetStatus.style.background = '#ff4444';
+                    wigleStatus.style.background = '#ff4444';
+                    kismetStatus.style.boxShadow = 'none';
+                    wigleStatus.style.boxShadow = 'none';
+                });
+        }
+
+        // Update status more frequently when starting/stopping
+        let statusUpdateInterval;
+        function startStatusUpdates() {
+            // Clear any existing interval
+            if (statusUpdateInterval) {
+                clearInterval(statusUpdateInterval);
+            }
+            // Update immediately
+            updateKismetStatus();
+            // Then update every second for 30 seconds
+            statusUpdateInterval = setInterval(updateKismetStatus, 1000);
+            // Stop after 30 seconds
+            setTimeout(() => {
+                clearInterval(statusUpdateInterval);
+                // Return to normal update interval
+                setInterval(updateKismetStatus, 5000);
+            }, 30000);
+        }
+
+        async function startKismet() {
+            showNotification('Starting Kismet services...', 'info');
+            try {
+                const response = await fetch('/run-script', {method: 'POST'});
+                const data = await response.json();
+                
+                if(data.status === 'success') {
+                    showNotification('Kismet services started successfully!', 'success');
+                    startStatusUpdates(); // Start frequent status updates
+                } else {
+                    throw new Error(data.message || 'Failed to start Kismet');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showNotification('Failed to start Kismet services. Please try again.', 'error');
+            }
+        }
+
+        function stopKismet() {
+            showNotification('Stopping Kismet services...', 'info');
+            fetch('/stop-script', {method: 'POST'})
+                .then(response => response.json())
+                .then(data => {
+                    if(data.status === 'success') {
+                        showNotification('Kismet services stopped successfully!', 'success');
+                        updateKismetStatus();
+                    } else {
+                        showNotification('Error stopping Kismet services: ' + (data.message || 'Unknown error'), 'error');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    showNotification('Failed to stop Kismet services. Please try again.', 'error');
+                });
+        }
+
+        function toggleMinimize(button) {
+            const gridItem = button.closest('.grid-item');
+            const isMinimized = gridItem.classList.toggle('minimized');
+            
+            if (isMinimized) {
+                // Add to minimized tabs
+                const tab = document.createElement('div');
+                tab.className = 'minimized-tab';
+                tab.innerHTML = `
+                    ${gridItem.querySelector('h2').textContent.replace('▼', '').replace('▲', '')}
+                    <button class="restore-button" onclick="restoreBox('${gridItem.id}')">▲</button>
+                `;
+                document.getElementById('minimized-tabs').appendChild(tab);
+
+                // Enable resizing for other boxes
+                const otherBoxes = document.querySelectorAll('.grid-item:not(.minimized)');
+                otherBoxes.forEach(box => {
+                    box.style.minWidth = '200px';
+                    box.style.minHeight = '150px';
+                });
+            } else {
+                // Remove from minimized tabs
+                const tabs = document.querySelectorAll('.minimized-tab');
+                tabs.forEach(tab => {
+                    if (tab.textContent.includes(gridItem.querySelector('h2').textContent.replace('▼', '').replace('▲', ''))) {
+                        tab.remove();
+                    }
+                });
+
+                // Disable resizing if no boxes are minimized
+                const minimizedBoxes = document.querySelectorAll('.grid-item.minimized');
+                if (minimizedBoxes.length === 0) {
+                    const allBoxes = document.querySelectorAll('.grid-item');
+                    allBoxes.forEach(box => {
+                        box.style.minWidth = '';
+                        box.style.minHeight = '';
+                        // Reset to original position and size
+                        resetBoxPosition(box);
+                    });
+                }
+            }
+        }
+
+        function resetBoxPosition(box) {
+            switch(box.id) {
+                case 'hackrf-one':
+                    box.style.top = '8px';
+                    box.style.left = '8px';
+                    box.style.width = `calc(4 * (100vw / 12) - 16px)`;
+                    box.style.height = `calc((100vh - 140px) / 2 - 12px)`;
+                    break;
+                case 'instructions':
+                    box.style.top = `calc((100vh - 140px) / 2 + 4px)`;
+                    box.style.left = '8px';
+                    box.style.width = `calc(4 * (100vw / 12) - 16px)`;
+                    box.style.height = `calc((100vh - 140px) / 2 - 4px)`;
+                    break;
+                case 'kismet-data-feed':
+                    box.style.top = '8px';
+                    box.style.left = `calc(4 * (100vw / 12) + 8px)`;
+                    box.style.width = `calc(4 * (100vw / 12) - 16px)`;
+                    box.style.height = `calc(100vh - 140px - 8px)`;
+                    break;
+                case 'start-menu':
+                    box.style.top = '8px';
+                    box.style.right = '8px';
+                    box.style.width = `calc(4 * (100vw / 12) - 16px)`;
+                    box.style.height = `calc((100vh - 140px) / 2 - 12px)`;
+                    break;
+                case 'system-status':
+                    box.style.top = `calc((100vh - 140px) / 2 + 4px)`;
+                    box.style.right = '8px';
+                    box.style.width = `calc(4 * (100vw / 12) - 16px)`;
+                    box.style.height = `calc((100vh - 140px) / 2 - 4px)`;
+                    break;
+            }
+        }
+
+        function restoreBox(boxId) {
+            const box = document.getElementById(boxId);
+            box.classList.remove('minimized');
+            
+            // Remove from minimized tabs
+            const tabs = document.querySelectorAll('.minimized-tab');
+            tabs.forEach(tab => {
+                if (tab.textContent.includes(box.querySelector('h2').textContent.replace('▼', '').replace('▲', ''))) {
+                    tab.remove();
+                }
+            });
+
+            // Disable resizing if no boxes are minimized
+            const minimizedBoxes = document.querySelectorAll('.grid-item.minimized');
+            if (minimizedBoxes.length === 0) {
+                const allBoxes = document.querySelectorAll('.grid-item');
+                allBoxes.forEach(box => {
+                    box.style.minWidth = '';
+                    box.style.minHeight = '';
+                    // Reset to original position and size
+                    resetBoxPosition(box);
+                });
+            }
+        }
+
+        // Initialize draggable functionality
+        function initializeGrid() {
+            const gridItems = document.querySelectorAll('.grid-item');
+            gridItems.forEach(item => {
+                const header = item.querySelector('.box-header');
+                if (header) {
+                    header.addEventListener('click', (e) => {
+                        if (e.target.classList.contains('control-button-small')) {
+                            e.stopPropagation();
+                        }
+                    });
+                }
+
+                // Make box draggable
+                header.addEventListener('mousedown', function(e) {
+                    if (e.target.classList.contains('control-button-small')) return;
+                    
+                    const box = this.closest('.grid-item');
+                    const startX = e.clientX;
+                    const startY = e.clientY;
+                    const startLeft = box.offsetLeft;
+                    const startTop = box.offsetTop;
+                    
+                    function onMouseMove(e) {
+                        const newLeft = startLeft + (e.clientX - startX);
+                        const newTop = startTop + (e.clientY - startY);
+                        
+                        box.style.left = `${newLeft}px`;
+                        box.style.top = `${newTop}px`;
+                    }
+                    
+                    function onMouseUp() {
+                        document.removeEventListener('mousemove', onMouseMove);
+                        document.removeEventListener('mouseup', onMouseUp);
+                    }
+                    
+                    document.addEventListener('mousemove', onMouseMove);
+                    document.addEventListener('mouseup', onMouseUp);
+                });
+            });
+        }
+
+        function createResizeHandles(box) {
+            const positions = ['top', 'bottom', 'left', 'right', 'top-left', 'top-right', 'bottom-left', 'bottom-right'];
+            positions.forEach(pos => {
+                const handle = document.createElement('div');
+                handle.className = `resize-handle ${pos}`;
+                handle.onmousedown = function(e) { 
+                    e.stopPropagation();
+                    initResize(e, this); 
+                };
+                box.appendChild(handle);
+            });
+        }
+
+        function initResize(e, handle) {
+            e.preventDefault();
+            const box = handle.closest('.grid-item');
+            const startX = e.clientX;
+            const startY = e.clientY;
+            const startWidth = box.offsetWidth;
+            const startHeight = box.offsetHeight;
+            const startLeft = box.offsetLeft;
+            const startTop = box.offsetTop;
+
+            function doResize(e) {
+                const pos = handle.className.split(' ')[1];
+                let newWidth = startWidth;
+                let newHeight = startHeight;
+                let newLeft = startLeft;
+                let newTop = startTop;
+
+                if (pos.includes('right')) {
+                    newWidth = startWidth + (e.clientX - startX);
+                }
+                if (pos.includes('left')) {
+                    newWidth = startWidth - (e.clientX - startX);
+                    newLeft = startLeft + (e.clientX - startX);
+                }
+                if (pos.includes('bottom')) {
+                    newHeight = startHeight + (e.clientY - startY);
+                }
+                if (pos.includes('top')) {
+                    newHeight = startHeight - (e.clientY - startY);
+                    newTop = startTop + (e.clientY - startY);
+                }
+
+                // Apply minimum size constraints
+                newWidth = Math.max(200, newWidth);
+                newHeight = Math.max(150, newHeight);
+
+                box.style.width = `${newWidth}px`;
+                box.style.height = `${newHeight}px`;
+                box.style.left = `${newLeft}px`;
+                box.style.top = `${newTop}px`;
+            }
+
+            function stopResize() {
+                document.removeEventListener('mousemove', doResize);
+                document.removeEventListener('mouseup', stopResize);
+            }
+
+            document.addEventListener('mousemove', doResize);
+            document.addEventListener('mouseup', stopResize);
+        }
+
+        // Add resize handles to all boxes when the page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            const boxes = document.querySelectorAll('.grid-item');
+            boxes.forEach(box => {
+                createResizeHandles(box);
+            });
+            initializeGrid();
+        });
+
+        // Start periodic updates
+        setInterval(updateKismetStatus, 5000);
+
+        // Initial status update
+        updateKismetStatus();
+
+        // Placeholder functions for HackRF controls
+        function addLoadProfile() {
+            showNotification('Add Load Profile functionality not yet implemented', 'info');
+        }
+
+        function hackRFSweep() {
+            showNotification('HackRF Sweep functionality not yet implemented', 'info');
+        }
+    </script>
+</body>
+</html>

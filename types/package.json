@@ -1,0 +1,33 @@
+{
+  "name": "@stinkster/types",
+  "version": "1.0.0",
+  "description": "TypeScript type definitions for the Stinkster project",
+  "main": "index.ts",
+  "types": "index.ts",
+  "scripts": {
+    "build": "tsc",
+    "check": "tsc --noEmit",
+    "lint": "eslint . --ext .ts"
+  },
+  "keywords": [
+    "stinkster",
+    "types",
+    "typescript",
+    "sdr",
+    "hackrf",
+    "wifi",
+    "kismet",
+    "gps",
+    "tak"
+  ],
+  "author": "Stinkster Project",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "typescript": "^5.0.0"
+  },
+  "files": [
+    "*.ts",
+    "README.md"
+  ]
+}

@@ -1,0 +1,13 @@
+[Unit]
+Description=Stinkster System - Complete SDR and WiFi Monitoring Suite
+Documentation=https://github.com/yourusername/stinkster
+After=network-online.target
+Wants=network-online.target
+
+[Install]
+WantedBy=multi-user.target
+
+# This target groups all Stinkster services together
+# Start with: sudo systemctl start stinkster.target
+# Stop with: sudo systemctl stop stinkster.target
+# Enable with: sudo systemctl enable stinkster.target

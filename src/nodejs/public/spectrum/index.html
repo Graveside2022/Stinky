@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stinkster Spectrum Analyzer - Node.js</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #1a1a1a;
+            color: #ffffff;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .status-panel {
+            background-color: #2a2a2a;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        .controls {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        button:disabled {
+            background-color: #666;
+            cursor: not-allowed;
+        }
+        select {
+            padding: 8px;
+            border: 1px solid #555;
+            border-radius: 4px;
+            background-color: #333;
+            color: white;
+        }
+        .status-indicator {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+        .status-connected { background-color: #4CAF50; }
+        .status-disconnected { background-color: #f44336; }
+        .status-demo { background-color: #ff9800; }
+        .results-panel {
+            background-color: #2a2a2a;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        .signal-list {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        .signal-item {
+            background-color: #333;
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 4px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .signal-freq {
+            font-weight: bold;
+            color: #4CAF50;
+        }
+        .signal-strength {
+            color: #ff9800;
+        }
+        .signal-details {
+            font-size: 12px;
+            color: #ccc;
+        }
+        .fft-display {
+            background-color: #000;
+            border: 1px solid #555;
+            height: 300px;
+            margin-top: 20px;
+            border-radius: 4px;
+            position: relative;
+        }
+        #fftCanvas {
+            width: 100%;
+            height: 100%;
+        }
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+        }
+        .error {
+            background-color: #f44336;
+            color: white;
+            padding: 10px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🛰️ Stinkster Spectrum Analyzer</h1>
+            <p>Node.js Version - Real-time SDR Signal Processing</p>
+        </div>
+
+        <div class="error" id="errorPanel"></div>
+
+        <div class="status-panel">
+            <h3>📡 System Status</h3>
+            <div id="statusDisplay">
+                <p><span class="status-indicator status-disconnected" id="openWebRXStatus"></span>OpenWebRX: <span id="openWebRXText">Connecting...</span></p>
+                <p><span class="status-indicator status-disconnected" id="dataStatus"></span>Data Mode: <span id="dataModeText">Initializing...</span></p>
+                <p><span class="status-indicator status-disconnected" id="serviceStatus"></span>Service: <span id="serviceText">Starting...</span></p>
+            </div>
+            <div id="systemInfo" style="margin-top: 15px; font-size: 12px; color: #ccc;"></div>
+        </div>
+
+        <div class="controls">
+            <div class="control-group">
+                <label for="profileSelect">Scan Profile:</label>
+                <select id="profileSelect">
+                    <option value="">Loading profiles...</option>
+                </select>
+            </div>
+            <div class="control-group">
+                <label>&nbsp;</label>
+                <button id="scanButton" onclick="performScan()">🔍 Scan for Signals</button>
+            </div>
+            <div class="control-group">
+                <label>&nbsp;</label>
+                <button id="refreshButton" onclick="refreshStatus()">🔄 Refresh Status</button>
+            </div>
+        </div>
+
+        <div class="results-panel">
+            <h3>📊 Scan Results</h3>
+            <div class="loading" id="loadingPanel">
+                <p>Scanning for signals...</p>
+            </div>
+            <div id="resultsDisplay">
+                <p>Select a profile and click "Scan for Signals" to begin.</p>
+            </div>
+        </div>
+
+        <div class="fft-display">
+            <h4 style="position: absolute; top: 5px; left: 10px; margin: 0; font-size: 14px;">Real-time FFT Data</h4>
+            <canvas id="fftCanvas"></canvas>
+        </div>
+    </div>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        let socket;
+        let profiles = {};
+        let fftCanvas;
+        let fftCtx;
+
+        // Initialize application
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeWebSocket();
+            loadProfiles();
+            refreshStatus();
+            initializeFFTDisplay();
+        });
+
+        function initializeWebSocket() {
+            socket = io();
+            
+            socket.on('connect', function() {
+                updateServiceStatus('connected');
+                console.log('Connected to spectrum analyzer service');
+            });
+
+            socket.on('disconnect', function() {
+                updateServiceStatus('disconnected');
+                console.log('Disconnected from spectrum analyzer service');
+            });
+
+            socket.on('status', function(data) {
+                updateSystemStatus(data);
+            });
+
+            socket.on('fft_data', function(data) {
+                updateFFTDisplay(data);
+            });
+
+            socket.on('error', function(error) {
+                showError('WebSocket error: ' + error);
+            });
+        }
+
+        function initializeFFTDisplay() {
+            fftCanvas = document.getElementById('fftCanvas');
+            fftCtx = fftCanvas.getContext('2d');
+            
+            // Set canvas size
+            const rect = fftCanvas.getBoundingClientRect();
+            fftCanvas.width = rect.width;
+            fftCanvas.height = rect.height;
+        }
+
+        function updateFFTDisplay(data) {
+            if (!fftCtx || !data.data) return;
+
+            const width = fftCanvas.width;
+            const height = fftCanvas.height;
+            
+            // Clear canvas
+            fftCtx.fillStyle = '#000000';
+            fftCtx.fillRect(0, 0, width, height);
+            
+            // Draw FFT data
+            fftCtx.strokeStyle = '#4CAF50';
+            fftCtx.lineWidth = 1;
+            fftCtx.beginPath();
+            
+            const dataPoints = Math.min(data.data.length, width);
+            for (let i = 0; i < dataPoints; i++) {
+                const x = (i / dataPoints) * width;
+                const y = height - ((data.data[i] + 120) / 120) * height; // Normalize -120 to 0 dB
+                
+                if (i === 0) {
+                    fftCtx.moveTo(x, y);
+                } else {
+                    fftCtx.lineTo(x, y);
+                }
+            }
+            
+            fftCtx.stroke();
+            
+            // Add frequency labels
+            fftCtx.fillStyle = '#ffffff';
+            fftCtx.font = '10px Arial';
+            fftCtx.fillText(`${(data.center_freq / 1e6).toFixed(1)} MHz`, 10, height - 10);
+            fftCtx.fillText(`Sample Rate: ${(data.samp_rate / 1e6).toFixed(1)} MHz`, 10, height - 25);
+        }
+
+        async function loadProfiles() {
+            try {
+                const response = await fetch('/api/profiles');
+                profiles = await response.json();
+                
+                const select = document.getElementById('profileSelect');
+                select.innerHTML = '';
+                
+                for (const [key, profile] of Object.entries(profiles)) {
+                    const option = document.createElement('option');
+                    option.value = key;
+                    option.textContent = profile.name;
+                    select.appendChild(option);
+                }
+            } catch (error) {
+                showError('Failed to load scan profiles: ' + error.message);
+            }
+        }
+
+        async function refreshStatus() {
+            try {
+                const response = await fetch('/api/status');
+                const status = await response.json();
+                updateSystemStatus(status);
+                updateSystemInfo(status);
+            } catch (error) {
+                showError('Failed to refresh status: ' + error.message);
+            }
+        }
+
+        function updateSystemStatus(status) {
+            // OpenWebRX status
+            const openWebRXStatus = document.getElementById('openWebRXStatus');
+            const openWebRXText = document.getElementById('openWebRXText');
+            
+            if (status.openwebrx_connected) {
+                openWebRXStatus.className = 'status-indicator status-connected';
+                openWebRXText.textContent = 'Connected';
+            } else {
+                openWebRXStatus.className = 'status-indicator status-disconnected';
+                openWebRXText.textContent = 'Disconnected';
+            }
+
+            // Data mode status
+            const dataStatus = document.getElementById('dataStatus');
+            const dataModeText = document.getElementById('dataModeText');
+            
+            if (status.real_data) {
+                dataStatus.className = 'status-indicator status-connected';
+                dataModeText.textContent = 'Real Data Mode';
+            } else {
+                dataStatus.className = 'status-indicator status-demo';
+                dataModeText.textContent = 'Demo Mode';
+            }
+        }
+
+        function updateServiceStatus(status) {
+            const serviceStatus = document.getElementById('serviceStatus');
+            const serviceText = document.getElementById('serviceText');
+            
+            if (status === 'connected') {
+                serviceStatus.className = 'status-indicator status-connected';
+                serviceText.textContent = 'Connected';
+            } else {
+                serviceStatus.className = 'status-indicator status-disconnected';
+                serviceText.textContent = 'Disconnected';
+            }
+        }
+
+        function updateSystemInfo(status) {
+            const systemInfo = document.getElementById('systemInfo');
+            systemInfo.innerHTML = `
+                FFT Buffer: ${status.fft_buffer_size} samples | 
+                Mode: ${status.mode} | 
+                Last Update: ${status.last_fft_time ? new Date(status.last_fft_time).toLocaleTimeString() : 'Never'}
+            `;
+        }
+
+        async function performScan() {
+            const profileSelect = document.getElementById('profileSelect');
+            const profileId = profileSelect.value;
+            
+            if (!profileId) {
+                showError('Please select a scan profile');
+                return;
+            }
+
+            const loadingPanel = document.getElementById('loadingPanel');
+            const resultsDisplay = document.getElementById('resultsDisplay');
+            const scanButton = document.getElementById('scanButton');
+            
+            loadingPanel.style.display = 'block';
+            resultsDisplay.innerHTML = '';
+            scanButton.disabled = true;
+
+            try {
+                const response = await fetch(`/api/scan/${profileId}`);
+                const result = await response.json();
+                
+                displayScanResults(result);
+            } catch (error) {
+                showError('Scan failed: ' + error.message);
+            } finally {
+                loadingPanel.style.display = 'none';
+                scanButton.disabled = false;
+            }
+        }
+
+        function displayScanResults(result) {
+            const resultsDisplay = document.getElementById('resultsDisplay');
+            
+            if (result.signals.length === 0) {
+                resultsDisplay.innerHTML = '<p>No signals detected in this frequency range.</p>';
+                return;
+            }
+
+            let html = `
+                <h4>${result.profile.name}</h4>
+                <p>${result.profile.description}</p>
+                <p>Found ${result.signals.length} signals (${result.real_data ? 'Real Data' : 'Demo Mode'})</p>
+                <div class="signal-list">
+            `;
+
+            result.signals.forEach(signal => {
+                html += `
+                    <div class="signal-item">
+                        <div>
+                            <div class="signal-freq">${signal.frequency} MHz</div>
+                            <div class="signal-details">
+                                BW: ${signal.bandwidth} kHz | 
+                                Confidence: ${(signal.confidence * 100).toFixed(1)}% |
+                                Type: ${signal.type}
+                            </div>
+                        </div>
+                        <div class="signal-strength">${signal.strength} dBm</div>
+                    </div>
+                `;
+            });
+
+            html += '</div>';
+            resultsDisplay.innerHTML = html;
+        }
+
+        function showError(message) {
+            const errorPanel = document.getElementById('errorPanel');
+            errorPanel.textContent = message;
+            errorPanel.style.display = 'block';
+            
+            setTimeout(() => {
+                errorPanel.style.display = 'none';
+            }, 5000);
+        }
+
+        // Auto-refresh status every 30 seconds
+        setInterval(refreshStatus, 30000);
+    </script>
+</body>
+</html>

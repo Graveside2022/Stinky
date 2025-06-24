@@ -1,0 +1,601 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HackRF Spectrum Analyzer - Plotly.js Demo</title>
+    
+    <!-- Plotly.js -->
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    
+    <!-- Socket.IO -->
+    <script src="/socket.io/socket.io.js"></script>
+    
+    <!-- Spectrum Plotly Component -->
+    <script src="/js/spectrum-plotly.js"></script>
+    
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: #0a0a0a;
+            color: #fff;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding: 15px;
+            background: #1a1a1a;
+            border-radius: 8px;
+        }
+        
+        .header h1 {
+            margin: 0;
+            font-size: 24px;
+            color: #00ff00;
+        }
+        
+        .controls {
+            display: flex;
+            gap: 20px;
+            padding: 15px;
+            background: #1a1a1a;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+        
+        .control-group label {
+            font-size: 12px;
+            color: #888;
+            text-transform: uppercase;
+        }
+        
+        .button-group {
+            display: flex;
+            gap: 5px;
+        }
+        
+        button {
+            padding: 8px 16px;
+            background: #333;
+            color: #fff;
+            border: 1px solid #555;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+        
+        button:hover {
+            background: #444;
+            border-color: #00ff00;
+        }
+        
+        button.active {
+            background: #00ff00;
+            color: #000;
+            border-color: #00ff00;
+        }
+        
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        .status-bar {
+            display: flex;
+            gap: 20px;
+            padding: 10px 15px;
+            background: #1a1a1a;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+        
+        .status-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .status-indicator {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #ff0000;
+        }
+        
+        .status-indicator.connected {
+            background: #00ff00;
+        }
+        
+        .spectrum-container {
+            background: #1a1a1a;
+            border-radius: 8px;
+            padding: 20px;
+            min-height: 600px;
+        }
+        
+        .spectrum-stats {
+            display: flex;
+            gap: 20px;
+            padding: 10px;
+            background: rgba(0, 0, 0, 0.5);
+            border-radius: 4px;
+            margin-top: 10px;
+            font-size: 12px;
+        }
+        
+        .stat-item {
+            display: flex;
+            gap: 5px;
+        }
+        
+        .stat-label {
+            color: #888;
+        }
+        
+        .stat-value {
+            color: #00ff00;
+            font-weight: bold;
+        }
+        
+        .info-panel {
+            margin-top: 20px;
+            padding: 15px;
+            background: #1a1a1a;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+        
+        .info-panel h3 {
+            margin-top: 0;
+            color: #00ff00;
+        }
+        
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 10px;
+        }
+        
+        .info-item {
+            padding: 10px;
+            background: rgba(0, 0, 0, 0.5);
+            border-radius: 4px;
+        }
+        
+        .log-panel {
+            margin-top: 20px;
+            padding: 15px;
+            background: #1a1a1a;
+            border-radius: 8px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        
+        .log-entry {
+            font-family: monospace;
+            font-size: 12px;
+            margin: 2px 0;
+            color: #888;
+        }
+        
+        .log-entry.error {
+            color: #ff4444;
+        }
+        
+        .log-entry.success {
+            color: #00ff00;
+        }
+        
+        @media (max-width: 768px) {
+            .controls {
+                flex-direction: column;
+            }
+            
+            .button-group {
+                flex-wrap: wrap;
+            }
+            
+            .status-bar {
+                flex-wrap: wrap;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>HackRF Spectrum Analyzer - Real-time FFT Streaming</h1>
+            <div class="status-item">
+                <div class="status-indicator" id="connection-indicator"></div>
+                <span id="connection-status">Disconnected</span>
+            </div>
+        </div>
+        
+        <div class="status-bar">
+            <div class="status-item">
+                <span class="stat-label">Mode:</span>
+                <span class="stat-value" id="mode-status">--</span>
+            </div>
+            <div class="status-item">
+                <span class="stat-label">Streaming Rate:</span>
+                <span class="stat-value" id="rate-status">--</span>
+            </div>
+            <div class="status-item">
+                <span class="stat-label">Performance:</span>
+                <span class="stat-value" id="perf-status">--</span>
+            </div>
+            <div class="status-item">
+                <span class="stat-label">Clients:</span>
+                <span class="stat-value" id="clients-status">--</span>
+            </div>
+        </div>
+        
+        <div class="controls">
+            <div class="control-group">
+                <label>Connection</label>
+                <div class="button-group">
+                    <button id="connect-btn" onclick="toggleConnection()">Connect</button>
+                    <button id="clear-btn" onclick="clearDisplay()">Clear</button>
+                </div>
+            </div>
+            
+            <div class="control-group">
+                <label>Performance Mode</label>
+                <div class="button-group">
+                    <button class="perf-btn" data-mode="performance" onclick="setPerformanceMode('performance')">Fast</button>
+                    <button class="perf-btn active" data-mode="balanced" onclick="setPerformanceMode('balanced')">Balanced</button>
+                    <button class="perf-btn" data-mode="quality" onclick="setPerformanceMode('quality')">Quality</button>
+                </div>
+            </div>
+            
+            <div class="control-group">
+                <label>Display Options</label>
+                <div class="button-group">
+                    <button id="waterfall-toggle" class="active" onclick="toggleWaterfall()">Waterfall</button>
+                    <button id="peaks-toggle" class="active" onclick="togglePeaks()">Peak Hold</button>
+                    <button id="grid-toggle" onclick="toggleGrid()">Grid</button>
+                </div>
+            </div>
+            
+            <div class="control-group">
+                <label>Data Mode</label>
+                <div class="button-group">
+                    <button id="demo-btn" onclick="toggleDemoMode()">Demo Mode</button>
+                    <button id="export-btn" onclick="exportImage()">Export PNG</button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="spectrum-container" id="spectrum-container">
+            <!-- Spectrum visualization will be rendered here -->
+        </div>
+        
+        <div class="info-panel">
+            <h3>Performance Metrics</h3>
+            <div class="info-grid">
+                <div class="info-item">
+                    <div class="stat-label">Frames Received</div>
+                    <div class="stat-value" id="frames-received">0</div>
+                </div>
+                <div class="info-item">
+                    <div class="stat-label">Frames Dropped</div>
+                    <div class="stat-value" id="frames-dropped">0</div>
+                </div>
+                <div class="info-item">
+                    <div class="stat-label">Average Latency</div>
+                    <div class="stat-value" id="avg-latency">0 ms</div>
+                </div>
+                <div class="info-item">
+                    <div class="stat-label">Data Rate</div>
+                    <div class="stat-value" id="data-rate">0 KB/s</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="log-panel" id="log-panel">
+            <div class="log-entry">System ready. Click 'Connect' to start.</div>
+        </div>
+    </div>
+    
+    <script>
+        // Global variables
+        let spectrum = null;
+        let isConnected = false;
+        let socket = null;
+        let showWaterfall = true;
+        let showPeaks = true;
+        let statsInterval = null;
+        
+        // Initialize spectrum analyzer
+        function initializeSpectrum() {
+            spectrum = new SpectrumPlotly('spectrum-container', {
+                height: 400,
+                updateRate: 30,
+                showWaterfall: showWaterfall,
+                showPeaks: showPeaks,
+                waterfallHeight: 150,
+                colorScale: 'Viridis',
+                lineColor: '#00ff00',
+                peakColor: '#ff0000',
+                backgroundColor: '#0a0a0a'
+            });
+            
+            addLog('Spectrum analyzer initialized', 'success');
+        }
+        
+        // Toggle connection
+        function toggleConnection() {
+            if (isConnected) {
+                disconnect();
+            } else {
+                connect();
+            }
+        }
+        
+        // Connect to server
+        function connect() {
+            if (!spectrum) {
+                initializeSpectrum();
+            }
+            
+            // Connect to HackRF namespace
+            socket = io('/hackrf');
+            
+            socket.on('connect', () => {
+                isConnected = true;
+                updateConnectionStatus(true);
+                spectrum.connect('/hackrf');
+                addLog('Connected to HackRF server', 'success');
+                
+                // Request initial status
+                socket.emit('requestStatus');
+                
+                // Start stats update
+                startStatsUpdate();
+            });
+            
+            socket.on('disconnect', () => {
+                isConnected = false;
+                updateConnectionStatus(false);
+                addLog('Disconnected from server', 'error');
+                stopStatsUpdate();
+            });
+            
+            socket.on('welcome', (data) => {
+                updateStatus(data);
+                addLog(`Welcome! Mode: ${data.config.demoMode ? 'Demo' : 'Real'}`, 'success');
+            });
+            
+            socket.on('status', (data) => {
+                updateStatus(data);
+            });
+            
+            socket.on('error', (error) => {
+                addLog(`Error: ${error.message}`, 'error');
+            });
+            
+            socket.on('modeChange', (data) => {
+                addLog(`Mode changed to: ${data.mode}`, 'success');
+                document.getElementById('mode-status').textContent = data.mode.toUpperCase();
+            });
+        }
+        
+        // Disconnect from server
+        function disconnect() {
+            if (socket) {
+                socket.disconnect();
+                socket = null;
+            }
+            if (spectrum) {
+                spectrum.destroy();
+                spectrum = null;
+            }
+            isConnected = false;
+            updateConnectionStatus(false);
+            stopStatsUpdate();
+        }
+        
+        // Update connection status
+        function updateConnectionStatus(connected) {
+            const indicator = document.getElementById('connection-indicator');
+            const status = document.getElementById('connection-status');
+            const connectBtn = document.getElementById('connect-btn');
+            
+            if (connected) {
+                indicator.classList.add('connected');
+                status.textContent = 'Connected';
+                connectBtn.textContent = 'Disconnect';
+            } else {
+                indicator.classList.remove('connected');
+                status.textContent = 'Disconnected';
+                connectBtn.textContent = 'Connect';
+            }
+        }
+        
+        // Update status display
+        function updateStatus(data) {
+            if (data.config) {
+                document.getElementById('mode-status').textContent = 
+                    data.config.demoMode ? 'DEMO' : 'REAL';
+                document.getElementById('rate-status').textContent = 
+                    `${data.config.streamingRate} Hz`;
+                document.getElementById('perf-status').textContent = 
+                    data.config.performanceMode.toUpperCase();
+            }
+            
+            if (data.totalClients !== undefined) {
+                document.getElementById('clients-status').textContent = data.totalClients;
+            }
+            
+            if (data.streamerStats) {
+                updatePerformanceMetrics(data.streamerStats);
+            }
+        }
+        
+        // Update performance metrics
+        function updatePerformanceMetrics(stats) {
+            document.getElementById('frames-received').textContent = 
+                stats.framesStreamed || 0;
+            document.getElementById('frames-dropped').textContent = 
+                stats.messagesDropped || 0;
+            document.getElementById('avg-latency').textContent = 
+                `${Math.round(stats.averageLatency || 0)} ms`;
+            
+            // Calculate data rate
+            const dataRate = ((stats.bytesTransmitted || 0) / 1024).toFixed(2);
+            document.getElementById('data-rate').textContent = `${dataRate} KB/s`;
+        }
+        
+        // Set performance mode
+        function setPerformanceMode(mode) {
+            if (!spectrum || !isConnected) return;
+            
+            spectrum.setPerformanceMode(mode);
+            
+            // Update button states
+            document.querySelectorAll('.perf-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.mode === mode);
+            });
+            
+            addLog(`Performance mode set to: ${mode}`, 'success');
+        }
+        
+        // Toggle waterfall display
+        function toggleWaterfall() {
+            showWaterfall = !showWaterfall;
+            document.getElementById('waterfall-toggle').classList.toggle('active', showWaterfall);
+            
+            // Recreate spectrum with new settings
+            if (spectrum) {
+                const wasConnected = isConnected;
+                disconnect();
+                initializeSpectrum();
+                if (wasConnected) {
+                    connect();
+                }
+            }
+        }
+        
+        // Toggle peak hold
+        function togglePeaks() {
+            showPeaks = !showPeaks;
+            document.getElementById('peaks-toggle').classList.toggle('active', showPeaks);
+            
+            // Update spectrum config
+            if (spectrum) {
+                spectrum.config.showPeaks = showPeaks;
+            }
+        }
+        
+        // Toggle grid (placeholder)
+        function toggleGrid() {
+            addLog('Grid toggle not implemented yet', 'error');
+        }
+        
+        // Toggle demo mode
+        function toggleDemoMode() {
+            if (!spectrum || !isConnected) return;
+            
+            spectrum.toggleDemoMode(true);
+            addLog('Demo mode toggled', 'success');
+        }
+        
+        // Clear display
+        function clearDisplay() {
+            if (spectrum) {
+                spectrum.clear();
+                addLog('Display cleared', 'success');
+            }
+        }
+        
+        // Export image
+        async function exportImage() {
+            if (!spectrum) return;
+            
+            try {
+                const imageData = await spectrum.exportImage('png');
+                const link = document.createElement('a');
+                link.download = `spectrum_${Date.now()}.png`;
+                link.href = imageData;
+                link.click();
+                addLog('Image exported successfully', 'success');
+            } catch (error) {
+                addLog(`Export failed: ${error.message}`, 'error');
+            }
+        }
+        
+        // Add log entry
+        function addLog(message, type = '') {
+            const logPanel = document.getElementById('log-panel');
+            const entry = document.createElement('div');
+            entry.className = `log-entry ${type}`;
+            entry.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+            logPanel.appendChild(entry);
+            
+            // Auto-scroll to bottom
+            logPanel.scrollTop = logPanel.scrollHeight;
+            
+            // Limit log entries
+            while (logPanel.children.length > 100) {
+                logPanel.removeChild(logPanel.firstChild);
+            }
+        }
+        
+        // Start periodic stats update
+        function startStatsUpdate() {
+            if (statsInterval) return;
+            
+            statsInterval = setInterval(() => {
+                if (socket && socket.connected) {
+                    socket.emit('requestStatus');
+                }
+            }, 2000);
+        }
+        
+        // Stop stats update
+        function stopStatsUpdate() {
+            if (statsInterval) {
+                clearInterval(statsInterval);
+                statsInterval = null;
+            }
+        }
+        
+        // Initialize on load
+        window.addEventListener('load', () => {
+            addLog('HackRF Spectrum Analyzer ready', 'success');
+            
+            // Auto-connect if specified in URL
+            const params = new URLSearchParams(window.location.search);
+            if (params.get('autoconnect') === 'true') {
+                setTimeout(connect, 500);
+            }
+        });
+        
+        // Cleanup on unload
+        window.addEventListener('beforeunload', () => {
+            disconnect();
+        });
+    </script>
+</body>
+</html>

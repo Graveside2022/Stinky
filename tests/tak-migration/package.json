@@ -1,0 +1,22 @@
+{
+  "name": "tak-migration-tests",
+  "version": "1.0.0",
+  "description": "Test suite for WigleToTAK API migration",
+  "main": "test-api-compatibility.js",
+  "scripts": {
+    "test": "node test-api-compatibility.js",
+    "test:watch": "nodemon test-api-compatibility.js",
+    "monitor": "node ../../scripts/tak-migration/monitor-migration.js"
+  },
+  "dependencies": {
+    "axios": "^1.6.0",
+    "fs-extra": "^11.1.1",
+    "cli-table3": "^0.6.3",
+    "chalk": "^4.1.2",
+    "blessed": "^0.1.81",
+    "blessed-contrib": "^4.11.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.0"
+  }
+}

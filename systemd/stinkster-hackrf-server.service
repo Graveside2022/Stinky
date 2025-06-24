@@ -1,0 +1,48 @@
+[Unit]
+Description=Stinkster HackRF Server - SDR TypeScript Service
+Documentation=https://github.com/yourusername/stinkster
+After=network.target
+PartOf=stinkster.target
+
+[Service]
+Type=simple
+User=pi
+Group=pi
+WorkingDirectory=/home/pi/projects/stinkster_christian/stinkster/src/nodejs/hackrf
+Environment="NODE_ENV=production"
+Environment="PATH=/usr/bin:/usr/local/bin:/home/pi/.nvm/versions/node/v18.17.0/bin"
+Environment="PORT=8092"
+
+# Compile TypeScript if needed and run
+ExecStartPre=/bin/bash -c 'npm install --production && npx tsc'
+ExecStart=/usr/bin/node dist/server.js
+
+Restart=always
+RestartSec=10
+StartLimitBurst=5
+StartLimitIntervalSec=60
+
+# Logging
+StandardOutput=append:/var/log/stinkster-hackrf-server.log
+StandardError=append:/var/log/stinkster-hackrf-server.log
+
+# Process management
+KillMode=mixed
+KillSignal=SIGTERM
+TimeoutStopSec=10
+
+# Security
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=read-only
+ReadWritePaths=/home/pi/projects/stinkster_christian/stinkster/src/nodejs/hackrf
+ReadWritePaths=/var/log
+ReadWritePaths=/home/pi/tmp
+
+# Device access for HackRF
+DeviceAllow=/dev/bus/usb rw
+SupplementaryGroups=plugdev
+
+[Install]
+WantedBy=stinkster.target

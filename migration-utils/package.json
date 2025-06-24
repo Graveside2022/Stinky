@@ -1,0 +1,30 @@
+{
+  "name": "typescript-migration-utils",
+  "version": "1.0.0",
+  "description": "Utilities for migrating JavaScript projects to TypeScript",
+  "main": "index.js",
+  "scripts": {
+    "convert": "node 1-js-to-ts-converter.js",
+    "lint": "node 2-lint-and-format.js",
+    "verify": "node 3-verify-functionality.js",
+    "rollback": "node 4-rollback.js",
+    "progress": "node 5-progress-tracker.js"
+  },
+  "keywords": [
+    "typescript",
+    "migration",
+    "javascript",
+    "converter",
+    "tools"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {},
+  "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^6.0.0",
+    "@typescript-eslint/parser": "^6.0.0",
+    "eslint": "^8.0.0",
+    "prettier": "^3.0.0",
+    "typescript": "^5.0.0"
+  }
+}

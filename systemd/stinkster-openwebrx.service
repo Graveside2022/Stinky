@@ -1,0 +1,42 @@
+[Unit]
+Description=Stinkster OpenWebRX - Docker SDR Receiver
+Documentation=https://github.com/yourusername/stinkster
+After=network.target docker.service
+Requires=docker.service
+PartOf=stinkster.target
+
+[Service]
+Type=simple
+User=root
+Group=root
+WorkingDirectory=/home/pi/projects/stinkster_christian/stinkster
+Environment="DOCKER_HOST=unix:///var/run/docker.sock"
+
+# Start Docker container
+ExecStartPre=/usr/bin/docker pull jketterl/openwebrx:latest
+ExecStart=/usr/bin/docker run --rm \
+    --name openwebrx \
+    --device /dev/bus/usb \
+    --publish 8073:8073 \
+    --volume /home/pi/projects/stinkster_christian/stinkster/docker/config:/var/lib/openwebrx \
+    jketterl/openwebrx:latest
+
+# Stop Docker container
+ExecStop=/usr/bin/docker stop openwebrx
+
+Restart=always
+RestartSec=30
+StartLimitBurst=3
+StartLimitIntervalSec=300
+
+# Logging handled by Docker
+StandardOutput=journal
+StandardError=journal
+
+# Process management
+KillMode=mixed
+KillSignal=SIGTERM
+TimeoutStopSec=30
+
+[Install]
+WantedBy=stinkster.target

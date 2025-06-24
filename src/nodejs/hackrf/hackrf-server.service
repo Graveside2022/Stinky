@@ -1,0 +1,24 @@
+[Unit]
+Description=HackRF Node.js Spectrum Analyzer Server
+After=network.target openwebrx.service
+
+[Service]
+Type=simple
+User=pi
+WorkingDirectory=/home/pi/projects/stinkster_christian/stinkster/src/nodejs/hackrf
+Environment="NODE_ENV=production"
+Environment="PORT=8092"
+Environment="OPENWEBRX_URL=ws://localhost:8073/ws/"
+ExecStart=/usr/bin/node dist/server.js
+Restart=always
+RestartSec=10
+StandardOutput=append:/var/log/hackrf-server.log
+StandardError=append:/var/log/hackrf-server.log
+
+# Performance settings
+LimitNOFILE=65536
+LimitNPROC=4096
+Nice=-5
+
+[Install]
+WantedBy=multi-user.target

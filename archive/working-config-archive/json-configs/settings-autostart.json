@@ -1,0 +1,38 @@
+{
+    "version": 3,
+    "waterfall_scheme": "GoogleTurboWaterfall",
+    "fft_fps": 9,
+    "fft_size": 4096,
+    "fft_compression": "adpcm",
+    "fft_voverlap_factor": 0.3,
+    "audio_compression": "adpcm",
+    "digimodes_fft_size": 2048,
+    "digimodes_enable": true,
+    "max_clients": 20,
+    "receiver_name": "Stinkster HackRF",
+    "receiver_location": "Raspberry Pi",
+    "receiver_asl": 200,
+    "receiver_admin": "admin",
+    "receiver_gps": {
+        "lat": 0.0,
+        "lon": 0.0
+    },
+    "photo_title": "Stinkster HackRF SDR",
+    "photo_desc": "HackRF One with OpenWebRX",
+    "map_position_retention_time": 1800,
+    "google_maps_api_key": "",
+    "map_type": "leaflet",
+    "stats_enabled": false,
+    "auto_start": {
+        "enabled": true,
+        "sdr": "hackrf",
+        "profile": "2m"
+    },
+    "default_sdr": "hackrf",
+    "auto_connect": true,
+    "start_on_load": true,
+    "waterfall_levels": {
+        "min": -90,
+        "max": -50
+    }
+}

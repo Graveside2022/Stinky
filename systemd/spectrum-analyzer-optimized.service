@@ -1,0 +1,43 @@
+[Unit]
+Description=spectrum-analyzer - Memory Optimized
+After=network.target
+Wants=network.target
+
+[Service]
+Type=simple
+User=pi
+Group=pi
+WorkingDirectory=/home/pi/projects/stinkster_malone/stinkster/src/nodejs/spectrum-analyzer
+ExecStart=/bin/bash start-optimized.sh
+
+# Memory optimization environment
+Environment=NODE_ENV=production
+Environment=NODE_OPTIONS="--max-old-space-size=1024 --optimize-for-size --gc-interval=100 --max-semi-space-size=64 --initial-old-space-size=256 --v8-pool-size=2 --expose-gc --incremental-marking --concurrent-sweeping --no-warnings --no-deprecation"
+Environment=UV_THREADPOOL_SIZE=2
+Environment=V8_MAX_OLD_SPACE_SIZE=1024
+Environment=MALLOC_ARENA_MAX=2
+
+# Resource limits (Pi-appropriate)
+LimitNOFILE=4096
+LimitNPROC=512
+MemoryHigh=85M
+MemoryMax=102M
+
+# Restart policy
+Restart=always
+RestartSec=10
+TimeoutStartSec=30
+TimeoutStopSec=15
+
+# Logging
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=spectrum-analyzer-optimized
+
+# Security (optional)
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+
+[Install]
+WantedBy=multi-user.target

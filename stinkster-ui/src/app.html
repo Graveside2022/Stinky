@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="en" class="dark">
+<head>
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+	<meta name="description" content="Stinkster - Advanced SDR, WiFi Scanning, and GPS Tracking System with TAK Integration" />
+	<meta name="keywords" content="SDR, Software Defined Radio, WiFi Scanner, GPS Tracking, TAK, HackRF, Kismet" />
+	<meta name="author" content="Stinkster Team" />
+	
+	<!-- Theme Color -->
+	<meta name="theme-color" content="#0a0a0a" media="(prefers-color-scheme: dark)" />
+	<meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)" />
+	<meta name="color-scheme" content="dark light" />
+	
+	<!-- Open Graph / Social Media -->
+	<meta property="og:title" content="Stinkster - Advanced Radio & Network Analysis" />
+	<meta property="og:description" content="Professional SDR, WiFi scanning, and GPS tracking system with TAK integration" />
+	<meta property="og:type" content="website" />
+	<meta property="og:image" content="%sveltekit.assets%/og-image.png" />
+	
+	<!-- Performance -->
+	<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+	<link rel="dns-prefetch" href="https://fonts.googleapis.com" />
+	<link rel="dns-prefetch" href="https://fonts.gstatic.com" />
+	
+	<!-- Fonts Preloading -->
+	<link rel="preconnect" href="https://fonts.googleapis.com" />
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+	<link rel="preload" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" as="style" />
+	<link rel="preload" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap" as="style" />
+	
+	<!-- Critical CSS -->
+	<style>
+		/* Inline critical CSS for fastest initial render */
+		*,*::before,*::after{box-sizing:border-box}html{-webkit-text-size-adjust:100%;text-size-adjust:100%;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;line-height:1.5}body{margin:0;padding:0;background-color:#0a0a0a;color:#fff;font-size:1rem;min-height:100vh;overflow-x:hidden}#app{min-height:100vh;display:flex;flex-direction:column}.loading{display:inline-block;width:20px;height:20px;border:2px solid rgba(255,255,255,.1);border-radius:50%;border-top-color:#00d4ff;animation:spin 1s linear infinite}@keyframes spin{to{transform:rotate(360deg)}}
+	</style>
+	
+	<!-- Font Loading -->
+	<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" media="print" onload="this.media='all'" />
+	<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap" media="print" onload="this.media='all'" />
+	<noscript>
+		<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" />
+		<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap" />
+	</noscript>
+	
+	<!-- Icons -->
+	<link rel="icon" type="image/png" sizes="32x32" href="%sveltekit.assets%/favicon-32x32.png" />
+	<link rel="icon" type="image/png" sizes="16x16" href="%sveltekit.assets%/favicon-16x16.png" />
+	<link rel="apple-touch-icon" sizes="180x180" href="%sveltekit.assets%/apple-touch-icon.png" />
+	<link rel="manifest" href="%sveltekit.assets%/manifest.json" />
+	
+	<title>%sveltekit.title%</title>
+	%sveltekit.head%
+	
+	<!-- Loading indicator script -->
+	<script>
+		// Show loading indicator until app is ready
+		(function() {
+			const style = document.createElement('style');
+			style.textContent = '.app-loading{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);z-index:9999}.app-loading::after{content:"";display:block;width:40px;height:40px;border:3px solid rgba(0,212,255,0.2);border-radius:50%;border-top-color:#00d4ff;animation:spin 1s linear infinite}';
+			document.head.appendChild(style);
+			const loader = document.createElement('div');
+			loader.className = 'app-loading';
+			loader.id = 'app-loader';
+			document.body.appendChild(loader);
+			// Remove loader when app is ready
+			window.addEventListener('DOMContentLoaded', function() {
+				setTimeout(function() {
+					const loader = document.getElementById('app-loader');
+					if (loader) {
+						loader.style.opacity = '0';
+						loader.style.transition = 'opacity 0.3s ease';
+						setTimeout(function() { loader.remove(); }, 300);
+					}
+				}, 100);
+			});
+		})();
+	</script>
+</head>
+<body data-sveltekit-preload-data="hover" data-sveltekit-preload-code="eager">
+	<div style="display: contents">%sveltekit.body%</div>
+	
+	<!-- Performance monitoring -->
+	<script>
+		// Basic performance metrics
+		if ('performance' in window && 'PerformanceObserver' in window) {
+			// Log Core Web Vitals
+			try {
+				const observer = new PerformanceObserver((list) => {
+					for (const entry of list.getEntries()) {
+						if (entry.entryType === 'largest-contentful-paint') {
+							console.log('LCP:', entry.startTime);
+						}
+					}
+				});
+				observer.observe({ entryTypes: ['largest-contentful-paint'] });
+			} catch (e) {
+				// Silently fail if not supported
+			}
+		}
+	</script>
+</body>
+</html>

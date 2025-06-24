@@ -1,0 +1,40 @@
+[Unit]
+Description=Stinkster Service Control API
+Documentation=file:///home/pi/projects/stinkster_christian/stinkster/src/nodejs/API_DOCUMENTATION.md
+After=network.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=pi
+Group=pi
+WorkingDirectory=/home/pi/projects/stinkster_christian/stinkster/src/nodejs
+ExecStart=/usr/bin/node service-control-api.js --port=8080
+ExecReload=/bin/kill -HUP $MAINPID
+Restart=always
+RestartSec=10
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=stinkster-service-control-api
+
+# Environment variables
+Environment=NODE_ENV=production
+Environment=API_PORT=8080
+Environment=LOG_DIR=/home/pi/tmp
+
+# Resource limits
+LimitNOFILE=65536
+MemoryLimit=512M
+
+# Security settings
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=read-only
+ReadWritePaths=/home/pi/tmp /home/pi/projects
+
+# Capabilities (if needed for system operations)
+CapabilityBoundingSet=CAP_NET_BIND_SERVICE
+
+[Install]
+WantedBy=multi-user.target

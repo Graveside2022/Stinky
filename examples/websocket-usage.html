@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WebSocket Abstraction Layer Example</title>
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="/src/lib/websocket-client.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #1a1a1a;
+            color: #e0e0e0;
+        }
+        .section {
+            background: #2a2a2a;
+            padding: 20px;
+            margin: 10px 0;
+            border-radius: 8px;
+            border: 1px solid #3a3a3a;
+        }
+        .controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        button {
+            padding: 10px 20px;
+            background: #4a4a4a;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background: #5a5a5a;
+        }
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        .status {
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+        .status.connected {
+            background: #2d5a2d;
+            color: #90ee90;
+        }
+        .status.disconnected {
+            background: #5a2d2d;
+            color: #ff6b6b;
+        }
+        .status.connecting {
+            background: #5a5a2d;
+            color: #ffeb3b;
+        }
+        .log {
+            background: #1a1a1a;
+            padding: 10px;
+            border-radius: 4px;
+            height: 200px;
+            overflow-y: auto;
+            font-family: monospace;
+            font-size: 12px;
+        }
+        .log-entry {
+            margin: 2px 0;
+            padding: 2px;
+        }
+        .log-entry.error {
+            color: #ff6b6b;
+        }
+        .log-entry.info {
+            color: #90ee90;
+        }
+        .log-entry.data {
+            color: #64b5f6;
+        }
+        .metrics {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 10px;
+        }
+        .metric {
+            background: #1a1a1a;
+            padding: 10px;
+            border-radius: 4px;
+        }
+        .metric-label {
+            font-size: 12px;
+            color: #888;
+        }
+        .metric-value {
+            font-size: 20px;
+            font-weight: bold;
+            color: #90ee90;
+        }
+        pre {
+            background: #1a1a1a;
+            padding: 10px;
+            border-radius: 4px;
+            overflow-x: auto;
+        }
+    </style>
+</head>
+<body>
+    <h1>WebSocket Abstraction Layer Example</h1>
+
+    <div class="section">
+        <h2>Connection Control</h2>
+        <div class="controls">
+            <button id="connectSocketIO">Connect Socket.IO</button>
+            <button id="connectWebSocket">Connect WebSocket</button>
+            <button id="disconnect">Disconnect</button>
+            <button id="clearLogs">Clear Logs</button>
+        </div>
+        <div>
+            Status: <span id="status" class="status disconnected">Disconnected</span>
+            Type: <span id="connectionType">None</span>
+        </div>
+    </div>
+
+    <div class="section">
+        <h2>Test Actions</h2>
+        <div class="controls">
+            <button id="requestStatus" disabled>Request Status</button>
+            <button id="requestKismet" disabled>Request Kismet Data</button>
+            <button id="subscribe" disabled>Subscribe to Signals</button>
+            <button id="testReconnect" disabled>Test Reconnection</button>
+        </div>
+    </div>
+
+    <div class="section">
+        <h2>Connection Metrics</h2>
+        <div class="metrics">
+            <div class="metric">
+                <div class="metric-label">Messages Received</div>
+                <div class="metric-value" id="messagesReceived">0</div>
+            </div>
+            <div class="metric">
+                <div class="metric-label">Messages Sent</div>
+                <div class="metric-value" id="messagesSent">0</div>
+            </div>
+            <div class="metric">
+                <div class="metric-label">Bytes Received</div>
+                <div class="metric-value" id="bytesReceived">0</div>
+            </div>
+            <div class="metric">
+                <div class="metric-label">Bytes Sent</div>
+                <div class="metric-value" id="bytesSent">0</div>
+            </div>
+            <div class="metric">
+                <div class="metric-label">Reconnect Count</div>
+                <div class="metric-value" id="reconnectCount">0</div>
+            </div>
+            <div class="metric">
+                <div class="metric-label">Connection Time</div>
+                <div class="metric-value" id="connectionTime">0s</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="section">
+        <h2>Event Log</h2>
+        <div id="log" class="log"></div>
+    </div>
+
+    <div class="section">
+        <h2>Last Message Data</h2>
+        <pre id="lastMessage">No messages received yet</pre>
+    </div>
+
+    <script>
+        // Initialize WebSocket client
+        let wsClient = null;
+        let metricsInterval = null;
+
+        // UI Elements
+        const statusEl = document.getElementById('status');
+        const connectionTypeEl = document.getElementById('connectionType');
+        const logEl = document.getElementById('log');
+        const lastMessageEl = document.getElementById('lastMessage');
+
+        // Buttons
+        const connectSocketIOBtn = document.getElementById('connectSocketIO');
+        const connectWebSocketBtn = document.getElementById('connectWebSocket');
+        const disconnectBtn = document.getElementById('disconnect');
+        const clearLogsBtn = document.getElementById('clearLogs');
+        const requestStatusBtn = document.getElementById('requestStatus');
+        const requestKismetBtn = document.getElementById('requestKismet');
+        const subscribeBtn = document.getElementById('subscribe');
+        const testReconnectBtn = document.getElementById('testReconnect');
+
+        // Logging function
+        function log(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            const entry = document.createElement('div');
+            entry.className = `log-entry ${type}`;
+            entry.textContent = `[${timestamp}] ${message}`;
+            logEl.appendChild(entry);
+            logEl.scrollTop = logEl.scrollHeight;
+        }
+
+        // Update connection status
+        function updateStatus(connected, connecting = false) {
+            if (connecting) {
+                statusEl.textContent = 'Connecting...';
+                statusEl.className = 'status connecting';
+            } else if (connected) {
+                statusEl.textContent = 'Connected';
+                statusEl.className = 'status connected';
+            } else {
+                statusEl.textContent = 'Disconnected';
+                statusEl.className = 'status disconnected';
+            }
+
+            // Update button states
+            connectSocketIOBtn.disabled = connected || connecting;
+            connectWebSocketBtn.disabled = connected || connecting;
+            disconnectBtn.disabled = !connected;
+            requestStatusBtn.disabled = !connected;
+            requestKismetBtn.disabled = !connected;
+            subscribeBtn.disabled = !connected;
+            testReconnectBtn.disabled = !connected;
+        }
+
+        // Update metrics display
+        function updateMetrics() {
+            if (!wsClient) return;
+            
+            const metrics = wsClient.getMetrics();
+            document.getElementById('messagesReceived').textContent = metrics.messagesReceived;
+            document.getElementById('messagesSent').textContent = metrics.messagesSent;
+            document.getElementById('bytesReceived').textContent = formatBytes(metrics.bytesReceived);
+            document.getElementById('bytesSent').textContent = formatBytes(metrics.bytesSent);
+            document.getElementById('reconnectCount').textContent = metrics.reconnectCount;
+            document.getElementById('connectionTime').textContent = formatTime(metrics.connectionTime);
+        }
+
+        // Format bytes for display
+        function formatBytes(bytes) {
+            if (bytes < 1024) return bytes + ' B';
+            if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+            return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
+        }
+
+        // Format time for display
+        function formatTime(ms) {
+            if (ms < 1000) return '0s';
+            const seconds = Math.floor(ms / 1000);
+            const minutes = Math.floor(seconds / 60);
+            const hours = Math.floor(minutes / 60);
+            
+            if (hours > 0) {
+                return `${hours}h ${minutes % 60}m`;
+            } else if (minutes > 0) {
+                return `${minutes}m ${seconds % 60}s`;
+            } else {
+                return `${seconds}s`;
+            }
+        }
+
+        // Setup event handlers for WebSocket client
+        function setupEventHandlers(client) {
+            client.on('connect', () => {
+                log('Connected successfully', 'info');
+                updateStatus(true);
+            });
+
+            client.on('disconnect', (reason) => {
+                log(`Disconnected: ${reason}`, 'error');
+                updateStatus(false);
+            });
+
+            client.on('error', (error) => {
+                log(`Error: ${error.message}`, 'error');
+            });
+
+            client.on('reconnect_attempt', (attempt) => {
+                log(`Reconnection attempt ${attempt}...`, 'info');
+                updateStatus(false, true);
+            });
+
+            client.on('reconnect', (attempt) => {
+                log(`Reconnected after ${attempt} attempts`, 'info');
+            });
+
+            client.on('reconnect_failed', () => {
+                log('Reconnection failed - giving up', 'error');
+                updateStatus(false);
+            });
+
+            // Data events
+            client.on('message', (message) => {
+                log(`Message received: ${message.type}`, 'data');
+                lastMessageEl.textContent = JSON.stringify(message, null, 2);
+                updateMetrics();
+            });
+
+            client.on('status', (data) => {
+                log('Received status update', 'data');
+                lastMessageEl.textContent = JSON.stringify(data, null, 2);
+            });
+
+            client.on('kismetData', (data) => {
+                log(`Received Kismet data: ${data.stats.total_devices} devices, ${data.stats.total_networks} networks`, 'data');
+                lastMessageEl.textContent = JSON.stringify(data, null, 2);
+            });
+
+            client.on('fftData', (data) => {
+                log(`Received FFT data: ${data.data ? data.data.length : 0} samples`, 'data');
+            });
+
+            client.on('signalsDetected', (data) => {
+                log(`Signals detected: ${data.signals.length} signals`, 'data');
+            });
+        }
+
+        // Connect with Socket.IO
+        connectSocketIOBtn.addEventListener('click', async () => {
+            try {
+                log('Connecting via Socket.IO...', 'info');
+                updateStatus(false, true);
+                
+                const host = window.location.hostname;
+                const port = 8003; // Change to your actual port
+                
+                wsClient = createWebSocketClient({
+                    url: `http://${host}:${port}`,
+                    type: 'socket.io',
+                    reconnect: true,
+                    reconnectDelay: 2000,
+                    reconnectDelayMax: 10000
+                });
+
+                connectionTypeEl.textContent = 'Socket.IO';
+                setupEventHandlers(wsClient);
+                await wsClient.connect();
+                
+                // Start metrics update
+                metricsInterval = setInterval(updateMetrics, 1000);
+                
+            } catch (error) {
+                log(`Connection failed: ${error.message}`, 'error');
+                updateStatus(false);
+            }
+        });
+
+        // Connect with native WebSocket
+        connectWebSocketBtn.addEventListener('click', async () => {
+            try {
+                log('Connecting via native WebSocket...', 'info');
+                updateStatus(false, true);
+                
+                const host = window.location.hostname;
+                const port = 8003; // Change to your actual port
+                
+                wsClient = createWebSocketClient({
+                    url: `ws://${host}:${port}`,
+                    type: 'websocket',
+                    reconnect: true,
+                    reconnectDelay: 2000,
+                    reconnectDelayMax: 10000
+                });
+
+                connectionTypeEl.textContent = 'WebSocket';
+                setupEventHandlers(wsClient);
+                await wsClient.connect();
+                
+                // Start metrics update
+                metricsInterval = setInterval(updateMetrics, 1000);
+                
+            } catch (error) {
+                log(`Connection failed: ${error.message}`, 'error');
+                updateStatus(false);
+            }
+        });
+
+        // Disconnect
+        disconnectBtn.addEventListener('click', () => {
+            if (wsClient) {
+                log('Disconnecting...', 'info');
+                wsClient.disconnect();
+                wsClient = null;
+                connectionTypeEl.textContent = 'None';
+                
+                if (metricsInterval) {
+                    clearInterval(metricsInterval);
+                    metricsInterval = null;
+                }
+            }
+        });
+
+        // Clear logs
+        clearLogsBtn.addEventListener('click', () => {
+            logEl.innerHTML = '';
+            log('Logs cleared', 'info');
+        });
+
+        // Request status
+        requestStatusBtn.addEventListener('click', () => {
+            if (wsClient) {
+                log('Requesting status...', 'info');
+                wsClient.emit('requestStatus');
+            }
+        });
+
+        // Request Kismet data
+        requestKismetBtn.addEventListener('click', async () => {
+            if (wsClient) {
+                try {
+                    log('Requesting Kismet data...', 'info');
+                    wsClient.emit('requestKismetData');
+                    
+                    // Example of using request/response pattern
+                    // const data = await wsClient.request('requestKismetData', null, 5000);
+                    // log('Received Kismet data via request/response', 'data');
+                } catch (error) {
+                    log(`Request failed: ${error.message}`, 'error');
+                }
+            }
+        });
+
+        // Subscribe to signals
+        subscribeBtn.addEventListener('click', () => {
+            if (wsClient) {
+                log('Subscribing to signal stream...', 'info');
+                
+                // For Socket.IO namespace
+                if (wsClient.state.connectionType === 'socket.io') {
+                    // Would need to connect to /signal-stream namespace
+                    log('Note: Signal stream requires connecting to /signal-stream namespace', 'info');
+                } else {
+                    wsClient.emit('subscribe', { sources: ['kismet', 'hackrf'] });
+                }
+            }
+        });
+
+        // Test reconnection
+        testReconnectBtn.addEventListener('click', () => {
+            if (wsClient) {
+                log('Testing reconnection - disconnecting with reconnect enabled...', 'info');
+                
+                // Force disconnect to test reconnection
+                if (wsClient.connection) {
+                    if (wsClient.isSocketIO()) {
+                        wsClient.connection.io.engine.close();
+                    } else if (wsClient.isWebSocket()) {
+                        wsClient.connection.close();
+                    }
+                }
+            }
+        });
+
+        // Initial log
+        log('WebSocket Abstraction Layer Example Ready', 'info');
+        log('Choose a connection type to begin', 'info');
+    </script>
+</body>
+</html>

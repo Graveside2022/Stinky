@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Argus Console - Mission Select</title>
+    
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            /* Backgrounds */
+            --bg-primary: #0a0a0a;
+            --bg-secondary: #141414;
+            --bg-card: #141414;
+            --bg-hover: #2d2d2d;
+            
+            /* Mission Colors */
+            --mission-wifi: #00d2ff;
+            --mission-spectrum: #fb923c;  
+            --mission-location: #10b981;
+            --mission-broadcast: #8b5cf6;
+            
+            /* Text Colors */
+            --text-primary: #FFFFFF;
+            --text-secondary: #a3a3a3;
+            --text-tertiary: #737373;
+            
+            /* Borders */
+            --border-primary: #262626;
+            --border-hover: #404040;
+            
+            /* Typography */
+            --font-heading: Inter, system-ui, -apple-system, sans-serif;
+            --font-body: Inter, system-ui, -apple-system, sans-serif;
+            --font-mono: 'JetBrains Mono', 'Fira Code', 'Consolas', 'Monaco', monospace;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            font-family: var(--font-body);
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            line-height: 1.6;
+            overflow-x: hidden;
+            overflow-y: auto;
+        }
+
+        /* Animated Background */
+        .console-background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            background: 
+                radial-gradient(circle at 20% 80%, rgba(0, 210, 255, 0.05) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(251, 146, 60, 0.05) 0%, transparent 50%),
+                radial-gradient(circle at 40% 40%, rgba(16, 185, 129, 0.03) 0%, transparent 50%),
+                linear-gradient(135deg, rgba(10, 10, 10, 0.95) 0%, rgba(20, 20, 20, 0.98) 100%);
+            animation: background-pulse 8s ease-in-out infinite;
+        }
+
+        .grid-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            opacity: 0.02;
+            background-image: 
+                linear-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+            background-size: 40px 40px;
+            animation: grid-drift 60s linear infinite;
+        }
+
+        @keyframes background-pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.8; }
+        }
+
+        @keyframes grid-drift {
+            0% { transform: translate(0, 0); }
+            100% { transform: translate(40px, 40px); }
+        }
+
+        /* Header */
+        .console-header {
+            text-align: center;
+            padding: 3rem 2rem 2rem;
+            background: rgba(20, 20, 20, 0.6);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border-primary);
+        }
+
+        .console-title {
+            font-size: 3rem;
+            font-weight: 800;
+            margin-bottom: 0.5rem;
+            text-shadow: 0 0 30px rgba(255, 255, 255, 0.3);
+        }
+
+        .console-subtitle {
+            font-family: var(--font-mono);
+            font-size: 0.875rem;
+            text-transform: uppercase;
+            letter-spacing: 0.2em;
+            color: var(--text-secondary);
+            margin-bottom: 1rem;
+        }
+
+        .mission-status {
+            font-family: var(--font-mono);
+            font-size: 0.75rem;
+            color: var(--mission-wifi);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            animation: status-blink 2s ease-in-out infinite;
+        }
+
+        @keyframes status-blink {
+            0%, 50% { opacity: 1; }
+            51%, 100% { opacity: 0.5; }
+        }
+
+        /* Mission Grid */
+        .mission-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 3rem;
+            max-width: 1000px;
+            margin: 4rem auto;
+            padding: 0 2rem;
+        }
+
+        /* Mission Cards */
+        .mission-card {
+            position: relative;
+            background: rgba(20, 20, 20, 0.8);
+            backdrop-filter: blur(12px);
+            border: 2px solid var(--border-primary);
+            border-radius: 16px;
+            padding: 3rem 2rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            overflow: hidden;
+            min-height: 220px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .mission-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--mission-color), transparent);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .mission-card:hover {
+            transform: translateY(-8px) scale(1.02);
+            border-color: var(--mission-color);
+            box-shadow: 
+                0 20px 40px rgba(0, 0, 0, 0.4),
+                0 0 30px var(--mission-glow);
+        }
+
+        .mission-card:hover::before {
+            opacity: 1;
+        }
+
+        /* Mission Card Variants */
+        .mission-wifi {
+            --mission-color: var(--mission-wifi);
+            --mission-glow: rgba(0, 210, 255, 0.3);
+        }
+
+        .mission-spectrum {
+            --mission-color: var(--mission-spectrum);
+            --mission-glow: rgba(251, 146, 60, 0.3);
+        }
+
+        .mission-location {
+            --mission-color: var(--mission-location);
+            --mission-glow: rgba(16, 185, 129, 0.3);
+        }
+
+        .mission-broadcast {
+            --mission-color: var(--mission-broadcast);
+            --mission-glow: rgba(139, 92, 246, 0.3);
+        }
+
+        .mission-docs {
+            --mission-color: #fbbf24;
+            --mission-glow: rgba(251, 191, 36, 0.3);
+        }
+
+        /* Mission Icons */
+        .mission-icon {
+            width: 64px;
+            height: 64px;
+            margin-bottom: 1.5rem;
+            color: var(--mission-color);
+            filter: drop-shadow(0 0 10px var(--mission-glow));
+            transition: all 0.3s ease;
+        }
+
+        .mission-card:hover .mission-icon {
+            transform: scale(1.1);
+            filter: drop-shadow(0 0 20px var(--mission-glow));
+        }
+
+        /* Mission Text */
+        .mission-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 0.5rem;
+            transition: color 0.3s ease;
+        }
+
+        .mission-card:hover .mission-title {
+            color: var(--mission-color);
+        }
+
+        .mission-desc {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            font-family: var(--font-mono);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .mission-status-badge {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: var(--mission-color);
+            box-shadow: 0 0 10px var(--mission-glow);
+            animation: status-pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes status-pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.6; transform: scale(1.2); }
+        }
+
+        /* Footer */
+        .console-footer {
+            padding: 1.5rem;
+            text-align: center;
+            background: rgba(10, 10, 10, 0.8);
+            backdrop-filter: blur(10px);
+            border-top: 1px solid var(--border-primary);
+            margin-top: 2rem;
+        }
+
+        .footer-text {
+            font-family: var(--font-mono);
+            font-size: 0.75rem;
+            color: var(--text-tertiary);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .mission-grid {
+                grid-template-columns: 1fr;
+                gap: 2rem;
+                margin: 2rem auto;
+            }
+            
+            .console-title {
+                font-size: 2rem;
+            }
+            
+            .mission-card {
+                min-height: 180px;
+                padding: 2rem 1.5rem;
+            }
+            
+            .mission-icon {
+                width: 48px;
+                height: 48px;
+            }
+        }
+
+        /* Click effect */
+        .mission-card:active {
+            transform: translateY(-4px) scale(0.98);
+        }
+    </style>
+</head>
+<body>
+    <!-- Animated Background -->
+    <div class="console-background"></div>
+    <div class="grid-overlay"></div>
+
+    <!-- Header -->
+    <header class="console-header">
+        <h1 class="console-title">
+            <span style="color: var(--text-primary);">Argus</span> 
+            <span style="color: #fb923c;">Console</span>
+        </h1>
+        <p class="console-subtitle">Tactical Intelligence Platform</p>
+        <p class="mission-status">◆ Select Mission Parameters ◆</p>
+    </header>
+
+    <!-- Mission Grid -->
+    <div class="mission-grid">
+        <!-- Kismet WiFi -->
+        <div class="mission-card mission-wifi" onclick="launchMission('kismet')">
+            <div class="mission-status-badge"></div>
+            <svg class="mission-icon" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M1 9l2 2c4.97-4.97 13.03-4.97 18 0l2-2C16.93 2.93 7.07 2.93 1 9zm8 8l3 3 3-3c-1.65-1.66-4.34-1.66-6 0zm-4-4l2 2c2.76-2.76 7.24-2.76 10 0l2-2C15.14 9.14 8.87 9.14 5 13z"/>
+            </svg>
+            <h2 class="mission-title">Kismet WiFi</h2>
+            <p class="mission-desc">Wireless Network Discovery</p>
+        </div>
+
+        <!-- HackRF Sweep -->
+        <div class="mission-card mission-spectrum" onclick="launchMission('hackrf')">
+            <div class="mission-status-badge"></div>
+            <svg class="mission-icon" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M9 11H7v8h2v-8zm4 4h-2v4h2v-4zm4-7h-2v11h2V8zm4 3h-2v8h2v-8z"/>
+                <path d="M5 7h2v10H5V7z"/>
+            </svg>
+            <h2 class="mission-title">HackRF Sweep</h2>
+            <p class="mission-desc">Spectrum Analysis</p>
+        </div>
+
+        <!-- Location Map -->
+        <div class="mission-card mission-location" onclick="launchMission('location')">
+            <div class="mission-status-badge"></div>
+            <svg class="mission-icon" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
+            </svg>
+            <h2 class="mission-title">Location</h2>
+            <p class="mission-desc">Tactical Map View</p>
+        </div>
+
+        <!-- WigletoTAK -->
+        <div class="mission-card mission-broadcast" onclick="launchMission('wigletotak')">
+            <div class="mission-status-badge"></div>
+            <svg class="mission-icon" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M5 3l3.057 3L12 9l3.943-3L19 3v18l-3.943-3L12 15l-3.057 3L5 21V3z"/>
+            </svg>
+            <h2 class="mission-title">WigletoTAK</h2>
+            <p class="mission-desc">Data Broadcasting</p>
+        </div>
+    </div>
+
+    <!-- Documentation Section -->
+    <div style="display: flex; justify-content: center; margin: 2rem auto; max-width: 1000px; padding: 0 2rem;">
+        <div class="mission-card mission-docs" onclick="launchMission('documentation')">
+            <div class="mission-status-badge"></div>
+            <svg class="mission-icon" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20Z"/>
+            </svg>
+            <h2 class="mission-title">Documentation</h2>
+            <p class="mission-desc">System Reference</p>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="console-footer">
+        <p class="footer-text">◆ Argus Console v1.0 - Tactical Intelligence Operations ◆</p>
+    </footer>
+
+    <script>
+        function launchMission(mission) {
+            const hostname = window.location.hostname;
+            console.log(`Launching mission: ${mission}, hostname: ${hostname}`);
+            
+            switch(mission) {
+                case 'kismet':
+                    // Will create a dedicated Kismet page
+                    console.log('Opening Kismet at:', `http://${hostname}:8005/kismet-ops`);
+                    window.open(`http://${hostname}:8005/kismet-ops`, '_blank');
+                    break;
+                    
+                case 'hackrf':
+                    // Port 3002 for HackRF Sweep
+                    const hackrfUrl = `http://${hostname}:3002`;
+                    console.log('Opening HackRF at:', hackrfUrl);
+                    const hackrfWindow = window.open(hackrfUrl, '_blank');
+                    if (!hackrfWindow) {
+                        console.error('Failed to open HackRF window - popup blocked?');
+                        alert(`Please allow popups or manually navigate to: ${hackrfUrl}`);
+                    }
+                    break;
+                    
+                case 'location':
+                    // Will create a map page
+                    console.log('Opening Location at:', `http://${hostname}:8005/tactical-map`);
+                    window.open(`http://${hostname}:8005/tactical-map`, '_blank');
+                    break;
+                    
+                case 'wigletotak':
+                    // Port 8000 for WigletoTAK
+                    console.log('Opening WigleToTAK at:', `http://${hostname}:8000`);
+                    window.open(`http://${hostname}:8000`, '_blank');
+                    break;
+                    
+                case 'documentation':
+                    // Navigation page with all documentation
+                    console.log('Opening Documentation at:', `http://${hostname}:8005/navigation`);
+                    window.open(`http://${hostname}:8005/navigation`, '_blank');
+                    break;
+                    
+                default:
+                    console.error('Unknown mission:', mission);
+            }
+        }
+
+        // Add some interactive effects
+        document.querySelectorAll('.mission-card').forEach(card => {
+            card.addEventListener('mouseenter', function() {
+                this.style.setProperty('--mission-glow-intensity', '0.4');
+            });
+            
+            card.addEventListener('mouseleave', function() {
+                this.style.setProperty('--mission-glow-intensity', '0.3');
+            });
+        });
+
+        // Keyboard navigation
+        document.addEventListener('keydown', function(e) {
+            switch(e.key) {
+                case '1':
+                    launchMission('kismet');
+                    break;
+                case '2':
+                    launchMission('hackrf');
+                    break;
+                case '3':
+                    launchMission('location');
+                    break;
+                case '4':
+                    launchMission('wigletotak');
+                    break;
+            }
+        });
+    </script>
+</body>
+</html>

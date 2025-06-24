@@ -1,0 +1,841 @@
+{
+  "metadata": {
+    "timestamp": "2025-06-15T22:08:35.983Z",
+    "agent": "Agent 7 - Comprehensive Test Suite",
+    "version": "1.0.0",
+    "duration": "2s",
+    "services_tested": 3
+  },
+  "summary": {
+    "total": 37,
+    "passed": 29,
+    "failed": 7,
+    "warnings": 1,
+    "successRate": "78%",
+    "overallStatus": "FAIL",
+    "criticalFailures": 0
+  },
+  "results": [
+    {
+      "phase": "Discovery",
+      "test": "Spectrum Analyzer Health Check",
+      "status": "PASS",
+      "details": {
+        "service": "spectrum",
+        "url": "http://localhost:8092",
+        "status": 200,
+        "responseTime": 87,
+        "healthy": true,
+        "headers": {
+          "x-powered-by": "Express",
+          "content-type": "text/html; charset=utf-8",
+          "content-length": "2253",
+          "etag": "W/\"8cd-2wWUI8SG9aieTkyyCMKZTkQjYEo\"",
+          "date": "Sun, 15 Jun 2025 22:08:33 GMT",
+          "connection": "keep-alive",
+          "keep-alive": "timeout=5"
+        },
+        "timestamp": "2025-06-15T22:08:33.943Z"
+      },
+      "critical": true,
+      "timestamp": "2025-06-15T22:08:33.943Z"
+    },
+    {
+      "phase": "Discovery",
+      "test": "WigleToTAK Health Check",
+      "status": "PASS",
+      "details": {
+        "service": "wigleToTak",
+        "url": "http://localhost:8000",
+        "status": 200,
+        "responseTime": 16,
+        "healthy": true,
+        "headers": {
+          "content-security-policy": "default-src 'self';base-uri 'self';font-src 'self' https: data:;form-action 'self';frame-ancestors 'self';img-src 'self' data:;object-src 'none';script-src 'self';script-src-attr 'none';style-src 'self' https: 'unsafe-inline';upgrade-insecure-requests",
+          "cross-origin-opener-policy": "same-origin",
+          "cross-origin-resource-policy": "same-origin",
+          "origin-agent-cluster": "?1",
+          "referrer-policy": "no-referrer",
+          "strict-transport-security": "max-age=15552000; includeSubDomains",
+          "x-content-type-options": "nosniff",
+          "x-dns-prefetch-control": "off",
+          "x-download-options": "noopen",
+          "x-frame-options": "SAMEORIGIN",
+          "x-permitted-cross-domain-policies": "none",
+          "x-xss-protection": "0",
+          "access-control-allow-origin": "*",
+          "accept-ranges": "bytes",
+          "cache-control": "public, max-age=0",
+          "last-modified": "Sun, 15 Jun 2025 20:42:38 GMT",
+          "etag": "W/\"2e4e-19775547235\"",
+          "content-type": "text/html; charset=UTF-8",
+          "content-length": "11854",
+          "date": "Sun, 15 Jun 2025 22:08:33 GMT",
+          "connection": "keep-alive",
+          "keep-alive": "timeout=5"
+        },
+        "timestamp": "2025-06-15T22:08:33.959Z"
+      },
+      "critical": true,
+      "timestamp": "2025-06-15T22:08:33.959Z"
+    },
+    {
+      "phase": "Discovery",
+      "test": "Comparison Service Health Check",
+      "status": "PASS",
+      "details": {
+        "service": "comparison",
+        "url": "http://localhost:3007",
+        "status": 200,
+        "responseTime": 25,
+        "healthy": true,
+        "headers": {
+          "content-security-policy": "default-src 'self';base-uri 'self';font-src 'self' https: data:;form-action 'self';frame-ancestors 'self';img-src 'self' data:;object-src 'none';script-src 'self';script-src-attr 'none';style-src 'self' https: 'unsafe-inline';upgrade-insecure-requests",
+          "cross-origin-opener-policy": "same-origin",
+          "cross-origin-resource-policy": "same-origin",
+          "origin-agent-cluster": "?1",
+          "referrer-policy": "no-referrer",
+          "strict-transport-security": "max-age=15552000; includeSubDomains",
+          "x-content-type-options": "nosniff",
+          "x-dns-prefetch-control": "off",
+          "x-download-options": "noopen",
+          "x-frame-options": "SAMEORIGIN",
+          "x-permitted-cross-domain-policies": "none",
+          "x-xss-protection": "0",
+          "access-control-allow-origin": "*",
+          "accept-ranges": "bytes",
+          "cache-control": "public, max-age=0",
+          "last-modified": "Sun, 15 Jun 2025 20:42:38 GMT",
+          "etag": "W/\"2e4e-19775547235\"",
+          "content-type": "text/html; charset=UTF-8",
+          "content-length": "11854",
+          "date": "Sun, 15 Jun 2025 22:08:33 GMT",
+          "connection": "keep-alive",
+          "keep-alive": "timeout=5"
+        },
+        "timestamp": "2025-06-15T22:08:33.985Z"
+      },
+      "critical": true,
+      "timestamp": "2025-06-15T22:08:33.985Z"
+    },
+    {
+      "phase": "Endpoints",
+      "test": "GET /",
+      "service": "spectrum",
+      "status": "PASS",
+      "details": {
+        "url": "http://localhost:8092/",
+        "method": "GET",
+        "status": 200,
+        "responseTime": 9,
+        "contentType": "text/html; charset=utf-8",
+        "contentLength": "2253",
+        "hasData": true,
+        "description": "Root route (HTML interface)",
+        "isHTML": true,
+        "hasBody": true
+      },
+      "critical": true,
+      "timestamp": "2025-06-15T22:08:33.998Z"
+    },
+    {
+      "phase": "Endpoints",
+      "test": "GET /api/status",
+      "service": "spectrum",
+      "status": "PASS",
+      "details": {
+        "url": "http://localhost:8092/api/status",
+        "method": "GET",
+        "status": 200,
+        "responseTime": 9,
+        "contentType": "application/json; charset=utf-8",
+        "contentLength": "207",
+        "hasData": true,
+        "description": "System status"
+      },
+      "timestamp": "2025-06-15T22:08:34.008Z"
+    },
+    {
+      "phase": "Endpoints",
+      "test": "GET /api/profiles",
+      "service": "spectrum",
+      "status": "FAIL",
+      "details": {
+        "url": "http://localhost:8092/api/profiles",
+        "method": "GET",
+        "status": 404,
+        "responseTime": 7,
+        "contentType": "application/json; charset=utf-8",
+        "contentLength": "183",
+        "hasData": true,
+        "description": "Scan profiles"
+      },
+      "timestamp": "2025-06-15T22:08:34.015Z"
+    },
+    {
+      "phase": "Endpoints",
+      "test": "GET /api/scan/vhf",
+      "service": "spectrum",
+      "status": "FAIL",
+      "details": {
+        "url": "http://localhost:8092/api/scan/vhf",
+        "method": "GET",
+        "status": 404,
+        "responseTime": 7,
+        "contentType": "application/json; charset=utf-8",
+        "contentLength": "183",
+        "hasData": true,
+        "description": "VHF scan"
+      },
+      "timestamp": "2025-06-15T22:08:34.022Z"
+    },
+    {
+      "phase": "Endpoints",
+      "test": "GET /api/scan/uhf",
+      "service": "spectrum",
+      "status": "FAIL",
+      "details": {
+        "url": "http://localhost:8092/api/scan/uhf",
+        "method": "GET",
+        "status": 404,
+        "responseTime": 6,
+        "contentType": "application/json; charset=utf-8",
+        "contentLength": "183",
+        "hasData": true,
+        "description": "UHF scan"
+      },
+      "timestamp": "2025-06-15T22:08:34.029Z"
+    },
+    {
+      "phase": "Endpoints",
+      "test": "GET /api/scan/ism",
+      "service": "spectrum",
+      "status": "FAIL",
+      "details": {
+        "url": "http://localhost:8092/api/scan/ism",
+        "method": "GET",
+        "status": 404,
+        "responseTime": 15,
+        "contentType": "application/json; charset=utf-8",
+        "contentLength": "183",
+        "hasData": true,
+        "description": "ISM scan"
+      },
+      "timestamp": "2025-06-15T22:08:34.044Z"
+    },
+    {
+      "phase": "Endpoints",
+      "test": "GET /api/config",
+      "service": "spectrum",
+      "status": "PASS",
+      "details": {
+        "url": "http://localhost:8092/api/config",
+        "method": "GET",
+        "status": 200,
+        "responseTime": 7,
+        "contentType": "application/json; charset=utf-8",
+        "contentLength": "118",
+        "hasData": true,
+        "description": "Configuration"
+      },
+      "timestamp": "2025-06-15T22:08:34.051Z"
+    },
+    {
+      "phase": "Endpoints",
+      "test": "GET /health",
+      "service": "spectrum",
+      "status": "PASS",
+      "details": {
+        "url": "http://localhost:8092/health",
+        "method": "GET",
+        "status": 200,
+        "responseTime": 8,
+        "contentType": "application/json; charset=utf-8",
+        "contentLength": "77",
+        "hasData": true,
+        "description": "Health check"
+      },
+      "timestamp": "2025-06-15T22:08:34.060Z"
+    },
+    {
+      "phase": "Endpoints",
+      "test": "GET /",
+      "service": "wigleToTak",
+      "status": "PASS",
+      "details": {
+        "url": "http://localhost:8000/",
+        "method": "GET",
+        "status": 200,
+        "responseTime": 7,
+        "contentType": "text/html; charset=UTF-8",
+        "contentLength": "11854",
+        "hasData": true,
+        "description": "Root route (HTML interface)",
+        "isHTML": true,
+        "hasBody": true
+      },
+      "critical": true,
+      "timestamp": "2025-06-15T22:08:34.068Z"
+    },
+    {
+      "phase": "Endpoints",
+      "test": "GET /api/status",
+      "service": "wigleToTak",
+      "status": "PASS",
+      "details": {
+        "url": "http://localhost:8000/api/status",
+        "method": "GET",
+        "status": 200,
+        "responseTime": 6,
+        "contentType": "application/json; charset=utf-8",
+        "contentLength": "338",
+        "hasData": true,
+        "description": "Service status"
+      },
+      "timestamp": "2025-06-15T22:08:34.074Z"
+    },
+    {
+      "phase": "Endpoints",
+      "test": "GET /list_wigle_files",
+      "service": "wigleToTak",
+      "status": "PASS",
+      "details": {
+        "url": "http://localhost:8000/list_wigle_files",
+        "method": "GET",
+        "status": 200,
+        "responseTime": 6,
+        "contentType": "application/json; charset=utf-8",
+        "contentLength": "12",
+        "hasData": true,
+        "description": "List CSV files"
+      },
+      "timestamp": "2025-06-15T22:08:34.081Z"
+    },
+    {
+      "phase": "Endpoints",
+      "test": "POST /update_tak_settings",
+      "service": "wigleToTak",
+      "status": "PASS",
+      "details": {
+        "url": "http://localhost:8000/update_tak_settings",
+        "method": "POST",
+        "status": 200,
+        "responseTime": 10,
+        "contentType": "application/json; charset=utf-8",
+        "contentLength": "47",
+        "hasData": true,
+        "description": "Update TAK settings"
+      },
+      "timestamp": "2025-06-15T22:08:34.091Z"
+    },
+    {
+      "phase": "Endpoints",
+      "test": "POST /update_multicast_state",
+      "service": "wigleToTak",
+      "status": "PASS",
+      "details": {
+        "url": "http://localhost:8000/update_multicast_state",
+        "method": "POST",
+        "status": 200,
+        "responseTime": 7,
+        "contentType": "application/json; charset=utf-8",
+        "contentLength": "31",
+        "hasData": true,
+        "description": "Toggle multicast"
+      },
+      "timestamp": "2025-06-15T22:08:34.098Z"
+    },
+    {
+      "phase": "Endpoints",
+      "test": "POST /update_analysis_mode",
+      "service": "wigleToTak",
+      "status": "PASS",
+      "details": {
+        "url": "http://localhost:8000/update_analysis_mode",
+        "method": "POST",
+        "status": 200,
+        "responseTime": 9,
+        "contentType": "application/json; charset=utf-8",
+        "contentLength": "43",
+        "hasData": true,
+        "description": "Set analysis mode"
+      },
+      "timestamp": "2025-06-15T22:08:34.108Z"
+    },
+    {
+      "phase": "Endpoints",
+      "test": "GET /health",
+      "service": "wigleToTak",
+      "status": "PASS",
+      "details": {
+        "url": "http://localhost:8000/health",
+        "method": "GET",
+        "status": 200,
+        "responseTime": 8,
+        "contentType": "application/json; charset=utf-8",
+        "contentLength": "100",
+        "hasData": true,
+        "description": "Health check"
+      },
+      "timestamp": "2025-06-15T22:08:34.116Z"
+    },
+    {
+      "phase": "RootRoute",
+      "test": "Spectrum Analyzer Root Route Fix",
+      "service": "spectrum",
+      "status": "PASS",
+      "details": {
+        "status": 200,
+        "isHTML": true,
+        "hasContent": true,
+        "contentLength": 2243,
+        "contentType": "text/html; charset=utf-8"
+      },
+      "critical": true,
+      "timestamp": "2025-06-15T22:08:34.123Z"
+    },
+    {
+      "phase": "RootRoute",
+      "test": "WigleToTAK Root Route Fix",
+      "service": "wigleToTak",
+      "status": "PASS",
+      "details": {
+        "status": 200,
+        "isHTML": true,
+        "hasContent": true,
+        "contentLength": 11806,
+        "contentType": "text/html; charset=UTF-8"
+      },
+      "critical": true,
+      "timestamp": "2025-06-15T22:08:34.130Z"
+    },
+    {
+      "phase": "Frontend",
+      "test": "CSS Asset",
+      "service": "spectrum",
+      "status": "PASS",
+      "details": {
+        "path": "/css/spectrum.css",
+        "status": 200,
+        "contentType": "text/css; charset=UTF-8",
+        "size": 3620
+      },
+      "timestamp": "2025-06-15T22:08:34.138Z"
+    },
+    {
+      "phase": "Frontend",
+      "test": "JavaScript Asset",
+      "service": "spectrum",
+      "status": "PASS",
+      "details": {
+        "path": "/js/spectrum.js",
+        "status": 200,
+        "contentType": "application/javascript; charset=UTF-8",
+        "size": 9177
+      },
+      "timestamp": "2025-06-15T22:08:34.144Z"
+    },
+    {
+      "phase": "Frontend",
+      "test": "CSS Asset",
+      "service": "wigleToTak",
+      "status": "PASS",
+      "details": {
+        "path": "/css/wigle-to-tak.css",
+        "status": 200,
+        "contentType": "text/css; charset=UTF-8",
+        "size": 5029
+      },
+      "timestamp": "2025-06-15T22:08:34.153Z"
+    },
+    {
+      "phase": "Frontend",
+      "test": "JavaScript Asset",
+      "service": "wigleToTak",
+      "status": "PASS",
+      "details": {
+        "path": "/js/wigle-to-tak.js",
+        "status": 200,
+        "contentType": "application/javascript; charset=UTF-8",
+        "size": 20516
+      },
+      "timestamp": "2025-06-15T22:08:34.160Z"
+    },
+    {
+      "phase": "Frontend",
+      "test": "Spectrum Analyzer HTML Validity",
+      "service": "spectrum",
+      "status": "PASS",
+      "details": {
+        "validityScore": 100,
+        "validations": {
+          "hasDoctype": true,
+          "hasHtmlTag": true,
+          "hasHead": true,
+          "hasBody": true,
+          "hasTitle": true,
+          "hasMetaTags": true,
+          "hasScripts": true,
+          "hasStyles": true
+        },
+        "contentLength": 2243
+      },
+      "timestamp": "2025-06-15T22:08:34.170Z"
+    },
+    {
+      "phase": "Frontend",
+      "test": "WigleToTAK HTML Validity",
+      "service": "wigleToTak",
+      "status": "PASS",
+      "details": {
+        "validityScore": 100,
+        "validations": {
+          "hasDoctype": true,
+          "hasHtmlTag": true,
+          "hasHead": true,
+          "hasBody": true,
+          "hasTitle": true,
+          "hasMetaTags": true,
+          "hasScripts": true,
+          "hasStyles": true
+        },
+        "contentLength": 11806
+      },
+      "timestamp": "2025-06-15T22:08:34.181Z"
+    },
+    {
+      "phase": "CrossService",
+      "test": "Response Consistency /api/status",
+      "status": "PASS",
+      "details": {
+        "endpoint": "/api/status",
+        "responses": {
+          "spectrum": {
+            "status": 200,
+            "data": {
+              "connected": false,
+              "buffer_size": 0,
+              "config": {
+                "center_freq": 145000000,
+                "samp_rate": 2400000
+              },
+              "service": "spectrum-analyzer",
+              "status": "running",
+              "port": 8092,
+              "timestamp": "2025-06-15T22:08:34.184Z",
+              "test_mode": true
+            },
+            "headers": {
+              "x-powered-by": "Express",
+              "content-type": "application/json; charset=utf-8",
+              "content-length": "207",
+              "etag": "W/\"cf-dj7BGHPo1C1L5zltEhBqgwcfiVk\"",
+              "date": "Sun, 15 Jun 2025 22:08:34 GMT",
+              "connection": "keep-alive",
+              "keep-alive": "timeout=5"
+            }
+          },
+          "wigleToTak": {
+            "status": 200,
+            "data": {
+              "broadcasting": false,
+              "takServerIp": "192.168.1.100",
+              "takServerPort": 6969,
+              "analysisMode": "realtime",
+              "antennaSensitivity": "standard",
+              "whitelistedSsids": [],
+              "whitelistedMacs": [
+                "00:11:22:33:44:55"
+              ],
+              "blacklistedSsids": [],
+              "blacklistedMacs": [
+                "00:11:22:33:44:55"
+              ],
+              "takMulticastState": true,
+              "directory": "./",
+              "processedMacs": 0,
+              "processedEntries": 0
+            },
+            "headers": {
+              "content-security-policy": "default-src 'self';base-uri 'self';font-src 'self' https: data:;form-action 'self';frame-ancestors 'self';img-src 'self' data:;object-src 'none';script-src 'self';script-src-attr 'none';style-src 'self' https: 'unsafe-inline';upgrade-insecure-requests",
+              "cross-origin-opener-policy": "same-origin",
+              "cross-origin-resource-policy": "same-origin",
+              "origin-agent-cluster": "?1",
+              "referrer-policy": "no-referrer",
+              "strict-transport-security": "max-age=15552000; includeSubDomains",
+              "x-content-type-options": "nosniff",
+              "x-dns-prefetch-control": "off",
+              "x-download-options": "noopen",
+              "x-frame-options": "SAMEORIGIN",
+              "x-permitted-cross-domain-policies": "none",
+              "x-xss-protection": "0",
+              "access-control-allow-origin": "*",
+              "content-type": "application/json; charset=utf-8",
+              "content-length": "336",
+              "etag": "W/\"150-GFuPS4KnDqyYzE8LXB0ZDdPh4RI\"",
+              "date": "Sun, 15 Jun 2025 22:08:34 GMT",
+              "connection": "keep-alive",
+              "keep-alive": "timeout=5"
+            }
+          },
+          "comparison": {
+            "status": 200,
+            "data": {
+              "broadcasting": false,
+              "takServerIp": "192.168.1.100",
+              "takServerPort": 8080,
+              "analysisMode": "realtime",
+              "antennaSensitivity": "standard",
+              "whitelistedSsids": [],
+              "whitelistedMacs": [],
+              "blacklistedSsids": [],
+              "blacklistedMacs": [],
+              "takMulticastState": true,
+              "directory": "./test-data",
+              "processedMacs": 0,
+              "processedEntries": 0
+            },
+            "headers": {
+              "content-security-policy": "default-src 'self';base-uri 'self';font-src 'self' https: data:;form-action 'self';frame-ancestors 'self';img-src 'self' data:;object-src 'none';script-src 'self';script-src-attr 'none';style-src 'self' https: 'unsafe-inline';upgrade-insecure-requests",
+              "cross-origin-opener-policy": "same-origin",
+              "cross-origin-resource-policy": "same-origin",
+              "origin-agent-cluster": "?1",
+              "referrer-policy": "no-referrer",
+              "strict-transport-security": "max-age=15552000; includeSubDomains",
+              "x-content-type-options": "nosniff",
+              "x-dns-prefetch-control": "off",
+              "x-download-options": "noopen",
+              "x-frame-options": "SAMEORIGIN",
+              "x-permitted-cross-domain-policies": "none",
+              "x-xss-protection": "0",
+              "access-control-allow-origin": "*",
+              "content-type": "application/json; charset=utf-8",
+              "content-length": "307",
+              "etag": "W/\"133-6DeiRMXe028xaXSSwa1fEzlGAfQ\"",
+              "date": "Sun, 15 Jun 2025 22:08:34 GMT",
+              "connection": "keep-alive",
+              "keep-alive": "timeout=5"
+            }
+          }
+        },
+        "consistentStatus": true
+      },
+      "timestamp": "2025-06-15T22:08:34.200Z"
+    },
+    {
+      "phase": "CrossService",
+      "test": "Response Consistency /health",
+      "status": "PASS",
+      "details": {
+        "endpoint": "/health",
+        "responses": {
+          "spectrum": {
+            "status": 200,
+            "data": {
+              "status": "healthy",
+              "service": "spectrum-analyzer-test",
+              "uptime": 66.338213889
+            },
+            "headers": {
+              "x-powered-by": "Express",
+              "content-type": "application/json; charset=utf-8",
+              "content-length": "77",
+              "etag": "W/\"4d-RmnlCzIJxZJGRW96m5hPUz61wWg\"",
+              "date": "Sun, 15 Jun 2025 22:08:34 GMT",
+              "connection": "keep-alive",
+              "keep-alive": "timeout=5"
+            }
+          },
+          "wigleToTak": {
+            "status": 200,
+            "data": {
+              "status": "healthy",
+              "timestamp": "2025-06-15T22:08:34.211Z",
+              "service": "WigleToTAK",
+              "version": "1.0.0"
+            },
+            "headers": {
+              "content-security-policy": "default-src 'self';base-uri 'self';font-src 'self' https: data:;form-action 'self';frame-ancestors 'self';img-src 'self' data:;object-src 'none';script-src 'self';script-src-attr 'none';style-src 'self' https: 'unsafe-inline';upgrade-insecure-requests",
+              "cross-origin-opener-policy": "same-origin",
+              "cross-origin-resource-policy": "same-origin",
+              "origin-agent-cluster": "?1",
+              "referrer-policy": "no-referrer",
+              "strict-transport-security": "max-age=15552000; includeSubDomains",
+              "x-content-type-options": "nosniff",
+              "x-dns-prefetch-control": "off",
+              "x-download-options": "noopen",
+              "x-frame-options": "SAMEORIGIN",
+              "x-permitted-cross-domain-policies": "none",
+              "x-xss-protection": "0",
+              "access-control-allow-origin": "*",
+              "content-type": "application/json; charset=utf-8",
+              "content-length": "100",
+              "etag": "W/\"64-Ls+yZdxoZg9qLtnAiaT0Efe9I8M\"",
+              "date": "Sun, 15 Jun 2025 22:08:34 GMT",
+              "connection": "keep-alive",
+              "keep-alive": "timeout=5"
+            }
+          },
+          "comparison": {
+            "status": 200,
+            "data": {
+              "status": "healthy",
+              "timestamp": "2025-06-15T22:08:34.219Z",
+              "service": "WigleToTAK",
+              "version": "1.0.0"
+            },
+            "headers": {
+              "content-security-policy": "default-src 'self';base-uri 'self';font-src 'self' https: data:;form-action 'self';frame-ancestors 'self';img-src 'self' data:;object-src 'none';script-src 'self';script-src-attr 'none';style-src 'self' https: 'unsafe-inline';upgrade-insecure-requests",
+              "cross-origin-opener-policy": "same-origin",
+              "cross-origin-resource-policy": "same-origin",
+              "origin-agent-cluster": "?1",
+              "referrer-policy": "no-referrer",
+              "strict-transport-security": "max-age=15552000; includeSubDomains",
+              "x-content-type-options": "nosniff",
+              "x-dns-prefetch-control": "off",
+              "x-download-options": "noopen",
+              "x-frame-options": "SAMEORIGIN",
+              "x-permitted-cross-domain-policies": "none",
+              "x-xss-protection": "0",
+              "access-control-allow-origin": "*",
+              "content-type": "application/json; charset=utf-8",
+              "content-length": "100",
+              "etag": "W/\"64-Mp/ClNvnJZiDdosqEUCHtcI3Wu4\"",
+              "date": "Sun, 15 Jun 2025 22:08:34 GMT",
+              "connection": "keep-alive",
+              "keep-alive": "timeout=5"
+            }
+          }
+        },
+        "consistentStatus": true
+      },
+      "timestamp": "2025-06-15T22:08:34.223Z"
+    },
+    {
+      "phase": "CrossService",
+      "test": "Spectrum Analyzer Dependencies",
+      "status": "WARN",
+      "details": {
+        "config_loaded": true
+      },
+      "timestamp": "2025-06-15T22:08:34.231Z"
+    },
+    {
+      "phase": "Integration",
+      "test": "Spectrum Analysis Workflow",
+      "status": "FAIL",
+      "error": "Request failed with status code 404",
+      "timestamp": "2025-06-15T22:08:34.245Z"
+    },
+    {
+      "phase": "Integration",
+      "test": "WigleToTAK Configuration Workflow",
+      "status": "PASS",
+      "details": {
+        "takSettingsStatus": 200,
+        "multicastStatus": 200,
+        "fileListStatus": 200,
+        "availableFiles": []
+      },
+      "timestamp": "2025-06-15T22:08:34.267Z"
+    },
+    {
+      "phase": "Performance",
+      "test": "Response Time /api/status",
+      "service": "spectrum",
+      "status": "PASS",
+      "details": {
+        "averageMs": 6,
+        "minMs": 5,
+        "maxMs": 8,
+        "measurements": [
+          7,
+          7,
+          5,
+          8,
+          6
+        ]
+      },
+      "timestamp": "2025-06-15T22:08:34.805Z"
+    },
+    {
+      "phase": "Performance",
+      "test": "Response Time /api/status",
+      "service": "wigleToTak",
+      "status": "PASS",
+      "details": {
+        "averageMs": 8,
+        "minMs": 5,
+        "maxMs": 9,
+        "measurements": [
+          9,
+          8,
+          7,
+          5,
+          8
+        ]
+      },
+      "timestamp": "2025-06-15T22:08:35.376Z"
+    },
+    {
+      "phase": "Performance",
+      "test": "Response Time /list_wigle_files",
+      "service": "wigleToTak",
+      "status": "PASS",
+      "details": {
+        "averageMs": 6,
+        "minMs": 6,
+        "maxMs": 7,
+        "measurements": [
+          6,
+          6,
+          6,
+          7,
+          6
+        ]
+      },
+      "timestamp": "2025-06-15T22:08:35.908Z"
+    },
+    {
+      "phase": "Performance",
+      "test": "Concurrent Request Handling",
+      "status": "PASS",
+      "details": {
+        "concurrent": 10,
+        "successful": 10,
+        "failed": 0,
+        "totalTimeMs": 58,
+        "averageTimeMs": 6
+      },
+      "timestamp": "2025-06-15T22:08:35.968Z"
+    },
+    {
+      "phase": "WebSocket",
+      "test": "Spectrum Analyzer WebSocket",
+      "status": "FAIL",
+      "error": "Unexpected server response: 404",
+      "timestamp": "2025-06-15T22:08:35.981Z"
+    },
+    {
+      "phase": "WebSocket",
+      "test": "Spectrum Analyzer WebSocket",
+      "status": "FAIL",
+      "error": "No messages received",
+      "timestamp": "2025-06-15T22:08:35.981Z"
+    }
+  ],
+  "recommendations": [
+    {
+      "priority": "MEDIUM",
+      "category": "WebSocket",
+      "issue": "WebSocket connection failures",
+      "action": "Check WebSocket configuration and network connectivity"
+    },
+    {
+      "priority": "MEDIUM",
+      "category": "Dependencies",
+      "issue": "External dependency issues detected",
+      "action": "Verify OpenWebRX and other external services are running correctly"
+    }
+  ]
+}

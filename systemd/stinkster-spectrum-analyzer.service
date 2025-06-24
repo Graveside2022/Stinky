@@ -1,0 +1,48 @@
+[Unit]
+Description=Stinkster Spectrum Analyzer - HackRF Python Service
+Documentation=https://github.com/yourusername/stinkster
+After=network.target
+PartOf=stinkster.target
+
+[Service]
+Type=simple
+User=pi
+Group=pi
+WorkingDirectory=/home/pi/projects/stinkster_christian/stinkster/src/hackrf
+Environment="PATH=/usr/bin:/usr/local/bin:/home/pi/.local/bin"
+Environment="PYTHONUNBUFFERED=1"
+Environment="FLASK_APP=spectrum_analyzer.py"
+
+# Activate virtual environment and run
+ExecStartPre=/bin/bash -c 'if [ ! -d "venv" ]; then python3 -m venv venv && source venv/bin/activate && pip install -r requirements.txt; fi'
+ExecStart=/bin/bash -c 'source venv/bin/activate && python3 spectrum_analyzer.py'
+
+Restart=always
+RestartSec=10
+StartLimitBurst=5
+StartLimitIntervalSec=60
+
+# Logging
+StandardOutput=append:/var/log/stinkster-spectrum-analyzer.log
+StandardError=append:/var/log/stinkster-spectrum-analyzer.log
+
+# Process management
+KillMode=mixed
+KillSignal=SIGTERM
+TimeoutStopSec=10
+
+# Security
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=read-only
+ReadWritePaths=/home/pi/projects/stinkster_christian/stinkster/src/hackrf
+ReadWritePaths=/var/log
+ReadWritePaths=/home/pi/tmp
+
+# Device access for HackRF
+DeviceAllow=/dev/bus/usb rw
+SupplementaryGroups=plugdev
+
+[Install]
+WantedBy=stinkster.target

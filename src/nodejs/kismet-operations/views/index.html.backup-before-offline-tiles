@@ -1,0 +1,1916 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta http-equiv="cache-control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="pragma" content="no-cache">
+    <meta http-equiv="expires" content="0">
+    <title>Kismet Operations Center</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;700;800&display=swap" rel="stylesheet">
+    <style>
+        /* Theme Variables */
+        :root {
+            /* Default Blue Cyber Theme */
+            --bg-primary: #030610;
+            --bg-secondary: #0a1428;
+            --bg-accent: rgba(20, 20, 20, 0.95);
+            --bg-content: rgba(20, 20, 20, 0.85);
+            --bg-input: rgba(26, 26, 26, 1);
+            --bg-feed-item: rgba(26, 26, 26, 1);
+            --bg-status-item: rgba(26, 26, 26, 1);
+            --bg-stat-item: rgba(0, 0, 0, 0.3);
+            
+            --text-primary: #ffffff;
+            --text-secondary: #b8c5e0;
+            --text-muted: #7a8a9a;
+            --text-accent: #00d2ff;
+            
+            --border-primary: rgba(64, 64, 64, 0.3);
+            --border-secondary: rgba(124, 58, 237, 0.4);
+            --border-accent: rgba(0, 210, 255, 0.35);
+            
+            --gradient-primary: linear-gradient(135deg, #030610 0%, #0a1428 50%, #030610 100%);
+            --gradient-header: linear-gradient(90deg, rgba(124, 58, 237, 0.1) 0%, rgba(124, 58, 237, 0.2) 50%, rgba(124, 58, 237, 0.1) 100%);
+            --gradient-button: linear-gradient(135deg, rgba(124, 58, 237, 0.2) 0%, rgba(124, 58, 237, 0.1) 100%);
+            
+            --glow-primary: 0 0 20px rgba(124, 58, 237, 0.6);
+            --glow-secondary: 0 0 30px rgba(124, 58, 237, 0.9), 0 0 40px rgba(124, 58, 237, 0.6);
+            
+            --backdrop-blur: blur(12px);
+        }
+        
+        /* Blue Cyber Theme (Dark Theme) - Primary Stinkster Theme */
+        [data-theme="dark"] {
+            --bg-primary: #030610;
+            --bg-secondary: #0a1628;
+            --bg-accent: rgba(12, 22, 48, 0.95);
+            --bg-content: rgba(12, 22, 48, 0.85);
+            --bg-input: rgba(26, 31, 58, 1);
+            --bg-feed-item: rgba(26, 31, 58, 1);
+            --bg-status-item: rgba(26, 31, 58, 1);
+            --bg-stat-item: rgba(3, 6, 16, 0.7);
+            
+            --text-primary: #d0d8f0;
+            --text-secondary: #b8c5e0;
+            --text-muted: #7a8a9a;
+            --text-accent: #00d2ff;
+            
+            --border-primary: rgba(0, 210, 255, 0.3);
+            --border-secondary: rgba(0, 210, 255, 0.4);
+            --border-accent: rgba(0, 210, 255, 0.35);
+            
+            --gradient-primary: linear-gradient(135deg, #030610 0%, #0a1628 50%, #030610 100%);
+            --gradient-header: linear-gradient(90deg, rgba(0, 210, 255, 0.1) 0%, rgba(0, 210, 255, 0.2) 50%, rgba(0, 210, 255, 0.1) 100%);
+            --gradient-button: linear-gradient(135deg, rgba(0, 210, 255, 0.2) 0%, rgba(0, 210, 255, 0.1) 100%);
+            
+            --glow-primary: 0 0 20px rgba(0, 210, 255, 0.6);
+            --glow-secondary: 0 0 30px rgba(0, 210, 255, 0.9), 0 0 40px rgba(0, 210, 255, 0.6);
+            
+            --backdrop-blur: blur(12px);
+        }
+
+        /* Mobile-First CSS Reset */
+        *, *::before, *::after {
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+            margin: 0;
+            padding: 0;
+        }
+        
+        html {
+            font-size: 16px;
+            -webkit-text-size-adjust: 100%;
+            touch-action: manipulation;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+        }
+        
+        /* Background gradient */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: var(--gradient-primary);
+            z-index: -1;
+        }
+
+        /* Main Container - Mobile First */
+        .app-container {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Top Banner - Mobile First */
+        .top-banner {
+            background: var(--bg-accent);
+            backdrop-filter: var(--backdrop-blur);
+            border-bottom: 2px solid var(--border-secondary);
+            padding: 0.75rem;
+            text-align: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .top-banner h1 {
+            color: var(--text-primary);
+            text-transform: uppercase;
+            letter-spacing: 0.2em;
+            font-size: 1.5rem;
+            font-weight: 800;
+            margin: 0;
+            text-shadow: var(--glow-primary);
+            animation: glow 2s ease-in-out infinite alternate;
+        }
+        
+        @keyframes glow {
+            from { text-shadow: var(--glow-primary); }
+            to { text-shadow: var(--glow-secondary); }
+        }
+
+        /* Navigation Tabs - Mobile First */
+        .nav-tabs {
+            display: flex;
+            gap: 0.5rem;
+            padding: 0.5rem;
+            background: var(--bg-accent);
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: none;
+        }
+
+        .nav-tabs::-webkit-scrollbar {
+            display: none;
+        }
+
+        .nav-tab {
+            background: var(--bg-input);
+            border: 1px solid var(--border-primary);
+            border-radius: 4px;
+            padding: 0.75rem 1rem;
+            color: var(--text-secondary);
+            cursor: pointer;
+            white-space: nowrap;
+            font-size: 0.875rem;
+            min-height: 44px;
+            display: flex;
+            align-items: center;
+            transition: all 0.2s ease;
+            flex-shrink: 0;
+        }
+
+        .nav-tab.active {
+            background: var(--gradient-button);
+            border-color: var(--text-accent);
+            color: var(--text-accent);
+        }
+
+        /* Content Area - Mobile First */
+        .content-area {
+            flex: 1;
+            padding: 0.5rem;
+        }
+
+        /* Tab Panes - Mobile First */
+        .tab-pane {
+            display: none;
+        }
+
+        .tab-pane.active {
+            display: block;
+        }
+
+        /* Grid Item - Mobile First */
+        .grid-item {
+            background: var(--bg-content);
+            backdrop-filter: var(--backdrop-blur);
+            border: 1px solid var(--border-primary);
+            border-radius: 8px;
+            overflow: hidden;
+            margin-bottom: 1rem;
+            width: 100%;
+        }
+
+        .box-header {
+            background: var(--gradient-header);
+            border-bottom: 1px solid var(--border-primary);
+            padding: 0.75rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .box-header h2 {
+            color: var(--text-accent);
+            margin: 0;
+            font-size: 1rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        /* Minimize button styles */
+        .box-header button {
+            background: none;
+            border: none;
+            color: var(--text-accent);
+            cursor: pointer;
+            padding: 0.25rem;
+            transition: color 0.2s ease;
+            position: relative;
+            z-index: 10;
+        }
+
+        .box-header button:hover {
+            color: var(--text-primary);
+        }
+
+        .box-header button:active {
+            transform: scale(0.95);
+        }
+
+        .box-header button svg {
+            pointer-events: none;
+        }
+
+        .grid-item-content {
+            padding: 1rem;
+        }
+
+        /* Buttons - Mobile First */
+        .btn-cyber {
+            width: 100%;
+            background: var(--gradient-button);
+            color: var(--text-primary);
+            border: 1px solid var(--border-secondary);
+            border-radius: 6px;
+            padding: 0.875rem;
+            font-size: 0.875rem;
+            font-weight: 500;
+            cursor: pointer;
+            min-height: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            transition: all 0.2s ease;
+            text-transform: uppercase;
+            margin-bottom: 0.75rem;
+        }
+
+        .btn-cyber:last-child {
+            margin-bottom: 0;
+        }
+
+        .btn-cyber.btn-green {
+            background: rgba(16, 185, 129, 0.2);
+            border-color: #00ff88;
+            color: #00ff88;
+        }
+
+        .btn-cyber.btn-blue {
+            background: rgba(14, 165, 233, 0.2);
+            border-color: #0ea5e9;
+            color: #0ea5e9;
+        }
+
+        .btn-cyber.btn-orange {
+            background: rgba(255, 170, 0, 0.2);
+            border-color: #ffaa00;
+            color: #ffaa00;
+        }
+
+        .btn-cyber.btn-red {
+            background: rgba(255, 68, 68, 0.2);
+            border-color: #ff4444;
+            color: #ff4444;
+        }
+
+        /* Status Indicators */
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #666;
+            display: inline-block;
+        }
+
+        .status-dot.active {
+            background: #0f0;
+            box-shadow: 0 0 10px #0f0;
+        }
+
+        .status-dot.inactive {
+            background: #666;
+        }
+
+        /* Form Elements - Mobile First */
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            margin-bottom: 0.5rem;
+        }
+
+        .input-cyber {
+            width: 100%;
+            padding: 0.75rem;
+            background: var(--bg-input);
+            border: 1px solid var(--border-primary);
+            border-radius: 4px;
+            color: var(--text-primary);
+            font-size: 16px; /* Prevents zoom on iOS */
+        }
+
+        .input-cyber:focus {
+            outline: none;
+            border-color: var(--text-accent);
+            box-shadow: 0 0 0 2px var(--border-secondary);
+        }
+
+        /* Stats Grid - Mobile First */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+
+        .stat-item {
+            background: var(--bg-stat-item);
+            padding: 0.5rem;
+            border-radius: 4px;
+        }
+
+        .stat-value {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: #00ff88;
+        }
+
+        .stat-label {
+            font-size: 0.625rem;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+        }
+
+        /* Feed Container - Mobile First */
+        .feed-container {
+            max-height: 150px;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .feed-item {
+            padding: 0.5rem;
+            background: var(--bg-feed-item);
+            border-radius: 4px;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-bottom: 0.5rem;
+        }
+        
+        .feed-item-blink {
+            animation: blink-glow 2s ease-out;
+        }
+        
+        @keyframes blink-glow {
+            0% { background: var(--border-secondary); border: 1px solid var(--text-accent); }
+            50% { background: var(--gradient-button); }
+            100% { background: var(--bg-feed-item); border: 1px solid transparent; }
+        }
+
+        /* Service Status - Mobile First */
+        .status-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem;
+            background: var(--bg-status-item);
+            border-radius: 4px;
+            margin-bottom: 0.5rem;
+            font-size: 0.875rem;
+        }
+
+        /* Hide elements */
+        .desktop-only {
+            display: none;
+        }
+
+        /* Kismet iframe specific fixes */
+        #kismetFrame {
+            position: absolute;
+            z-index: 1;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            border: none;
+        }
+
+        /* Ensure iframe container allows overflow for dropdowns */
+        .grid-item-content {
+            overflow: visible !important;
+            position: relative;
+        }
+        
+        /* Specific fix for Kismet iframe container */
+        #kismet-container .grid-item-content {
+            min-height: 400px;
+            padding: 0 !important;
+            position: relative;
+            height: calc(100% - 45px); /* Account for header */
+        }
+        
+        /* Ensure kismet container is resizable */
+        #kismet-container {
+            position: absolute;
+            min-width: 300px;
+            min-height: 300px;
+        }
+        
+        .hidden {
+            display: none !important;
+        }
+        
+        /* Minimized state styles */
+        .grid-item.minimized {
+            display: none !important;
+        }
+        
+        .minimized-tab {
+            background: var(--gradient-button) !important;
+            border: 1px solid var(--border-secondary) !important;
+        }
+        
+        .minimized-tab:hover {
+            background: var(--border-secondary) !important;
+            border-color: var(--text-accent) !important;
+        }
+        
+        /* Minimized tabs bar */
+        #minimized-tabs {
+            position: fixed;
+            top: 60px;
+            left: 0;
+            right: 0;
+            z-index: 90;
+            height: 40px;
+            background: var(--bg-accent);
+            backdrop-filter: var(--backdrop-blur);
+            border-bottom: 1px solid var(--border-accent);
+            padding: 0.25rem 0.5rem;
+            display: flex;
+            gap: 0.5rem;
+            overflow-x: auto;
+        }
+        
+        /* Notification styles */
+        .notification {
+            position: fixed;
+            bottom: 1rem;
+            right: 1rem;
+            max-width: calc(100% - 2rem);
+            background: var(--bg-accent);
+            border: 1px solid var(--text-accent);
+            border-radius: 4px;
+            padding: 1rem;
+            color: var(--text-accent);
+            z-index: 1000;
+            backdrop-filter: var(--backdrop-blur);
+            display: none;
+        }
+        
+        .notification.error {
+            border-color: #ff4444;
+            color: #ff4444;
+        }
+        
+        .notification.success {
+            border-color: #00ff88;
+            color: #00ff88;
+        }
+
+        /* Tablet Styles */
+        @media (min-width: 768px) {
+            .top-banner h1 {
+                font-size: 2rem;
+            }
+
+            .nav-tabs {
+                padding: 0.75rem;
+            }
+
+            .content-area {
+                padding: 1rem;
+            }
+
+            .grid-item {
+                margin-bottom: 1.5rem;
+            }
+
+            .box-header h2 {
+                font-size: 1.125rem;
+            }
+
+            .btn-cyber {
+                font-size: 0.9375rem;
+            }
+
+            .stats-grid {
+                gap: 0.75rem;
+            }
+
+            .stat-value {
+                font-size: 1.5rem;
+            }
+
+            .stat-label {
+                font-size: 0.75rem;
+            }
+        }
+
+        /* Desktop Styles */
+        @media (min-width: 1024px) {
+            .top-banner h1 {
+                font-size: 3rem;
+                letter-spacing: 0.3em;
+            }
+
+            /* Hide mobile navigation on desktop */
+            .nav-tabs {
+                display: none;
+            }
+
+            /* Show desktop-only elements */
+            .desktop-only {
+                display: block;
+            }
+
+            /* Desktop 3-column layout */
+            .content-area {
+                max-width: 1400px;
+                margin: 0 auto;
+                padding: 2rem;
+                display: grid;
+                grid-template-columns: 1fr 2fr 1fr;
+                gap: 2rem;
+            }
+
+            /* Show all panes on desktop */
+            .tab-pane {
+                display: block !important;
+            }
+
+            /* Desktop grid adjustments */
+            .grid-item {
+                margin-bottom: 1.5rem;
+            }
+
+            .btn-cyber {
+                font-size: 1rem;
+            }
+
+            /* Button grid on desktop */
+            .button-grid {
+                display: grid;
+                grid-template-columns: repeat(2, 1fr);
+                gap: 0.75rem;
+            }
+
+            .button-grid .btn-cyber {
+                margin-bottom: 0;
+            }
+
+            .stat-value {
+                font-size: 2rem;
+            }
+
+            .stat-label {
+                font-size: 0.875rem;
+            }
+        }
+    </style>
+    <!-- Cesium CSS and JS -->
+    <link href="https://cesium.com/downloads/cesiumjs/releases/1.119/Build/Cesium/Widgets/widgets.css" rel="stylesheet">
+    <script src="https://cesium.com/downloads/cesiumjs/releases/1.119/Build/Cesium/Cesium.js"></script>
+</head>
+<body data-theme="dark">
+    <div class="app-container">
+        <header class="top-banner">
+            <h1>STINKSTER</h1>
+        </header>
+
+        <!-- Minimized Tabs Bar (hidden by default) -->
+        <div id="minimized-tabs" class="hidden">
+            <!-- Minimized tabs will be inserted here dynamically -->
+        </div>
+
+        <!-- Mobile Navigation -->
+        <nav class="nav-tabs">
+            <button class="nav-tab active" data-tab="kismet">Kismet</button>
+            <button class="nav-tab" data-tab="controls">Controls</button>
+            <button class="nav-tab" data-tab="map">Map</button>
+            <button class="nav-tab" data-tab="config">Config</button>
+        </nav>
+
+        <div class="content-area">
+            <!-- Kismet Tab -->
+            <div class="tab-pane active" id="kismet-tab">
+                <div class="grid-item" id="kismet-container">
+                    <div class="box-header">
+                        <h2>Kismet Operations</h2>
+                        <div style="display: flex; gap: 0.5rem;">
+                            <button style="background: none; border: none; color: #00d2ff; cursor: pointer; padding: 0.25rem;" onclick="window.open('http://localhost:2501', '_blank')" title="Open Kismet in new tab">
+                                <svg style="width: 20px; height: 20px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
+                                </svg>
+                            </button>
+                            <button style="background: none; border: none; color: #00d2ff; cursor: pointer; padding: 0.25rem;" onclick="document.getElementById('kismetFrame').src = document.getElementById('kismetFrame').src" title="Refresh iframe">
+                                <svg style="width: 20px; height: 20px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                                </svg>
+                            </button>
+                            <button style="background: none; border: none; color: #00d2ff; cursor: pointer; padding: 0.25rem;" onclick="toggleMinimize(this)">
+                                <svg style="width: 20px; height: 20px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"></path>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="grid-item-content" style="padding: 0;">
+                        <iframe id="kismetFrame" src="http://localhost:2501" allow="fullscreen; clipboard-write; clipboard-read"></iframe>
+                    </div>
+                </div>
+
+                <div class="grid-item" id="kismet-data-feed-container">
+                    <div class="box-header">
+                        <h2>Kismet Data Feed</h2>
+                        <div style="display: flex; gap: 0.5rem;">
+                            <button style="background: none; border: none; color: #00d2ff; cursor: pointer; padding: 0.25rem;" onclick="toggleMinimize(this)">
+                                <svg style="width: 20px; height: 20px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"></path>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="grid-item-content">
+                        <div class="stats-grid">
+                            <div class="stat-item">
+                                <div class="stat-value" id="devices-count">0</div>
+                                <div class="stat-label">Devices</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-value" id="networks-count">0</div>
+                                <div class="stat-label">Networks</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-value" id="last-update">--</div>
+                                <div class="stat-label">Update</div>
+                            </div>
+                        </div>
+
+                        <h3 style="color: #00d2ff; margin: 0.75rem 0 0.5rem 0; font-size: 0.875rem;">Recent Devices</h3>
+                        <div class="feed-container" id="devices-list">
+                            <div class="feed-item">No devices detected</div>
+                        </div>
+
+                        <h3 style="color: #00d2ff; margin: 0.75rem 0 0.5rem 0; font-size: 0.875rem;">Activity Feed</h3>
+                        <div class="feed-container" id="kismet-feed">
+                            <div class="feed-item">Waiting for activity...</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Controls Tab -->
+            <div class="tab-pane" id="controls-tab">
+                <div class="grid-item" id="service-controls-container">
+                    <div class="box-header">
+                        <h2>Service Controls</h2>
+                        <div style="display: flex; gap: 0.5rem;">
+                            <button style="background: none; border: none; color: #00d2ff; cursor: pointer; padding: 0.25rem;" onclick="toggleMinimize(this)">
+                                <svg style="width: 20px; height: 20px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"></path>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="grid-item-content">
+                        <button class="btn-cyber btn-green" data-service="gps" onclick="startService('gps')">
+                            <span class="status-dot inactive"></span>
+                            Start GPS
+                        </button>
+                        <button class="btn-cyber btn-blue" data-service="kismet" onclick="startService('kismet')">
+                            <span class="status-dot inactive"></span>
+                            Start Kismet
+                        </button>
+                        <button class="btn-cyber btn-orange" data-service="wigle" onclick="startService('wigle')">
+                            <span class="status-dot inactive"></span>
+                            Start Wigle
+                        </button>
+                        <button class="btn-cyber btn-red" onclick="stopAllServices()">
+                            Stop All
+                        </button>
+                        <div style="margin: 1rem 0; border-top: 1px solid rgba(0, 210, 255, 0.2);"></div>
+                        <button class="btn-cyber" style="background: rgba(0, 255, 136, 0.3); border-color: #00ff88;" onclick="startKismet()">
+                            Start All Services
+                        </button>
+                        <div style="margin: 1rem 0; border-top: 1px solid rgba(0, 210, 255, 0.2);"></div>
+                        <button class="btn-cyber btn-blue" onclick="window.open('http://localhost:8073', '_blank')">
+                            Open WebRX UI
+                        </button>
+                        <button class="btn-cyber btn-orange" onclick="window.open('http://localhost:8092', '_blank')">
+                            Open HackRF Sweep
+                        </button>
+                    </div>
+                </div>
+
+                <div class="grid-item" id="service-status-container">
+                    <div class="box-header">
+                        <h2>Service Status</h2>
+                        <div style="display: flex; gap: 0.5rem;">
+                            <button style="background: none; border: none; color: #00d2ff; cursor: pointer; padding: 0.25rem;" onclick="toggleMinimize(this)">
+                                <svg style="width: 20px; height: 20px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"></path>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="grid-item-content">
+                        <div class="status-item">
+                            <span>GPS Service</span>
+                            <span style="color: #dc3545;">Offline</span>
+                        </div>
+                        <div class="status-item">
+                            <span>Kismet Scanner</span>
+                            <span style="color: #dc3545;">Offline</span>
+                        </div>
+                        <div class="status-item">
+                            <span>WigleToTAK</span>
+                            <span style="color: #dc3545;">Offline</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid-item" id="system-information-container">
+                    <div class="box-header">
+                        <h2>System Information</h2>
+                        <div style="display: flex; gap: 0.5rem;">
+                            <button style="background: none; border: none; color: #00d2ff; cursor: pointer; padding: 0.25rem;" onclick="toggleMinimize(this)">
+                                <svg style="width: 20px; height: 20px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"></path>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="grid-item-content">
+                        <div style="margin-bottom: 1rem;">
+                            <h3 style="color: #00d2ff; margin: 0 0 0.5rem 0; font-size: 0.875rem;">GPS Status</h3>
+                            <div class="status-item">
+                                <span>Status</span>
+                                <span id="gps-status" style="color: #b8c5e0;">Unknown</span>
+                            </div>
+                            <div class="status-item">
+                                <span>Latitude</span>
+                                <span id="gps-lat" style="color: #b8c5e0;">N/A</span>
+                            </div>
+                            <div class="status-item">
+                                <span>Longitude</span>
+                                <span id="gps-lon" style="color: #b8c5e0;">N/A</span>
+                            </div>
+                        </div>
+                        
+                        <h3 style="color: #00d2ff; margin: 0 0 0.5rem 0; font-size: 0.875rem;">Activity Feed</h3>
+                        <div class="feed-container">
+                            <div class="feed-item">System initialized</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Config Tab -->
+            <div class="tab-pane" id="config-tab">
+                <div class="grid-item" id="configuration-container">
+                    <div class="box-header">
+                        <h2>Configuration</h2>
+                        <div style="display: flex; gap: 0.5rem;">
+                            <button style="background: none; border: none; color: #00d2ff; cursor: pointer; padding: 0.25rem;" onclick="toggleMinimize(this)">
+                                <svg style="width: 20px; height: 20px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"></path>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="grid-item-content">
+                        <div class="form-group">
+                            <label class="form-label">TAK Server IP</label>
+                            <input type="text" class="input-cyber" value="239.2.3.1">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">TAK Port</label>
+                            <input type="number" class="input-cyber" value="6969">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Update Interval (s)</label>
+                            <input type="number" class="input-cyber" value="5">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid-item" id="detected-devices-container">
+                    <div class="box-header">
+                        <h2>Detected Devices</h2>
+                        <div style="display: flex; gap: 0.5rem;">
+                            <button style="background: none; border: none; color: #00d2ff; cursor: pointer; padding: 0.25rem;" onclick="toggleMinimize(this)">
+                                <svg style="width: 20px; height: 20px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"></path>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="grid-item-content">
+                        <div style="text-align: center; padding: 2rem; color: #b8c5e0; font-size: 0.875rem;">
+                            No devices detected. Start the service to begin scanning.
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Map Tab -->
+            <div class="tab-pane" id="map-tab">
+                <div class="grid-item" style="height: 100%;">
+                    <div class="box-header">
+                        <h2>3D Globe View</h2>
+                        <div style="display: flex; gap: 0.5rem;">
+                            <button style="background: none; border: none; color: #00d2ff; cursor: pointer; padding: 0.25rem;" onclick="toggleMinimize(this)">
+                                <svg style="width: 20px; height: 20px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"></path>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="grid-item-content" style="padding: 0; height: calc(100% - 60px);">
+                        <div id="cesium-container" style="width: 100%; height: 100%;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        // Global state
+        let servicesStarting = false;
+        let startupBeginTime = null;
+        let rapidUpdateInterval = null;
+        let statusUpdateInterval = null;
+        
+        // Messages for system status
+        const messages = [
+            "Calibrating Chroniton Emitters...",
+            "Quantum Field Sync: 99.97%",
+            "Reality Matrix Stabilized.",
+            "Interface Online. Welcome, Commander."
+        ];
+        let messageIndex = 0;
+
+        // Initialize application
+        function initializeApplication() {
+            // Initialize components
+            initializePeriodicUpdates();
+            initializeStatusUpdates();
+            
+            // Set initial position for Kismet container (bottom half of page)
+            const kismetContainer = document.getElementById('kismet-container');
+            if (kismetContainer) {
+                kismetContainer.style.position = 'fixed';
+                kismetContainer.style.top = '50%';
+                kismetContainer.style.left = '0';
+                kismetContainer.style.width = '100%';
+                kismetContainer.style.height = '50%';
+                kismetContainer.style.zIndex = '1000';
+            }
+            
+            console.log('Kismet Operations Center initialized');
+        }
+
+        // Tab switching
+        document.querySelectorAll('.nav-tab').forEach(tab => {
+            tab.addEventListener('click', function() {
+                // Remove active from all
+                document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+                document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+                
+                // Add active to clicked
+                this.classList.add('active');
+                const tabName = this.getAttribute('data-tab');
+                document.getElementById(`${tabName}-tab`).classList.add('active');
+            });
+        });
+
+        // Socket.io connection
+        const socket = io();
+        
+        // Socket event handlers
+        socket.on('service-status', function(data) {
+            updateServiceStatus(data);
+        });
+        
+        socket.on('kismet-data', function(data) {
+            updateKismetDataDisplay(data);
+        });
+        
+        socket.on('activity-log', function(message) {
+            addActivityLog(message);
+        });
+
+        // Service control functions
+        async function startService(service) {
+            console.log('Starting service:', service);
+            
+            // Map service names to script names (without .sh extension)
+            const scriptMap = {
+                'kismet': 'kismet',
+                'gps': 'gps_kismet_wigle',
+                'wigle': 'gps_kismet_wigle'
+            };
+            
+            const scriptName = scriptMap[service] || service;
+            
+            try {
+                const response = await fetch('/api/start-script', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ scriptName: scriptName })
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                console.log('Start service response:', data);
+                
+                showNotification(`${service.toUpperCase()} service started`, 'success');
+                
+                // Update button state
+                const button = event.currentTarget || event.target;
+                const statusDot = button.querySelector('.status-dot');
+                if (statusDot) {
+                    statusDot.classList.remove('inactive');
+                    statusDot.classList.add('active');
+                }
+                
+                // Also emit via socket if connected
+                if (socket && socket.connected) {
+                    socket.emit('start-service', service);
+                }
+            } catch (error) {
+                console.error('Failed to start service:', error);
+                showNotification(`Failed to start ${service}: ${error.message}`, 'error');
+            }
+        }
+
+        async function stopAllServices() {
+            console.log('Stopping all services');
+            
+            try {
+                const response = await fetch('/api/stop-script', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ scriptName: 'gps_kismet_wigle.sh' })
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                console.log('Stop all services response:', data);
+                
+                showNotification('All services stopped', 'success');
+                
+                // Update all status dots
+                document.querySelectorAll('.status-dot').forEach(dot => {
+                    dot.classList.remove('active');
+                    dot.classList.add('inactive');
+                });
+                
+                // Also emit via socket if connected
+                if (socket && socket.connected) {
+                    socket.emit('stop-all-services');
+                }
+            } catch (error) {
+                console.error('Failed to stop services:', error);
+                showNotification(`Failed to stop services: ${error.message}`, 'error');
+            }
+        }
+        
+        // Start Kismet services
+        async function startKismet() {
+            console.log('startKismet function called');
+            
+            // Update status indicators
+            const kismetStatus = document.querySelector('[data-service="kismet"] .status-dot');
+            const wigleStatus = document.querySelector('[data-service="wigle"] .status-dot');
+            
+            if (kismetStatus) {
+                kismetStatus.style.background = '#ffaa00';
+                kismetStatus.style.boxShadow = '0 0 10px #ffaa00';
+            }
+            if (wigleStatus) {
+                wigleStatus.style.background = '#ffaa00';
+                wigleStatus.style.boxShadow = '0 0 10px #ffaa00';
+            }
+            
+            try {
+                console.log('Attempting to call /api/start-script endpoint');
+                const response = await fetch('/api/start-script', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ scriptName: 'gps_kismet_wigle.sh' })
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                console.log('Response data:', data);
+                
+                if(data.success === true) {
+                    servicesStarting = true;
+                    startupBeginTime = Date.now();
+                    startStatusUpdates();
+                }
+            } catch (error) {
+                console.error('Error in startKismet:', error);
+            }
+        }
+        
+        // Update system status
+        function updateSystemStatus() {
+            fetch('/info', {
+                method: 'GET',
+                headers: {
+                    'Accept': 'application/json'
+                }
+            })
+                .then(response => response.json())
+                .then(data => {
+                    // Update GPS info if elements exist
+                    const gpsStatus = document.getElementById('gps-status');
+                    const gpsLat = document.getElementById('gps-lat');
+                    const gpsLon = document.getElementById('gps-lon');
+                    
+                    if (gpsStatus && data.gps) {
+                        gpsStatus.textContent = data.gps.status || 'Unknown';
+                        if (gpsLat) gpsLat.textContent = data.gps.lat || 'N/A';
+                        if (gpsLon) gpsLon.textContent = data.gps.lon || 'N/A';
+                    }
+                })
+                .catch(error => {
+                    console.error('Error updating system status:', error);
+                });
+        }
+
+        // Cesium Globe Initialization
+        let cesiumViewer = null;
+        let positionEntity = null;
+        let lastGpsUpdate = null;
+
+        function initializeCesiumGlobe() {
+            try {
+                // Set Cesium Ion default access token
+                Cesium.Ion.defaultAccessToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiJlYWE1OWUxNy1mMWZiLTQzYjYtYTQ0OS1kMWFjYmFkNjc5YzAiLCJpZCI6NTc3MzMsImlhdCI6MTYyNzg0NTE4Mn0.XcKpgANiY19MC4bdFUXMVEBToBmqS8kuYpUlxJHYZxk';
+                
+                // Initialize Cesium viewer with minimal, compatible settings
+                cesiumViewer = new Cesium.Viewer('cesium-container', {
+                    terrainProvider: new Cesium.EllipsoidTerrainProvider(),
+                    imageryProvider: new Cesium.UrlTemplateImageryProvider({
+                        url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+                        credit: 'Tiles © Esri',
+                        maximumLevel: 19
+                    }),
+                    baseLayerPicker: false,
+                    geocoder: false,
+                    homeButton: false,
+                    sceneModePicker: false,
+                    navigationHelpButton: false,
+                    animation: false,
+                    timeline: false,
+                    fullscreenButton: false,
+                    vrButton: false,
+                    selectionIndicator: false,
+                    infoBox: false,
+                    scene3DOnly: true
+                });
+
+                // Try multiple imagery providers until one works
+                const imageryProviders = [
+                    {
+                        name: 'Esri World Imagery',
+                        provider: () => new Cesium.UrlTemplateImageryProvider({
+                            url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+                            credit: 'Tiles © Esri',
+                            maximumLevel: 19
+                        })
+                    },
+                    {
+                        name: 'CartoDB Positron',
+                        provider: () => new Cesium.UrlTemplateImageryProvider({
+                            url: 'https://a.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png',
+                            credit: 'Map tiles by CartoDB, under CC BY 3.0',
+                            maximumLevel: 18
+                        })
+                    },
+                    {
+                        name: 'Stamen Terrain',
+                        provider: () => new Cesium.UrlTemplateImageryProvider({
+                            url: 'https://stamen-tiles.a.ssl.fastly.net/terrain/{z}/{x}/{y}.png',
+                            credit: 'Map tiles by Stamen Design, under CC BY 3.0',
+                            maximumLevel: 18
+                        })
+                    },
+                    {
+                        name: 'OpenTopoMap',
+                        provider: () => new Cesium.UrlTemplateImageryProvider({
+                            url: 'https://a.tile.opentopomap.org/{z}/{x}/{y}.png',
+                            credit: 'Map data © OpenStreetMap contributors, SRTM | Map style © OpenTopoMap',
+                            maximumLevel: 17
+                        })
+                    }
+                ];
+
+                // Remove existing imagery and try providers
+                cesiumViewer.imageryLayers.removeAll();
+                let imageryAdded = false;
+
+                for (const providerInfo of imageryProviders) {
+                    try {
+                        const provider = providerInfo.provider();
+                        cesiumViewer.imageryLayers.addImageryProvider(provider);
+                        console.log(`Successfully loaded imagery: ${providerInfo.name}`);
+                        imageryAdded = true;
+                        break;
+                    } catch (error) {
+                        console.warn(`Failed to load ${providerInfo.name}:`, error);
+                    }
+                }
+
+                if (!imageryAdded) {
+                    console.error('All imagery providers failed, using Cesium default');
+                }
+
+                // Set initial view - use compatible lighting settings
+                try {
+                    cesiumViewer.scene.globe.enableLighting = true;
+                } catch (e) {
+                    console.log('Lighting not supported in this Cesium version');
+                }
+                cesiumViewer.scene.globe.depthTestAgainstTerrain = false; // Disable for better performance
+                
+                // Add position marker entity
+                positionEntity = cesiumViewer.entities.add({
+                    position: Cesium.Cartesian3.fromDegrees(0, 0),
+                    point: {
+                        pixelSize: 10,
+                        color: Cesium.Color.CYAN,
+                        outlineColor: Cesium.Color.WHITE,
+                        outlineWidth: 3,
+                        heightReference: Cesium.HeightReference.CLAMP_TO_GROUND
+                    },
+                    label: {
+                        text: 'System Location',
+                        font: '14pt Inter',
+                        verticalOrigin: Cesium.VerticalOrigin.BOTTOM,
+                        pixelOffset: new Cesium.Cartesian2(0, -20),
+                        fillColor: Cesium.Color.CYAN,
+                        outlineColor: Cesium.Color.BLACK,
+                        outlineWidth: 2,
+                        style: Cesium.LabelStyle.FILL_AND_OUTLINE
+                    }
+                });
+
+                // Zoom controls
+                document.getElementById('zoom-in').addEventListener('click', () => {
+                    const camera = cesiumViewer.camera;
+                    camera.zoomIn(camera.positionCartographic.height * 0.5);
+                });
+
+                document.getElementById('zoom-out').addEventListener('click', () => {
+                    const camera = cesiumViewer.camera;
+                    camera.zoomOut(camera.positionCartographic.height * 0.5);
+                });
+
+                console.log('Cesium globe initialized successfully');
+            } catch (error) {
+                console.error('Failed to initialize Cesium globe:', error);
+                document.getElementById('cesium-container').innerHTML = 
+                    '<div style="color: #ff4444; padding: 20px; text-align: center;">Failed to load globe</div>';
+            }
+        }
+
+        // Update globe position from GPS data
+        function updateGlobePosition(lat, lon) {
+            if (!cesiumViewer || !positionEntity) return;
+            
+            try {
+                const latNum = parseFloat(lat);
+                const lonNum = parseFloat(lon);
+                
+                if (isNaN(latNum) || isNaN(lonNum)) return;
+                
+                // Update entity position
+                const position = Cesium.Cartesian3.fromDegrees(lonNum, latNum);
+                positionEntity.position = position;
+                
+                // Update position display
+                document.getElementById('globe-position').textContent = 
+                    `${latNum.toFixed(6)}°, ${lonNum.toFixed(6)}°`;
+                
+                // Fly to position if it's the first update or significant change
+                if (!lastGpsUpdate || 
+                    Math.abs(lastGpsUpdate.lat - latNum) > 0.1 || 
+                    Math.abs(lastGpsUpdate.lon - lonNum) > 0.1) {
+                    
+                    cesiumViewer.camera.flyTo({
+                        destination: Cesium.Cartesian3.fromDegrees(lonNum, latNum, 50000),
+                        duration: 2.0
+                    });
+                    
+                    lastGpsUpdate = { lat: latNum, lon: lonNum };
+                }
+                
+                // Request render
+                cesiumViewer.scene.requestRender();
+            } catch (error) {
+                console.error('Error updating globe position:', error);
+            }
+        }
+
+        // Modify the existing updateSystemStatus function to call updateGlobePosition
+        const originalUpdateSystemStatus = updateSystemStatus;
+        updateSystemStatus = function() {
+            originalUpdateSystemStatus();
+            
+            // Also fetch GPS data for globe update
+            fetch('/info', {
+                method: 'GET',
+                headers: {
+                    'Accept': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.gps && data.gps.lat && data.gps.lon) {
+                    updateGlobePosition(data.gps.lat, data.gps.lon);
+                }
+            })
+            .catch(error => {
+                console.error('Error fetching GPS for globe:', error);
+            });
+        };
+
+        // Initialize Cesium when page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            setTimeout(initializeCesiumGlobe, 1000); // Delay to ensure Cesium is loaded
+        });
+
+        // Update Kismet data
+        function updateKismetData() {
+            fetch('/kismet-data', {
+                method: 'GET',
+                headers: {
+                    'Accept': 'application/json'
+                }
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    console.log('Kismet data received:', data);
+                    
+                    // Update device counts
+                    const devicesCountEl = document.getElementById('devices-count');
+                    const networksCountEl = document.getElementById('networks-count');
+                    const lastUpdateEl = document.getElementById('last-update');
+                    
+                    if (devicesCountEl) devicesCountEl.textContent = data.devices_count || '0';
+                    if (networksCountEl) networksCountEl.textContent = data.networks_count || '0';
+                    if (lastUpdateEl) {
+                        const now = new Date();
+                        lastUpdateEl.textContent = now.toLocaleTimeString('en-US', { 
+                            hour: '2-digit', 
+                            minute: '2-digit' 
+                        });
+                    }
+                    
+                    // Update feed
+                    const feedContainer = document.getElementById('kismet-feed');
+                    if (feedContainer && data.feed_items && data.feed_items.length > 0) {
+                        feedContainer.innerHTML = '';
+                        data.feed_items.slice(0, 5).forEach(item => {
+                            const feedItem = document.createElement('div');
+                            feedItem.className = 'feed-item feed-item-blink';
+                            feedItem.textContent = `${item.type || 'Activity'}: ${item.message || ''}`;
+                            feedContainer.appendChild(feedItem);
+                            
+                            // Remove blink animation after 2 seconds
+                            setTimeout(() => feedItem.classList.remove('feed-item-blink'), 2000);
+                        });
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching Kismet data:', error);
+                    const devicesCountEl = document.getElementById('devices-count');
+                    const networksCountEl = document.getElementById('networks-count');
+                    const lastUpdateEl = document.getElementById('last-update');
+                    
+                    if (devicesCountEl) devicesCountEl.textContent = '0';
+                    if (networksCountEl) networksCountEl.textContent = '0';
+                    if (lastUpdateEl) lastUpdateEl.textContent = '--';
+                });
+        }
+
+        // Update Kismet status
+        function updateKismetStatus() {
+            fetch('/script-status')
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    console.log('Kismet status response:', data);
+                    
+                    // Update service status displays
+                    const statusItems = document.querySelectorAll('.status-item');
+                    statusItems.forEach(item => {
+                        const serviceName = item.querySelector('span:first-child').textContent;
+                        const statusSpan = item.querySelector('span:last-child');
+                        
+                        if (serviceName.includes('GPS') && data.gps_running !== undefined) {
+                            statusSpan.textContent = data.gps_running ? 'Online' : 'Offline';
+                            statusSpan.style.color = data.gps_running ? '#0f0' : '#dc3545';
+                        } else if (serviceName.includes('Kismet') && data.kismet_running !== undefined) {
+                            statusSpan.textContent = data.kismet_running ? 'Online' : 'Offline';
+                            statusSpan.style.color = data.kismet_running ? '#0f0' : '#dc3545';
+                        } else if (serviceName.includes('WigleToTAK') && data.wigle_running !== undefined) {
+                            statusSpan.textContent = data.wigle_running ? 'Online' : 'Offline';
+                            statusSpan.style.color = data.wigle_running ? '#0f0' : '#dc3545';
+                        }
+                    });
+                    
+                    // Update button status dots
+                    const buttons = document.querySelectorAll('.btn-cyber[data-service]');
+                    buttons.forEach(button => {
+                        const service = button.getAttribute('data-service');
+                        const statusDot = button.querySelector('.status-dot');
+                        if (statusDot) {
+                            if ((service === 'gps' && data.gps_running) ||
+                                (service === 'kismet' && data.kismet_running) ||
+                                (service === 'wigle' && data.wigle_running)) {
+                                statusDot.classList.remove('inactive');
+                                statusDot.classList.add('active');
+                            } else {
+                                statusDot.classList.remove('active');
+                                statusDot.classList.add('inactive');
+                            }
+                        }
+                    });
+                })
+                .catch(error => {
+                    console.error('Error checking Kismet status:', error);
+                });
+        }
+
+        // Start frequent status updates
+        function startStatusUpdates() {
+            if (statusUpdateInterval) {
+                clearInterval(statusUpdateInterval);
+            }
+            updateKismetStatus();
+            statusUpdateInterval = setInterval(updateKismetStatus, 1000);
+            setTimeout(() => {
+                clearInterval(statusUpdateInterval);
+                setInterval(updateKismetStatus, 5000);
+            }, 30000);
+        }
+
+        // Initialize periodic updates
+        function initializePeriodicUpdates() {
+            setInterval(updateSystemStatus, 5000);
+            setInterval(updateKismetData, 2000);
+            
+            // Initial updates
+            updateSystemStatus();
+            updateKismetData();
+        }
+
+        // Initialize status updates
+        function initializeStatusUpdates() {
+            setInterval(updateKismetStatus, 5000);
+            updateKismetStatus();
+        }
+        
+        // Update service status from socket data
+        function updateServiceStatus(data) {
+            console.log('Service status update:', data);
+            // Update UI based on service status
+        }
+        
+        // Update Kismet data display from socket
+        function updateKismetDataDisplay(data) {
+            console.log('Kismet data update:', data);
+            // Update counts and feed
+        }
+        
+        // Add activity log entry
+        function addActivityLog(message) {
+            const feedContainers = document.querySelectorAll('.feed-container');
+            feedContainers.forEach(container => {
+                const feedItem = document.createElement('div');
+                feedItem.className = 'feed-item';
+                feedItem.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+                
+                // Add to top and keep only last 10
+                container.insertBefore(feedItem, container.firstChild);
+                while (container.children.length > 10) {
+                    container.removeChild(container.lastChild);
+                }
+            });
+        }
+
+        // Desktop view adjustments
+        if (window.innerWidth >= 1024) {
+            document.querySelectorAll('.tab-pane').forEach(pane => {
+                pane.classList.add('active');
+            });
+            
+            // Auto-minimize Kismet iframe on desktop to save resources
+            setTimeout(() => {
+                const kismetButton = document.querySelector('#kismet-container .box-header button[onclick*="toggleMinimize"]');
+                if (kismetButton) {
+                    toggleMinimize(kismetButton);
+                }
+            }, 1000);
+        }
+        
+        // Minimize box to tab
+        function minimizeToTab(containerId, title) {
+            console.log('minimizeToTab called:', containerId, title);
+            const container = document.getElementById(containerId);
+            if (!container) {
+                console.error('Container not found:', containerId);
+                return;
+            }
+            
+            // Add minimized class instead of directly setting display
+            container.classList.add('minimized');
+            
+            // Show minimized tabs bar
+            const minimizedTabs = document.getElementById('minimized-tabs');
+            minimizedTabs.classList.remove('hidden');
+            
+            // Create minimized tab if it doesn't exist
+            let tab = minimizedTabs.querySelector(`[data-container-id="${containerId}"]`);
+            if (!tab) {
+                tab = document.createElement('button');
+                tab.className = 'nav-tab active minimized-tab';
+                tab.style.fontSize = '0.75rem';
+                tab.style.padding = '0.25rem 0.75rem';
+                tab.setAttribute('data-container-id', containerId);
+                tab.textContent = title;
+                tab.onclick = function() {
+                    restoreFromTab(containerId, tab);
+                };
+                
+                minimizedTabs.appendChild(tab);
+            }
+            
+            console.log('Container minimized successfully');
+            return tab;
+        }
+        
+        // Restore from minimized tab
+        function restoreFromTab(containerId, tabElement) {
+            console.log('restoreFromTab called:', containerId);
+            const container = document.getElementById(containerId);
+            if (!container) {
+                console.error('Container not found for restore:', containerId);
+                return;
+            }
+            
+            // Remove minimized class
+            container.classList.remove('minimized');
+            
+            // Special handling for kismet-container to restore it to bottom half
+            if (containerId === 'kismet-container') {
+                container.style.position = 'fixed';
+                container.style.top = '50%';
+                container.style.left = '0';
+                container.style.width = '100%';
+                container.style.height = '50%';
+                container.style.zIndex = '1000';
+                
+                // Ensure the iframe resizes properly
+                const iframe = container.querySelector('#kismetFrame');
+                if (iframe) {
+                    iframe.style.width = '100%';
+                    iframe.style.height = '100%';
+                }
+            }
+            
+            // Remove from tracking map
+            if (minimizedContainers.has(containerId)) {
+                minimizedContainers.delete(containerId);
+            }
+            
+            // Update button icon back to minimize
+            const button = container.querySelector('.box-header button[onclick*="toggleMinimize"]');
+            if (button) {
+                const svg = button.querySelector('svg path');
+                if (svg) {
+                    svg.setAttribute('d', 'M20 12H4');
+                }
+            }
+            
+            // Remove the tab
+            if (tabElement) {
+                tabElement.remove();
+            }
+            
+            // Hide minimized tabs bar if empty
+            const minimizedTabs = document.getElementById('minimized-tabs');
+            if (minimizedTabs.children.length === 0) {
+                minimizedTabs.classList.add('hidden');
+            }
+            console.log('Container restored successfully');
+        }
+        
+        // Show notification
+        function showNotification(message, type = 'info') {
+            // Create notification element if it doesn't exist
+            let notification = document.getElementById('notification');
+            if (!notification) {
+                notification = document.createElement('div');
+                notification.id = 'notification';
+                notification.className = 'notification';
+                document.body.appendChild(notification);
+            }
+            
+            // Remove previous type classes
+            notification.classList.remove('error', 'success', 'info');
+            
+            // Add appropriate type class
+            if (type !== 'info') {
+                notification.classList.add(type);
+            }
+            
+            notification.textContent = message;
+            notification.style.display = 'block';
+            
+            // Hide after 5 seconds
+            setTimeout(() => {
+                notification.style.display = 'none';
+            }, 5000);
+        }
+        
+        // Stop Kismet services
+        async function stopKismet() {
+            showNotification('Stopping Kismet services...', 'info');
+            try {
+                const response = await fetch('/stop-script', {method: 'POST'});
+                const data = await response.json();
+                
+                if(data.status === 'success') {
+                    showNotification('Kismet services stopped successfully!', 'success');
+                    updateKismetStatus();
+                } else {
+                    showNotification('Error stopping Kismet services: ' + (data.message || 'Unknown error'), 'error');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showNotification('Failed to stop Kismet services. Please try again.', 'error');
+            }
+        }
+        
+        // Utility function to escape HTML
+        function escapeHtml(text) {
+            const map = {
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#039;'
+            };
+            return String(text).replace(/[&<>"']/g, function(m) { return map[m]; });
+        }
+        
+        // State tracking for minimized containers
+        const minimizedContainers = new Map();
+        
+        // Toggle minimize/restore state
+        function toggleMinimize(button) {
+            // Find the parent grid-item container
+            const gridItem = button.closest('.grid-item');
+            if (!gridItem || !gridItem.id) {
+                console.error('Cannot find grid item or it has no ID');
+                return;
+            }
+            
+            const containerId = gridItem.id;
+            const headerElement = gridItem.querySelector('.box-header h2');
+            const title = headerElement ? headerElement.textContent : 'Untitled';
+            
+            // Check if already minimized
+            if (minimizedContainers.has(containerId)) {
+                // Restore from minimized state
+                const tabElement = minimizedContainers.get(containerId);
+                restoreFromTab(containerId, tabElement);
+                minimizedContainers.delete(containerId);
+                
+                // Update button icon to minimize
+                const svg = button.querySelector('svg path');
+                if (svg) {
+                    svg.setAttribute('d', 'M20 12H4');
+                }
+            } else {
+                // Minimize to tab
+                const tab = createMinimizedTab(containerId, title);
+                minimizeToTab(containerId, title);
+                minimizedContainers.set(containerId, tab);
+                
+                // Update button icon to restore
+                const svg = button.querySelector('svg path');
+                if (svg) {
+                    svg.setAttribute('d', 'M4 6h16M4 12h16M4 18h16');
+                }
+            }
+        }
+        
+        // Create a minimized tab element
+        function createMinimizedTab(containerId, title) {
+            const minimizedTabs = document.getElementById('minimized-tabs');
+            minimizedTabs.classList.remove('hidden');
+            
+            // Create minimized tab
+            const tab = document.createElement('button');
+            tab.className = 'nav-tab active minimized-tab';
+            tab.style.fontSize = '0.75rem';
+            tab.style.padding = '0.25rem 0.75rem';
+            tab.setAttribute('data-container-id', containerId);
+            tab.textContent = title;
+            tab.onclick = function() {
+                const button = document.querySelector(`#${containerId} .box-header button[onclick*="toggleMinimize"]`);
+                if (button) {
+                    toggleMinimize(button);
+                }
+            };
+            
+            minimizedTabs.appendChild(tab);
+            return tab;
+        }
+        
+        // Make functions available globally
+        window.minimizeToTab = minimizeToTab;
+        window.restoreFromTab = restoreFromTab;
+        window.toggleMinimize = toggleMinimize;
+        window.startKismet = startKismet;
+        window.stopKismet = stopKismet;
+        window.showNotification = showNotification;
+        
+        // Initialize resize functionality for Kismet container
+        function initializeKismetResize() {
+            const kismetContainer = document.getElementById('kismet-container');
+            if (!kismetContainer) return;
+            
+            // Make the header draggable
+            const header = kismetContainer.querySelector('.box-header');
+            if (header) {
+                header.style.cursor = 'move';
+                header.addEventListener('mousedown', function(e) {
+                    // Don't start drag if clicking on buttons
+                    if (e.target.closest('button')) return;
+                    
+                    const startX = e.clientX;
+                    const startY = e.clientY;
+                    const startLeft = kismetContainer.offsetLeft;
+                    const startTop = kismetContainer.offsetTop;
+                    
+                    function onMouseMove(e) {
+                        const deltaX = e.clientX - startX;
+                        const deltaY = e.clientY - startY;
+                        
+                        kismetContainer.style.left = (startLeft + deltaX) + 'px';
+                        kismetContainer.style.top = (startTop + deltaY) + 'px';
+                    }
+                    
+                    function onMouseUp() {
+                        document.removeEventListener('mousemove', onMouseMove);
+                        document.removeEventListener('mouseup', onMouseUp);
+                    }
+                    
+                    document.addEventListener('mousemove', onMouseMove);
+                    document.addEventListener('mouseup', onMouseUp);
+                });
+            }
+            
+            // Create resize handles
+            const positions = ['top', 'bottom', 'left', 'right', 'top-left', 'top-right', 'bottom-left', 'bottom-right'];
+            positions.forEach(pos => {
+                const handle = document.createElement('div');
+                handle.className = `resize-handle ${pos}`;
+                handle.style.cssText = `
+                    position: absolute;
+                    background: rgba(0, 210, 255, 0.5);
+                    z-index: 1001;
+                `;
+                
+                // Set position and size based on handle type
+                switch(pos) {
+                    case 'top':
+                        handle.style.top = '0';
+                        handle.style.left = '10px';
+                        handle.style.right = '10px';
+                        handle.style.height = '5px';
+                        handle.style.cursor = 'ns-resize';
+                        break;
+                    case 'bottom':
+                        handle.style.bottom = '0';
+                        handle.style.left = '10px';
+                        handle.style.right = '10px';
+                        handle.style.height = '5px';
+                        handle.style.cursor = 'ns-resize';
+                        break;
+                    case 'left':
+                        handle.style.left = '0';
+                        handle.style.top = '10px';
+                        handle.style.bottom = '10px';
+                        handle.style.width = '5px';
+                        handle.style.cursor = 'ew-resize';
+                        break;
+                    case 'right':
+                        handle.style.right = '0';
+                        handle.style.top = '10px';
+                        handle.style.bottom = '10px';
+                        handle.style.width = '5px';
+                        handle.style.cursor = 'ew-resize';
+                        break;
+                    case 'top-left':
+                        handle.style.top = '0';
+                        handle.style.left = '0';
+                        handle.style.width = '10px';
+                        handle.style.height = '10px';
+                        handle.style.cursor = 'nw-resize';
+                        break;
+                    case 'top-right':
+                        handle.style.top = '0';
+                        handle.style.right = '0';
+                        handle.style.width = '10px';
+                        handle.style.height = '10px';
+                        handle.style.cursor = 'ne-resize';
+                        break;
+                    case 'bottom-left':
+                        handle.style.bottom = '0';
+                        handle.style.left = '0';
+                        handle.style.width = '10px';
+                        handle.style.height = '10px';
+                        handle.style.cursor = 'sw-resize';
+                        break;
+                    case 'bottom-right':
+                        handle.style.bottom = '0';
+                        handle.style.right = '0';
+                        handle.style.width = '10px';
+                        handle.style.height = '10px';
+                        handle.style.cursor = 'se-resize';
+                        break;
+                }
+                
+                handle.addEventListener('mousedown', (e) => {
+                    e.preventDefault();
+                    initKismetResize(e, kismetContainer, pos);
+                });
+                
+                kismetContainer.appendChild(handle);
+            });
+        }
+        
+        // Handle Kismet container resize
+        function initKismetResize(e, container, handlePos) {
+            const startX = e.clientX;
+            const startY = e.clientY;
+            const startWidth = container.offsetWidth;
+            const startHeight = container.offsetHeight;
+            const startLeft = container.offsetLeft;
+            const startTop = container.offsetTop;
+            
+            function doResize(e) {
+                let newWidth = startWidth;
+                let newHeight = startHeight;
+                let newLeft = startLeft;
+                let newTop = startTop;
+                
+                const deltaX = e.clientX - startX;
+                const deltaY = e.clientY - startY;
+                
+                switch(handlePos) {
+                    case 'right':
+                        newWidth = startWidth + deltaX;
+                        break;
+                    case 'left':
+                        newWidth = startWidth - deltaX;
+                        newLeft = startLeft + deltaX;
+                        break;
+                    case 'bottom':
+                        newHeight = startHeight + deltaY;
+                        break;
+                    case 'top':
+                        newHeight = startHeight - deltaY;
+                        newTop = startTop + deltaY;
+                        break;
+                    case 'bottom-right':
+                        newWidth = startWidth + deltaX;
+                        newHeight = startHeight + deltaY;
+                        break;
+                    case 'bottom-left':
+                        newWidth = startWidth - deltaX;
+                        newHeight = startHeight + deltaY;
+                        newLeft = startLeft + deltaX;
+                        break;
+                    case 'top-right':
+                        newWidth = startWidth + deltaX;
+                        newHeight = startHeight - deltaY;
+                        newTop = startTop + deltaY;
+                        break;
+                    case 'top-left':
+                        newWidth = startWidth - deltaX;
+                        newHeight = startHeight - deltaY;
+                        newLeft = startLeft + deltaX;
+                        newTop = startTop + deltaY;
+                        break;
+                }
+                
+                // Apply constraints
+                newWidth = Math.max(300, newWidth);
+                newHeight = Math.max(300, newHeight);
+                
+                // Update container
+                container.style.width = newWidth + 'px';
+                container.style.height = newHeight + 'px';
+                container.style.left = newLeft + 'px';
+                container.style.top = newTop + 'px';
+            }
+            
+            function stopResize() {
+                document.removeEventListener('mousemove', doResize);
+                document.removeEventListener('mouseup', stopResize);
+            }
+            
+            document.addEventListener('mousemove', doResize);
+            document.addEventListener('mouseup', stopResize);
+        }
+        
+        // Initialize when DOM is ready
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeApplication();
+            // Initialize Kismet resize after a short delay to ensure DOM is ready
+            setTimeout(initializeKismetResize, 100);
+        });
+    </script>
+    
+    <!-- Theme Switcher -->
+    <script src="/js/theme.js"></script>
+</body>
+</html>

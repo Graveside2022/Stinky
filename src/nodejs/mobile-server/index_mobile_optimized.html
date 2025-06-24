@@ -1,0 +1,2232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+    <meta http-equiv="cache-control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="pragma" content="no-cache">
+    <meta http-equiv="expires" content="0">
+    <title>Kismet Operations Center</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <style>
+        /* Phase 3.1: Foundation Changes - CSS Reset and Box Sizing */
+        *, *::before, *::after {
+            box-sizing: border-box;
+        }
+        
+        html {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-text-size-adjust: 100%;
+            touch-action: manipulation;
+        }
+
+        body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #030610; /* Darker, more desaturated base */
+            color: #d0d8f0; /* Slightly softer text color */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            overflow: hidden; /* Prevent body itself from scrolling */
+            box-sizing: border-box;
+        }
+        
+        /* Phase 3.2: Layout Transformation - Mobile body overflow fix */
+        @media (max-width: 768px) {
+            body {
+                overflow: auto;
+                height: auto;
+                min-height: 100vh;
+            }
+        }
+
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background:
+                linear-gradient(45deg, rgba(0, 200, 220, 0.02) 25%, transparent 25%, transparent 75%, rgba(0, 200, 220, 0.02) 75%),
+                linear-gradient(-45deg, rgba(0, 200, 220, 0.02) 25%, transparent 25%, transparent 75%, rgba(0, 200, 220, 0.02) 75%);
+            background-size: 70px 70px; /* Slightly larger grid */
+            z-index: -2; /* Ensure it's behind potential new layers */
+            opacity: 0.4; /* Subtler grid */
+            animation: background-pan 80s linear infinite; /* Slower pan */
+        }
+
+        /* Optional: Add a subtle static starfield or noise layer */
+        body::after {
+            content: "";
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background-image: url('data:image/svg+xml;charset=UTF-8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle fill="%23203050" cx="10" cy="10" r="0.3"/><circle fill="%23203050" cx="30" cy="30" r="0.2"/><circle fill="%23203050" cx="50" cy="50" r="0.4"/><circle fill="%23203050" cx="70" cy="70" r="0.1"/><circle fill="%23203050" cx="90" cy="90" r="0.3"/><circle fill="%23203050" cx="10" cy="90" r="0.2"/><circle fill="%23203050" cx="90" cy="10" r="0.4"/><circle fill="%23203050" cx="50" cy="10" r="0.1"/><circle fill="%23203050" cx="10" cy="50" r="0.3"/><circle fill="%23203050" cx="30" cy="70" r="0.2"/><circle fill="%23203050" cx="70" cy="30" r="0.3"/></svg>');
+            background-size: 100px 100px;
+            opacity: 0.08;
+            z-index: -1;
+        }
+
+
+        @keyframes background-pan {
+            0% { background-position: 0% 0%; }
+            100% { background-position: 1200px 1200px; } /* Ensure it pans a large distance */
+        }
+
+        .top-banner {
+            width: 100%;
+            background: linear-gradient(90deg,
+                rgba(10, 15, 30, 0.95) 0%,
+                rgba(10, 15, 30, 0.85) 50%,
+                rgba(10, 15, 30, 0.95) 100%);
+            backdrop-filter: blur(12px);
+            border-bottom: 2px solid rgba(0, 220, 255, 0.4);
+            box-shadow: 
+                0 2px 20px rgba(0, 220, 255, 0.35),
+                0 0 40px rgba(0, 220, 255, 0.15);
+            padding: 15px 25px;
+            text-align: center;
+            box-sizing: border-box;
+            flex-shrink: 0;
+            z-index: 10;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .top-banner::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 200%;
+            height: 100%;
+            background: linear-gradient(90deg,
+                transparent 0%,
+                rgba(0, 220, 255, 0.1) 25%,
+                rgba(0, 220, 255, 0.2) 50%,
+                rgba(0, 220, 255, 0.1) 75%,
+                transparent 100%);
+            animation: banner-scan 4s linear infinite;
+        }
+
+        .top-banner::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 20% 50%, rgba(0, 220, 255, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 50%, rgba(0, 220, 255, 0.1) 0%, transparent 50%);
+            animation: radial-pulse 4s ease-in-out infinite;
+        }
+
+        @keyframes radial-pulse {
+            0%, 100% { opacity: 0.5; }
+            50% { opacity: 1; }
+        }
+
+        .top-banner h1 {
+            color: #fff;
+            text-transform: uppercase;
+            letter-spacing: 12px;
+            font-size: 2.4em;
+            font-weight: 800;
+            margin: 0;
+            text-shadow: 
+                0 0 10px rgba(0, 220, 255, 0.8),
+                0 0 20px rgba(0, 220, 255, 0.6),
+                0 0 30px rgba(0, 220, 255, 0.4),
+                0 0 40px rgba(0, 220, 255, 0.2);
+            position: relative;
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(90deg, 
+                #fff 0%,
+                #00d2ff 25%,
+                #fff 50%,
+                #00d2ff 75%,
+                #fff 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-size: 200% auto;
+            animation: shine 3s linear infinite;
+        }
+        
+        /* Phase 3.3: Top Banner Mobile Optimization */
+        @media (max-width: 768px) {
+            .top-banner h1 {
+                font-size: clamp(1.5rem, 5vw, 3rem);
+                padding: 1rem;
+                letter-spacing: 6px;
+            }
+            
+            .top-banner::before,
+            .top-banner::after {
+                animation: none; /* Disable complex animations on mobile */
+            }
+        }
+
+        @keyframes shine {
+            to {
+                background-position: 200% center;
+            }
+        }
+
+        .minimized-tabs {
+            background-color: rgba(12, 22, 48, 0.85);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(0, 190, 215, 0.35);
+            box-shadow: 0 2px 10px rgba(0, 150, 180, 0.1);
+            padding: 2px 20px;
+            display: flex;
+            gap: 10px;
+            position: fixed;
+            top: 60px;
+            left: 0;
+            right: 0;
+            z-index: 999;
+            height: 15px;
+            overflow-x: auto;
+            white-space: nowrap;
+            -webkit-overflow-scrolling: touch;
+        }
+        
+        /* Phase 3.2: Fixed Positioning Removal for Mobile */
+        @media (max-width: 768px) {
+            .minimized-tabs {
+                position: sticky;
+                width: 100%;
+                top: 0;
+                left: 0;
+                right: 0;
+                padding: 2px 10px;
+                z-index: 50;
+            }
+        }
+
+        .minimized-tab {
+            background-color: rgba(0, 190, 215, 0.15);
+            border: 1px solid rgba(0, 190, 215, 0.35);
+            padding: 0 10px;
+            border-radius: 3px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 0.8em;
+            color: rgba(0, 220, 255, 0.8);
+            cursor: pointer;
+            height: 15px;
+            line-height: 15px;
+            touch-action: manipulation;
+            min-width: fit-content;
+        }
+
+        .minimized-tab:hover {
+            background-color: rgba(0, 190, 215, 0.25);
+        }
+
+        .restore-button {
+            background: none;
+            border: none;
+            color: rgba(0, 220, 255, 0.8);
+            cursor: pointer;
+            padding: 0;
+            font-size: 0.8em;
+            line-height: 1;
+            touch-action: manipulation;
+            min-width: 44px;
+            min-height: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .restore-button:hover {
+            color: rgba(0, 220, 255, 1);
+        }
+
+        .main-content-area {
+            display: grid;
+            grid-template-columns: repeat(12, 1fr);
+            grid-template-rows: repeat(4, 1fr);
+            gap: 0;
+            width: 100%;
+            height: 100%;
+            padding: 8px;
+            margin: 0;
+            box-sizing: border-box;
+            overflow: hidden;
+        }
+        
+        /* Phase 3.2: Grid System Transformation - Mobile First */
+        @media (max-width: 600px) {
+            .main-content-area {
+                grid-template-columns: 1fr; /* Mobile: single column */
+                grid-template-rows: auto;
+                height: auto;
+                overflow: visible;
+                gap: 8px;
+                padding: 4px;
+            }
+        }
+        
+        @media (min-width: 601px) and (max-width: 1023px) {
+            .main-content-area {
+                grid-template-columns: repeat(2, 1fr); /* Tablet: 2 columns */
+                grid-template-rows: auto;
+                height: auto;
+                overflow: visible;
+                gap: 8px;
+            }
+        }
+
+        .container {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            width: 100vw;
+            background: linear-gradient(135deg, #0a192f 0%, #020c1b 100%);
+            color: #00d2ff;
+            font-family: 'Courier New', monospace;
+            padding: 0;
+            margin: 0;
+            box-sizing: border-box;
+            overflow: hidden;
+            padding-bottom: 20px; /* Reduced padding for smaller footer */
+        }
+
+        .header {
+            background-color: rgba(12, 22, 48, 0.85);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(0, 190, 215, 0.35);
+            padding: 0;
+            margin: 0;
+            box-sizing: border-box;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        /* Phase 3.2: Priority 2 - Convert Fixed Heights to Responsive */
+        @media (max-width: 768px) {
+            .header {
+                height: auto;
+                min-height: 60px;
+                padding: 0.75rem;
+            }
+        }
+
+        .grid-item {
+            background-color: rgba(12, 22, 48, 0.65);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(0, 190, 215, 0.35);
+            box-shadow: inset 0 0 12px rgba(0, 220, 255, 0.15), 0 0 10px rgba(0, 150, 180, 0.1);
+            border-radius: 0;
+            padding: 0;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        
+        /* Phase 3.2: Grid Item Responsive Heights */
+        @media (max-width: 768px) {
+            .grid-item {
+                height: auto;
+                min-height: 200px;
+                max-height: 90vh;
+                grid-column: span 1 !important;
+                grid-row: span 1 !important;
+            }
+        }
+
+        .grid-item::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            border: 2px solid transparent;
+            pointer-events: none;
+        }
+
+        .grid-item:hover::before {
+            border-color: rgba(0, 190, 215, 0.35);
+        }
+
+        .grid-item .resize-handle {
+            position: absolute;
+            background: rgba(0, 190, 215, 0.35);
+            pointer-events: all;
+            z-index: 1000;
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+
+        .grid-item:hover .resize-handle {
+            opacity: 1;
+        }
+        
+        /* Phase 3.4: Mobile-Specific Controls - Hide resize handles */
+        @media (max-width: 768px) {
+            .resize-handle {
+                display: none !important;
+            }
+            
+            /* Remove hover effects on mobile */
+            .grid-item::before {
+                display: none;
+            }
+        }
+
+        .grid-item .resize-handle.top {
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            cursor: ns-resize;
+        }
+
+        .grid-item .resize-handle.bottom {
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            cursor: ns-resize;
+        }
+
+        .grid-item .resize-handle.left {
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 3px;
+            cursor: ew-resize;
+        }
+
+        .grid-item .resize-handle.right {
+            right: 0;
+            top: 0;
+            bottom: 0;
+            width: 3px;
+            cursor: ew-resize;
+        }
+
+        .grid-item .resize-handle.top-left {
+            top: 0;
+            left: 0;
+            width: 6px;
+            height: 6px;
+            cursor: nw-resize;
+        }
+
+        .grid-item .resize-handle.top-right {
+            top: 0;
+            right: 0;
+            width: 6px;
+            height: 6px;
+            cursor: ne-resize;
+        }
+
+        .grid-item .resize-handle.bottom-left {
+            bottom: 0;
+            left: 0;
+            width: 6px;
+            height: 6px;
+            cursor: sw-resize;
+        }
+
+        .grid-item .resize-handle.bottom-right {
+            bottom: 0;
+            right: 0;
+            width: 6px;
+            height: 6px;
+            cursor: se-resize;
+        }
+
+        .grid-item * {
+            resize: none;
+            cursor: default !important;
+        }
+
+        .grid-item.expanded {
+            display: none;
+        }
+
+        .grid-item.expanded.middle {
+            display: none;
+        }
+
+        .grid-item.minimized {
+            display: none;
+        }
+
+        .grid-placeholder {
+            display: none;
+        }
+
+        .grid-item.dragging {
+            display: none;
+        }
+
+        .box-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            overflow: hidden;
+            padding: 4px;
+            width: 100%;
+        }
+
+        .box-header {
+            background: linear-gradient(90deg, 
+                rgba(0, 190, 215, 0.05) 0%, 
+                rgba(0, 190, 215, 0.15) 25%,
+                rgba(0, 220, 255, 0.2) 50%,
+                rgba(0, 190, 215, 0.15) 75%,
+                rgba(0, 190, 215, 0.05) 100%);
+            border: 1px solid rgba(0, 220, 255, 0.3);
+            border-bottom: 2px solid rgba(0, 220, 255, 0.4);
+            padding: 5px 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            height: 20px;
+            box-shadow: 
+                0 0 15px rgba(0, 220, 255, 0.2),
+                inset 0 0 20px rgba(0, 220, 255, 0.1);
+            backdrop-filter: blur(8px);
+            overflow: hidden;
+            touch-action: manipulation;
+            cursor: move;
+        }
+
+        /* Mobile box header adjustments */
+        @media (max-width: 768px) {
+            .box-header {
+                padding: 10px 15px;
+                height: auto;
+                min-height: 44px;
+                cursor: default;
+            }
+        }
+
+        .box-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 200%;
+            height: 100%;
+            background: linear-gradient(90deg,
+                transparent 0%,
+                rgba(0, 220, 255, 0.1) 25%,
+                rgba(0, 220, 255, 0.2) 50%,
+                rgba(0, 220, 255, 0.1) 75%,
+                transparent 100%);
+            animation: header-scan 3s linear infinite;
+        }
+
+        .box-header::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 20% 50%, rgba(0, 220, 255, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 50%, rgba(0, 220, 255, 0.1) 0%, transparent 50%);
+            animation: radial-pulse 4s ease-in-out infinite;
+        }
+
+        .box-header h2 {
+            color: #fff;
+            margin: 0;
+            font-size: 1em;
+            font-weight: 700;
+            text-align: center;
+            width: 100%;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            text-shadow: 
+                0 0 10px rgba(0, 220, 255, 0.8),
+                0 0 20px rgba(0, 220, 255, 0.5),
+                0 0 30px rgba(0, 220, 255, 0.3);
+            font-family: 'Inter', sans-serif;
+            position: relative;
+            background: linear-gradient(90deg, 
+                #fff 0%,
+                #00d2ff 25%,
+                #fff 50%,
+                #00d2ff 75%,
+                #fff 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-size: 200% auto;
+            animation: shine 3s linear infinite;
+        }
+
+        .box-header h2::before,
+        .box-header h2::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 8px;
+            height: 8px;
+            background: rgba(0, 220, 255, 0.9);
+            border-radius: 50%;
+            box-shadow: 
+                0 0 10px rgba(0, 220, 255, 0.8),
+                0 0 20px rgba(0, 220, 255, 0.6),
+                0 0 30px rgba(0, 220, 255, 0.4);
+            animation: dot-pulse 2s ease-in-out infinite;
+            will-change: transform, opacity;
+            z-index: 1;
+        }
+
+        .box-header h2::before {
+            left: -20px;
+            animation-delay: 0s;
+        }
+
+        .box-header h2::after {
+            right: -20px;
+            animation-delay: 1s;
+        }
+
+        @keyframes dot-pulse {
+            0% { 
+                transform: translateY(-50%) scale(1); 
+                opacity: 0.8;
+                box-shadow: 
+                    0 0 10px rgba(0, 220, 255, 0.8),
+                    0 0 20px rgba(0, 220, 255, 0.6),
+                    0 0 30px rgba(0, 220, 255, 0.4);
+            }
+            50% { 
+                transform: translateY(-50%) scale(1.2); 
+                opacity: 1;
+                box-shadow: 
+                    0 0 15px rgba(0, 220, 255, 0.9),
+                    0 0 30px rgba(0, 220, 255, 0.7),
+                    0 0 45px rgba(0, 220, 255, 0.5);
+            }
+            100% { 
+                transform: translateY(-50%) scale(1); 
+                opacity: 0.8;
+                box-shadow: 
+                    0 0 10px rgba(0, 220, 255, 0.8),
+                    0 0 20px rgba(0, 220, 255, 0.6),
+                    0 0 30px rgba(0, 220, 255, 0.4);
+            }
+        }
+
+        @keyframes header-scan {
+            0% { left: -100%; }
+            100% { left: 100%; }
+        }
+
+        @keyframes banner-scan {
+            0% { left: -100%; }
+            100% { left: 100%; }
+        }
+
+        .box-controls {
+            position: absolute;
+            right: 5px;
+            top: 50%;
+            transform: translateY(-50%);
+            display: flex;
+            gap: 5px;
+            z-index: 10;
+        }
+
+        .control-button-small {
+            background: rgba(0, 190, 215, 0.2);
+            border: 1px solid rgba(0, 190, 215, 0.4);
+            color: rgba(0, 220, 255, 0.9);
+            padding: 2px 6px;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 0.8em;
+            line-height: 1;
+            transition: all 0.3s ease;
+            font-family: 'Inter', sans-serif;
+            font-weight: 500;
+            backdrop-filter: blur(5px);
+            text-shadow: 0 0 5px rgba(0, 220, 255, 0.5);
+            touch-action: manipulation;
+            min-width: 44px;
+            min-height: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .control-button-small:hover {
+            background: rgba(0, 190, 215, 0.3);
+            border-color: rgba(0, 220, 255, 0.6);
+            text-shadow: 0 0 10px rgba(0, 220, 255, 0.8);
+            box-shadow: 0 0 10px rgba(0, 220, 255, 0.4);
+        }
+
+        .control-button-small:active {
+            transform: scale(0.95);
+        }
+
+        .control-button {
+            background: linear-gradient(135deg, rgba(0, 190, 215, 0.15) 0%, rgba(0, 220, 255, 0.25) 100%);
+            border: 1px solid rgba(0, 220, 255, 0.4);
+            color: #fff;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.9em;
+            transition: all 0.3s ease;
+            box-shadow: 
+                0 0 10px rgba(0, 220, 255, 0.3),
+                inset 0 0 10px rgba(0, 220, 255, 0.1);
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+            font-family: 'Inter', sans-serif;
+            font-weight: 500;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            backdrop-filter: blur(5px);
+            position: relative;
+            overflow: hidden;
+            touch-action: manipulation;
+            min-height: 44px;
+        }
+
+        .control-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg,
+                transparent 0%,
+                rgba(0, 220, 255, 0.3) 50%,
+                transparent 100%);
+            transition: left 0.5s ease;
+        }
+
+        .control-button:hover::before {
+            left: 100%;
+        }
+
+        .control-button:hover {
+            background: linear-gradient(135deg, rgba(0, 190, 215, 0.25) 0%, rgba(0, 220, 255, 0.35) 100%);
+            border-color: rgba(0, 220, 255, 0.6);
+            box-shadow: 
+                0 0 20px rgba(0, 220, 255, 0.5),
+                inset 0 0 15px rgba(0, 220, 255, 0.2);
+            transform: translateY(-2px);
+            text-shadow: 0 0 10px rgba(0, 220, 255, 0.8);
+        }
+
+        .control-button:active {
+            transform: translateY(0);
+            box-shadow: 
+                0 0 10px rgba(0, 220, 255, 0.3),
+                inset 0 0 10px rgba(0, 220, 255, 0.1);
+        }
+
+        a.control-button {
+            color: #fff;
+            text-decoration: none;
+        }
+
+        .button-group {
+            display: grid;
+            gap: 10px;
+            margin: 10px 0;
+        }
+
+        .status-indicator {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 6px;
+            margin-bottom: 10px;
+        }
+
+        .status-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { 
+                opacity: 1; 
+                transform: scale(1);
+            }
+            50% { 
+                opacity: 0.6; 
+                transform: scale(0.9);
+            }
+        }
+
+        /* Side Stack Layout */
+        .side-stack {
+            display: flex;
+            flex-direction: column;
+            gap: 0;
+            height: 100%;
+        }
+
+        .left-stack {
+            grid-column: 1 / 3;
+            grid-row: 1 / -1;
+        }
+
+        .right-stack {
+            grid-column: 11 / 13;
+            grid-row: 1 / -1;
+        }
+
+        .middle-long-box {
+            grid-column: 3 / 11;
+            grid-row: 1 / -1;
+            height: 100%;
+        }
+
+        /* Mobile Responsive Side Stacks */
+        @media (max-width: 768px) {
+            .side-stack,
+            .left-stack,
+            .right-stack,
+            .middle-long-box {
+                grid-column: 1 !important;
+                grid-row: auto !important;
+                height: auto;
+                min-height: 200px;
+            }
+        }
+
+        .side-stack .grid-item {
+            flex: 1;
+            min-height: 0;
+        }
+
+        .side-stack .grid-item + .grid-item {
+            border-top: 1px solid rgba(0, 190, 215, 0.2);
+        }
+
+        .grid-item-content {
+            flex: 1;
+            overflow-y: auto;
+            overflow-x: hidden;
+            padding: 10px;
+            position: relative;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        /* Tab Navigation */
+        .tab-nav {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+            flex-wrap: wrap;
+        }
+
+        .tab-button {
+            background: rgba(0, 190, 215, 0.1);
+            border: 1px solid rgba(0, 190, 215, 0.3);
+            color: rgba(0, 220, 255, 0.8);
+            padding: 8px 16px;
+            text-decoration: none;
+            border-radius: 4px;
+            transition: all 0.3s ease;
+            font-size: 0.9em;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            touch-action: manipulation;
+            min-height: 44px;
+            display: flex;
+            align-items: center;
+        }
+
+        .tab-button:hover,
+        .tab-button.active-tab {
+            background: rgba(0, 190, 215, 0.2);
+            border-color: rgba(0, 220, 255, 0.5);
+            color: #fff;
+            box-shadow: 0 0 10px rgba(0, 220, 255, 0.3);
+        }
+
+        /* Feed Items */
+        .feed-item {
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(0, 190, 215, 0.2);
+            padding: 8px 12px;
+            margin-bottom: 5px;
+            border-radius: 4px;
+            font-size: 0.85em;
+            line-height: 1.4;
+            transition: all 0.3s ease;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .feed-item:hover {
+            background: rgba(0, 190, 215, 0.05);
+            border-color: rgba(0, 220, 255, 0.3);
+        }
+
+        /* Mobile feed items */
+        @media (max-width: 768px) {
+            .feed-item {
+                padding: 12px;
+                font-size: 0.9em;
+            }
+        }
+
+        /* System Status Styles */
+        #gps-info {
+            font-size: 0.9em;
+        }
+
+        #gps-info p {
+            margin: 5px 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        #gps-info strong {
+            font-weight: 500;
+        }
+
+        /* Page Container for fixed layout */
+        .page-container {
+            position: fixed;
+            top: 100px;
+            left: 0;
+            right: 0;
+            bottom: 60px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Mobile page container */
+        @media (max-width: 768px) {
+            .page-container {
+                position: relative;
+                top: auto;
+                bottom: auto;
+                min-height: calc(100vh - 100px);
+                padding-bottom: 20px;
+            }
+        }
+
+        /* Notification */
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(12, 22, 48, 0.95);
+            border: 1px solid rgba(0, 220, 255, 0.4);
+            border-radius: 5px;
+            padding: 15px 20px;
+            max-width: 350px;
+            box-shadow: 0 0 20px rgba(0, 220, 255, 0.3);
+            backdrop-filter: blur(10px);
+            transform: translateX(400px);
+            transition: transform 0.3s ease;
+            z-index: 1000;
+        }
+
+        .notification.show {
+            transform: translateX(0);
+        }
+
+        .notification.success {
+            border-color: #00ff88;
+            box-shadow: 0 0 20px rgba(0, 255, 136, 0.3);
+        }
+
+        .notification.error {
+            border-color: #ff4444;
+            box-shadow: 0 0 20px rgba(255, 68, 68, 0.3);
+        }
+
+        /* Status Message */
+        .status-message {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(12, 22, 48, 0.95);
+            border: 1px solid rgba(0, 220, 255, 0.4);
+            border-radius: 5px;
+            padding: 10px 20px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 0 15px rgba(0, 220, 255, 0.3);
+            z-index: 1000;
+        }
+
+        .status-message.hidden {
+            display: none;
+        }
+
+        /* Kismet iframe section */
+        .resizable-frame {
+            background-color: rgba(12, 22, 48, 0.85);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(0, 190, 215, 0.35);
+            box-shadow: 0 -5px 20px rgba(0, 150, 180, 0.1);
+            overflow: hidden;
+            transition: height 0.3s ease;
+        }
+
+        .resizable-frame .resize-handle {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 6px;
+            background: rgba(0, 190, 215, 0.2);
+            cursor: ns-resize;
+            transition: background 0.2s;
+            z-index: 10;
+        }
+
+        .resizable-frame:hover .resize-handle {
+            background: rgba(0, 190, 215, 0.3);
+        }
+
+        .resizable-frame .resize-handle:hover {
+            background: rgba(0, 190, 215, 0.4);
+        }
+
+        .resizable-frame .resize-handle:active {
+            background: rgba(0, 220, 255, 0.5);
+        }
+
+        /* Mobile Kismet iframe */
+        @media (max-width: 768px) {
+            .resizable-frame {
+                height: 50vh !important;
+                max-height: 400px;
+                min-height: 200px;
+            }
+            
+            .resizable-frame .resize-handle {
+                height: 20px;
+                background: rgba(0, 190, 215, 0.3);
+            }
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Fix for Kismet iframe dropdowns */
+        #kismetFrame {
+            position: relative;
+            z-index: 1;
+        }
+        
+        /* Ensure the kismet container doesn't clip iframe content */
+        .grid-item:has(#kismetFrame) .grid-item-content {
+            overflow: visible !important;
+        }
+
+        /* Responsive iframe */
+        .responsive-iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        /* Touch-specific improvements */
+        @media (pointer: coarse) {
+            /* Increase touch targets for all interactive elements */
+            button, a, .tab-button, .control-button, .control-button-small {
+                min-height: 44px;
+                min-width: 44px;
+            }
+            
+            /* Improve scrolling performance */
+            .grid-item-content, .minimized-tabs, body {
+                -webkit-overflow-scrolling: touch;
+                scroll-behavior: smooth;
+            }
+            
+            /* Disable hover effects on touch devices */
+            .grid-item:hover::before,
+            .control-button:hover,
+            .tab-button:hover,
+            .feed-item:hover {
+                background: inherit;
+                border-color: inherit;
+            }
+        }
+
+        /* Pinch to zoom support */
+        .grid-item-content img,
+        .grid-item-content iframe {
+            touch-action: pinch-zoom;
+        }
+
+        /* Swipe hint for minimized tabs */
+        @media (max-width: 768px) {
+            .minimized-tabs::after {
+                content: '→';
+                position: absolute;
+                right: 5px;
+                top: 50%;
+                transform: translateY(-50%);
+                color: rgba(0, 220, 255, 0.5);
+                font-size: 1.2em;
+                animation: swipe-hint 2s ease-in-out infinite;
+            }
+        }
+
+        @keyframes swipe-hint {
+            0%, 100% { opacity: 0.3; transform: translateY(-50%) translateX(0); }
+            50% { opacity: 1; transform: translateY(-50%) translateX(5px); }
+        }
+    </style>
+</head>
+<body>
+    <div id="notification" class="notification"></div>
+    <div id="status-message" class="status-message hidden"></div>
+    <header class="top-banner">
+        <h1>Kismet Operations Center</h1>
+    </header>
+    <div id="minimized-tabs" class="minimized-tabs"></div>
+
+
+    <div class="page-container">
+        <main class="main-content-area" style="flex: 1; overflow-y: auto; position: relative;">
+        <div class="side-stack left-stack">
+            <div id="hackrf-one" class="grid-item">
+                <div class="box-header">
+                    <h2>HackRF One</h2>
+                    <div class="box-controls">
+                        <button class="control-button-small" data-action="minimize">▼</button>
+                </div>
+            </div>
+                <div class="grid-item-content">
+                    <div class="button-group" style="display: grid; grid-template-columns: 1fr; gap: 10px; margin-bottom: 15px;">
+                        <button class="control-button" data-action="addLoadProfile">Add Load Profile</button>
+                        <button class="control-button" data-action="hackRFSweep">HackRF Sweep</button>
+                    </div>
+                </div>
+            </div>
+            <div id="instructions" class="grid-item">
+                <div class="box-header">
+                <h2>Setup Instructions</h2>
+                    <div class="box-controls">
+                        <button class="control-button-small" data-action="minimize">▼</button>
+                    </div>
+                </div>
+                <div class="grid-item-content">
+                    <div class="tab-nav">
+                        <a href="wigle.html" class="tab-button active-tab" target="_blank">Wigle</a>
+                        <a href="atak.html" class="tab-button" target="_blank">ATAK</a>
+                        <a href="kismet2.html" class="tab-button" target="_blank">Kismet</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="kismet-data-feed" class="grid-item middle-long-box">
+            <div class="box-header">
+                <h2>Kismet Data Feed</h2>
+                <div class="box-controls">
+                    <button class="control-button-small" data-action="minimize">▼</button>
+                </div>
+            </div>
+            <div class="grid-item-content" style="padding: 10px; overflow-y: auto;">
+                <div style="display: flex; justify-content: space-between; margin-bottom: 15px; padding: 10px; background: rgba(0, 0, 0, 0.2); border-radius: 4px;">
+                    <div style="text-align: center;">
+                        <div style="color: #00d2ff; font-size: 0.9em;">Devices</div>
+                        <div id="devices-count" style="color: #fff; font-size: 1.2em; font-weight: bold;">0</div>
+                    </div>
+                    <div style="text-align: center;">
+                        <div style="color: #00d2ff; font-size: 0.9em;">Networks</div>
+                        <div id="networks-count" style="color: #fff; font-size: 1.2em; font-weight: bold;">0</div>
+                    </div>
+                    <div style="text-align: center;">
+                        <div style="color: #00d2ff; font-size: 0.9em;">Last Update</div>
+                        <div id="last-update" style="color: #fff; font-size: 0.8em;">--</div>
+                    </div>
+                </div>
+                <div style="margin-bottom: 15px;">
+                    <h3 style="color: #00d2ff; margin: 0 0 10px 0; font-size: 1em;">Recent Devices</h3>
+                    <div id="devices-list" style="max-height: 200px; overflow-y: auto;">
+                        <div class="feed-item">No devices detected</div>
+                    </div>
+                </div>
+                <div>
+                    <h3 style="color: #00d2ff; margin: 0 0 10px 0; font-size: 1em;">Activity Feed</h3>
+                    <div id="kismet-feed" style="max-height: 200px; overflow-y: auto;">
+                        <div class="feed-item">Waiting for activity...</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="side-stack right-stack">
+            <div id="start-menu" class="grid-item">
+                <div class="box-header">
+                <h2>Start Menu</h2>
+                    <div class="box-controls">
+                        <button class="control-button-small" data-action="minimize">▼</button>
+                    </div>
+                </div>
+                <div class="grid-item-content">
+                    <div class="button-group" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 15px;">
+                        <button class="control-button" data-action="startKismet">Start Kismet</button>
+                        <button class="control-button" data-action="stopKismet">Stop Kismet</button>
+                        <a href="#" onclick="window.open('http://' + window.location.hostname + ':2501', '_blank'); return false;" class="control-button">Open Kismet Web UI</a>
+                        <a href="#" onclick="window.open('http://' + window.location.hostname + ':8000', '_blank'); return false;" class="control-button">Open WigletoTak</a>
+                    </div>
+                    <div class="service-status" style="margin-top: 15px; padding-top: 15px; border-top: 1px solid rgba(0, 200, 220, 0.3);">
+                        <div class="status-indicator" style="display: flex; align-items: center; gap: 10px; padding: 10px; background: rgba(0, 0, 0, 0.2); border-radius: 6px; margin-bottom: 10px;">
+                            <div class="status-dot" id="kismet-status" style="width: 12px; height: 12px; border-radius: 50%; background: #ff4444;"></div>
+                            <span style="color: #d0d8f0; font-size: 0.9em;">Kismet</span>
+                        </div>
+                        <div class="status-indicator" style="display: flex; align-items: center; gap: 10px; padding: 10px; background: rgba(0, 0, 0, 0.2); border-radius: 6px;">
+                            <div class="status-dot" id="wigle-status" style="width: 12px; height: 12px; border-radius: 50%; background: #ff4444;"></div>
+                            <span style="color: #d0d8f0; font-size: 0.9em;">WigletoTak</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div id="system-status" class="grid-item">
+                <div class="box-header">
+                <h2>System Status</h2>
+                    <div class="box-controls">
+                        <button class="control-button-small" data-action="minimize">▼</button>
+                    </div>
+                </div>
+                <div class="grid-item-content">
+                    <div id="system-message" style="margin-bottom: 1rem;">Loading system status...</div>
+                    <div id="gps-info" style="color: #d0d8f0; line-height: 1.6;">
+                        <p><strong style="color: #00d2ff;">IP Address:</strong> <span id="ip-address">Loading...</span></p>
+                        <p><strong style="color: #00d2ff;">GPS Status:</strong> <span id="gps-status">Loading...</span></p>
+                        <p><strong style="color: #00d2ff;">Latitude:</strong> <span id="gps-lat">--</span></p>
+                        <p><strong style="color: #00d2ff;">Longitude:</strong> <span id="gps-lon">--</span></p>
+                        <p><strong style="color: #00d2ff;">Altitude:</strong> <span id="gps-alt">--</span></p>
+                        <p><strong style="color: #00d2ff;">MGRS Grid:</strong> <span id="gps-mgrs">--</span></p>
+                        <p><strong style="color: #00d2ff;">GPS Time:</strong> <span id="gps-time">--</span></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Kismet Iframe Section -->
+    <div id="kismet-iframe" class="grid-item resizable-frame" style="position: relative; height: 400px; flex-shrink: 0; display: none; z-index: 5;">
+        <!-- Resize handle at the top -->
+        <div class="resize-handle" id="resize-handle"></div>
+        <div class="box-header" style="cursor: move;">
+            <h2>Kismet Live View</h2>
+            <div class="box-controls">
+                <button class="control-button-small" onclick="setIframeSize('small')" title="Small">S</button>
+                <button class="control-button-small" onclick="setIframeSize('medium')" title="Medium">M</button>
+                <button class="control-button-small" onclick="setIframeSize('large')" title="Large">L</button>
+                <button class="control-button-small" onclick="setIframeSize('full')" title="Full Screen">⛶</button>
+                <button class="control-button-small" onclick="reloadKismetIframe()" style="margin-right: 5px;" title="Reload">↻</button>
+                <button class="control-button-small" onclick="toggleKismetDirect()" style="margin-right: 5px;" title="Toggle Direct URL">⇄</button>
+                <button class="control-button-small" onclick="toggleKismetIframe()">▼</button>
+            </div>
+        </div>
+        <div class="grid-item-content" style="height: calc(100% - 40px); padding: 0; overflow: visible;">
+            <div id="kismet-offline" style="display: none; width: 100%; height: 100%; background: linear-gradient(135deg, #0a192f 0%, #020c1b 100%); position: relative;">
+                <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center;">
+                    <div style="background: rgba(12, 22, 48, 0.85); backdrop-filter: blur(12px); border: 2px solid rgba(0, 220, 255, 0.4); border-radius: 8px; padding: 40px 60px; box-shadow: 0 0 40px rgba(0, 220, 255, 0.3), inset 0 0 20px rgba(0, 220, 255, 0.1);">
+                        <h2 style="color: #00d2ff; margin: 0 0 20px 0; font-size: 2em; text-shadow: 0 0 20px rgba(0, 220, 255, 0.8); letter-spacing: 2px;">KISMET OFFLINE</h2>
+                        <p style="color: #a0e0ff; font-size: 1.2em; margin: 0; letter-spacing: 1px;">Start Kismet to see display</p>
+                        <div style="margin-top: 30px;">
+                            <div style="width: 60px; height: 60px; margin: 0 auto; border: 3px solid rgba(0, 220, 255, 0.3); border-top-color: #00d2ff; border-radius: 50%; animation: spin 2s linear infinite;"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <iframe id="kismetFrame" 
+                    class="responsive-iframe"
+                    style="width: 100%; height: 100%; border: none; opacity: 0; transition: opacity 0.3s ease;"
+                    allow="fullscreen; clipboard-write; clipboard-read; autoplay"
+                    sandbox="allow-same-origin allow-scripts allow-popups allow-forms allow-modals allow-popups-to-escape-sandbox"
+                    onload="this.style.opacity = '1'"
+                    onerror="handleIframeError()">
+            </iframe>
+        </div>
+    </div>
+    </div> <!-- End of page-container -->
+
+    <!-- MGRS Library -->
+    <script src="/mgrs.min.js"></script>
+    <script>
+    // Touch event support detection
+    const supportsTouch = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+    
+    // Unified event handling for mouse and touch
+    function addPointerEvents(element, handlers) {
+        if (supportsTouch) {
+            element.addEventListener('touchstart', handlers.start, { passive: false });
+            element.addEventListener('touchmove', handlers.move, { passive: false });
+            element.addEventListener('touchend', handlers.end, { passive: false });
+        }
+        element.addEventListener('mousedown', handlers.start);
+        element.addEventListener('mousemove', handlers.move);
+        element.addEventListener('mouseup', handlers.end);
+    }
+    
+    function getEventCoordinates(e) {
+        if (e.touches && e.touches.length) {
+            return { x: e.touches[0].clientX, y: e.touches[0].clientY };
+        }
+        return { x: e.clientX, y: e.clientY };
+    }
+
+    // Dynamic iframe URL handling with improved stability
+    document.addEventListener('DOMContentLoaded', function() {
+        const iframe = document.getElementById('kismetFrame');
+        const kismetOffline = document.getElementById('kismet-offline');
+        
+        // Use proxy path through our server for authentication and CORS handling
+        const kismetUrl = '/kismet';
+        
+        console.log('Setting Kismet iframe URL to proxy path:', kismetUrl);
+        
+        // Create minimized tab for Kismet iframe on page load
+        const minimizedTabs = document.getElementById('minimized-tabs');
+        if (minimizedTabs) {
+            const tab = document.createElement('div');
+            tab.className = 'minimized-tab kismet-minimized-tab';
+            tab.innerHTML = `
+                Kismet Live View
+                <button class="restore-button" onclick="toggleKismetIframe()">▲</button>
+            `;
+            minimizedTabs.appendChild(tab);
+        }
+        
+        let retryCount = 0;
+        const maxRetries = 3;
+        let retryTimeout = null;
+        
+        function loadKismetIframe() {
+            // Clear any existing timeout
+            if (retryTimeout) {
+                clearTimeout(retryTimeout);
+                retryTimeout = null;
+            }
+            
+            console.log('Loading Kismet iframe (attempt', retryCount + 1, 'of', maxRetries + 1, ')');
+            
+            // Show loading state
+            if (kismetOffline) kismetOffline.style.display = 'block';
+            iframe.style.display = 'block';
+            iframe.style.opacity = '0';
+            
+            // Clear src first to force reload
+            iframe.src = 'about:blank';
+            
+            // Set the iframe source after a brief delay
+            setTimeout(() => {
+                iframe.src = kismetUrl;
+            }, 100);
+        }
+        
+        // Handle successful load
+        iframe.addEventListener('load', function() {
+            console.log('Kismet iframe loaded successfully');
+            
+            // Clear retry timeout
+            if (retryTimeout) {
+                clearTimeout(retryTimeout);
+                retryTimeout = null;
+            }
+            
+            // Hide offline screen and show iframe
+            if (kismetOffline) kismetOffline.style.display = 'none';
+            this.style.display = 'block';
+            this.style.opacity = '1';
+            
+            // Reset retry count on successful load
+            retryCount = 0;
+        });
+        
+        // Handle load errors
+        iframe.addEventListener('error', function(e) {
+            console.error('Kismet iframe error:', e);
+            
+            if (retryCount < maxRetries) {
+                retryCount++;
+                console.log('Retrying in 2 seconds...');
+                
+                // Retry after delay
+                retryTimeout = setTimeout(function() {
+                    loadKismetIframe();
+                }, 2000);
+            } else {
+                console.error('Max retries reached. Kismet iframe failed to load.');
+                // Keep offline screen visible
+                if (kismetOffline) kismetOffline.style.display = 'block';
+                iframe.style.display = 'none';
+            }
+        });
+        
+        // Check if Kismet is running before loading iframe
+        function checkKismetAndLoad() {
+            fetch('/script-status')
+                .then(response => response.json())
+                .then(data => {
+                    if (data && data.kismet_running === true) {
+                        console.log('Kismet is running, loading iframe');
+                        // Add a small delay to ensure Kismet is fully ready
+                        setTimeout(() => loadKismetIframe(), 1000);
+                    } else {
+                        console.log('Kismet is not running, showing offline screen');
+                        if (kismetOffline) kismetOffline.style.display = 'block';
+                        iframe.style.display = 'none';
+                    }
+                })
+                .catch(error => {
+                    console.error('Failed to check Kismet status:', error);
+                    // Show offline screen on error
+                    if (kismetOffline) kismetOffline.style.display = 'block';
+                    iframe.style.display = 'none';
+                });
+        }
+        
+        // Initial check
+        checkKismetAndLoad();
+        
+        // Handle visibility changes (e.g., tab switching)
+        document.addEventListener('visibilitychange', function() {
+            if (!document.hidden && iframe.src && iframe.src !== 'about:blank') {
+                console.log('Page became visible, reloading Kismet iframe');
+                checkKismetAndLoad();
+            }
+        });
+        
+        // Auto-update on resize to ensure iframe renders correctly
+        window.addEventListener('resize', adjustMainContentHeight);
+    });
+
+    function handleIframeError() {
+        console.error('Kismet iframe failed to load');
+        const kismetOffline = document.getElementById('kismet-offline');
+        const iframe = document.getElementById('kismetFrame');
+        if (kismetOffline) kismetOffline.style.display = 'block';
+        if (iframe) iframe.style.display = 'none';
+    }
+
+    function toggleKismetIframe() {
+        const kismetIframe = document.getElementById('kismet-iframe');
+        const minimizedTab = document.querySelector('.kismet-minimized-tab');
+        
+        if (kismetIframe.style.display === 'none') {
+            kismetIframe.style.display = 'block';
+            if (minimizedTab) minimizedTab.style.display = 'none';
+            showNotification('Kismet Live View restored', 'info');
+        } else {
+            kismetIframe.style.display = 'none';
+            if (!minimizedTab) {
+                const minimizedTabs = document.getElementById('minimized-tabs');
+                const tab = document.createElement('div');
+                tab.className = 'minimized-tab kismet-minimized-tab';
+                tab.innerHTML = `
+                    Kismet Live View
+                    <button class="restore-button" onclick="toggleKismetIframe()">▲</button>
+                `;
+                minimizedTabs.appendChild(tab);
+            } else {
+                minimizedTab.style.display = 'flex';
+            }
+            showNotification('Kismet Live View minimized', 'info');
+        }
+        adjustMainContentHeight();
+    }
+
+    function adjustMainContentHeight() {
+        const kismetIframe = document.getElementById('kismet-iframe');
+        const pageContainer = document.querySelector('.page-container');
+        const mainContent = document.querySelector('.main-content-area');
+        
+        // Mobile-specific adjustments
+        if (window.innerWidth <= 768) {
+            if (pageContainer) {
+                pageContainer.style.position = 'relative';
+                pageContainer.style.height = 'auto';
+            }
+        }
+    }
+
+    function reloadKismetIframe() {
+        const iframe = document.getElementById('kismetFrame');
+        if (iframe) {
+            iframe.src = 'about:blank';
+            setTimeout(function() {
+                iframe.src = '/kismet';
+            }, 100);
+            showNotification('Reloading Kismet interface...', 'info');
+        }
+    }
+
+    function toggleKismetDirect() {
+        const iframe = document.getElementById('kismetFrame');
+        if (iframe) {
+            iframe.src = 'about:blank';
+            setTimeout(function() {
+                iframe.src = 'http://' + window.location.hostname + ':2501';
+            }, 100);
+            showNotification('Switched to direct Kismet URL', 'info');
+        }
+    }
+
+    // Resize functions for Kismet iframe
+    function setIframeSize(size) {
+        const kismetIframe = document.getElementById('kismet-iframe');
+        const viewportHeight = window.innerHeight;
+        const headerHeight = 100; // Approximate header + minimized tabs height
+        
+        if (!kismetIframe) return;
+        
+        let newHeight;
+        
+        switch(size) {
+            case 'small':
+                newHeight = Math.min(200, viewportHeight * 0.25);
+                break;
+            case 'medium':
+                newHeight = Math.min(400, viewportHeight * 0.5);
+                break;
+            case 'large':
+                newHeight = Math.min(600, viewportHeight * 0.75);
+                break;
+            case 'full':
+                newHeight = viewportHeight - headerHeight - 20;
+                break;
+            default:
+                newHeight = 400;
+        }
+        
+        // Apply mobile constraints
+        if (window.innerWidth <= 768) {
+            newHeight = Math.min(newHeight, viewportHeight * 0.6);
+            newHeight = Math.max(200, newHeight);
+        }
+        
+        kismetIframe.style.height = newHeight + 'px';
+        adjustMainContentHeight();
+        showNotification(`Kismet view resized to ${size}`, 'info');
+    }
+
+    // System status and update functions
+    (function() {
+        let lastUpdateTime = null;
+        let updateTimer = null;
+        let kismetRunning = false;
+        let wigleRunning = false;
+
+        function updateSystemMessage() {
+            const systemMessage = document.getElementById('system-message');
+            if (systemMessage) {
+                if (kismetRunning) {
+                    systemMessage.textContent = 'Kismet is running. Monitoring WiFi activity...';
+                    systemMessage.style.color = '#00ff88';
+                } else {
+                    systemMessage.textContent = 'System ready. Start Kismet to begin monitoring.';
+                    systemMessage.style.color = '#00d2ff';
+                }
+            }
+        }
+
+        function latLonToMGRS(lat, lon) {
+            try {
+                if (window.MGRS && window.MGRS.forward) {
+                    const mgrsString = window.MGRS.forward([lon, lat], 5);
+                    return mgrsString || 'N/A';
+                }
+                return 'N/A';
+            } catch (error) {
+                console.error('Error converting to MGRS:', error);
+                return 'N/A';
+            }
+        }
+
+        function updateSystemStatus() {
+            fetch('/info')
+                .then(response => response.json())
+                .then(data => {
+                    const ipElement = document.getElementById('ip-address');
+                    const gpsStatusElement = document.getElementById('gps-status');
+                    const gpsLatElement = document.getElementById('gps-lat');
+                    const gpsLonElement = document.getElementById('gps-lon');
+                    const gpsAltElement = document.getElementById('gps-alt');
+                    const gpsMgrsElement = document.getElementById('gps-mgrs');
+                    const gpsTimeElement = document.getElementById('gps-time');
+                    
+                    if (ipElement) ipElement.textContent = data.ipAddress || 'N/A';
+                    
+                    if (data.gps && data.gps.lat && data.gps.lon) {
+                        if (gpsStatusElement) {
+                            gpsStatusElement.textContent = 'Active';
+                            gpsStatusElement.style.color = '#00ff88';
+                        }
+                        if (gpsLatElement) gpsLatElement.textContent = data.gps.lat.toFixed(6) + '°';
+                        if (gpsLonElement) gpsLonElement.textContent = data.gps.lon.toFixed(6) + '°';
+                        if (gpsAltElement) gpsAltElement.textContent = data.gps.alt ? data.gps.alt.toFixed(1) + 'm' : 'N/A';
+                        if (gpsMgrsElement) gpsMgrsElement.textContent = latLonToMGRS(data.gps.lat, data.gps.lon);
+                        if (gpsTimeElement) gpsTimeElement.textContent = data.gps.time || new Date().toLocaleTimeString();
+                    } else {
+                        if (gpsStatusElement) {
+                            gpsStatusElement.textContent = 'No Fix';
+                            gpsStatusElement.style.color = '#ff4444';
+                        }
+                        if (gpsLatElement) gpsLatElement.textContent = '--';
+                        if (gpsLonElement) gpsLonElement.textContent = '--';
+                        if (gpsAltElement) gpsAltElement.textContent = '--';
+                        if (gpsMgrsElement) gpsMgrsElement.textContent = '--';
+                        if (gpsTimeElement) gpsTimeElement.textContent = '--';
+                    }
+                })
+                .catch(error => console.error('Error fetching system info:', error));
+        }
+
+        function updateKismetData() {
+            fetch('/kismet-data')
+                .then(response => response.json())
+                .then(data => {
+                    const devicesCountEl = document.getElementById('devices-count');
+                    const networksCountEl = document.getElementById('networks-count');
+                    const lastUpdateEl = document.getElementById('last-update');
+                    const devicesListEl = document.getElementById('devices-list');
+                    const kismetFeedEl = document.getElementById('kismet-feed');
+                    
+                    if (devicesCountEl) devicesCountEl.textContent = data.devices_count || 0;
+                    if (networksCountEl) networksCountEl.textContent = data.networks_count || 0;
+                    if (lastUpdateEl) {
+                        const now = new Date();
+                        lastUpdateEl.textContent = now.toLocaleTimeString();
+                    }
+                    
+                    // Update devices list
+                    if (devicesListEl && data.recent_devices && data.recent_devices.length > 0) {
+                        devicesListEl.innerHTML = data.recent_devices.map(device => `
+                            <div class="feed-item">
+                                <strong>${device.mac || 'Unknown'}</strong> - 
+                                ${device.manufacturer || 'Unknown Manufacturer'}<br>
+                                <small>Signal: ${device.signal || 'N/A'} dBm | 
+                                Channel: ${device.channel || 'N/A'}</small>
+                            </div>
+                        `).join('');
+                    }
+                    
+                    // Update activity feed
+                    if (kismetFeedEl) {
+                        const now = new Date();
+                        const feedItem = `
+                            <div class="feed-item">
+                                <strong>${now.toLocaleTimeString()}</strong> - 
+                                ${data.devices_count || 0} devices, ${data.networks_count || 0} networks detected
+                            </div>
+                        `;
+                        
+                        // Add new item at the top
+                        kismetFeedEl.insertAdjacentHTML('afterbegin', feedItem);
+                        
+                        // Keep only the last 10 items
+                        const items = kismetFeedEl.querySelectorAll('.feed-item');
+                        if (items.length > 10) {
+                            for (let i = 10; i < items.length; i++) {
+                                items[i].remove();
+                            }
+                        }
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching Kismet data:', error);
+                    const kismetFeedEl = document.getElementById('kismet-feed');
+                    if (kismetFeedEl && kismetFeedEl.children.length === 0) {
+                        kismetFeedEl.innerHTML = '<div class="feed-item">Unable to connect to Kismet</div>';
+                    }
+                });
+        }
+
+        function updateServiceStatus() {
+            fetch('/script-status')
+                .then(response => response.json())
+                .then(data => {
+                    const kismetStatusDot = document.getElementById('kismet-status');
+                    const wigleStatusDot = document.getElementById('wigle-status');
+                    
+                    kismetRunning = data.kismet_running || false;
+                    wigleRunning = data.wigle_running || false;
+                    
+                    if (kismetStatusDot) {
+                        kismetStatusDot.style.background = kismetRunning ? '#00ff88' : '#ff4444';
+                    }
+                    
+                    if (wigleStatusDot) {
+                        wigleStatusDot.style.background = wigleRunning ? '#00ff88' : '#ff4444';
+                    }
+                    
+                    updateSystemMessage();
+                })
+                .catch(error => console.error('Error checking service status:', error));
+        }
+
+        function showNotification(message, type = 'info') {
+            const notification = document.getElementById('notification');
+            if (notification) {
+                notification.textContent = message;
+                notification.className = `notification show ${type}`;
+                setTimeout(() => {
+                    notification.classList.remove('show');
+                }, 3000);
+            }
+        }
+
+        function updateKismetStatus() {
+            const kismetIframe = document.getElementById('kismet-iframe');
+            const kismetOffline = document.getElementById('kismet-offline');
+            const kismetFrame = document.getElementById('kismetFrame');
+            
+            fetch('/script-status')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.kismet_running) {
+                        // Show iframe and hide offline message
+                        if (kismetOffline) kismetOffline.style.display = 'none';
+                        if (kismetFrame) {
+                            kismetFrame.style.display = 'block';
+                            // Only reload if src is empty or about:blank
+                            if (!kismetFrame.src || kismetFrame.src === 'about:blank') {
+                                kismetFrame.src = '/kismet';
+                            }
+                        }
+                    } else {
+                        // Show offline message and hide iframe
+                        if (kismetOffline) kismetOffline.style.display = 'block';
+                        if (kismetFrame) {
+                            kismetFrame.style.display = 'none';
+                            kismetFrame.src = 'about:blank';
+                        }
+                    }
+                })
+                .catch(error => {
+                    console.error('Error checking Kismet status:', error);
+                    // Show offline message on error
+                    if (kismetOffline) kismetOffline.style.display = 'block';
+                    if (kismetFrame) {
+                        kismetFrame.style.display = 'none';
+                        kismetFrame.src = 'about:blank';
+                    }
+                });
+        }
+
+        function startStatusUpdates() {
+            // Initial updates
+            updateSystemStatus();
+            updateServiceStatus();
+            updateKismetData();
+            updateKismetStatus();
+            
+            // Set up periodic updates
+            setInterval(updateSystemStatus, 10000); // Every 10 seconds
+            setInterval(updateServiceStatus, 5000); // Every 5 seconds
+            setInterval(updateKismetData, 3000); // Every 3 seconds
+            setInterval(updateKismetStatus, 10000); // Every 10 seconds
+        }
+
+        // Start updates when DOM is loaded
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', startStatusUpdates);
+        } else {
+            startStatusUpdates();
+        }
+
+        // Script control functions
+        async function startKismet() {
+            console.log('startKismet function called');
+            const statusMessage = document.getElementById('status-message');
+            const systemMessage = document.getElementById('system-message');
+            
+            try {
+                if (statusMessage) {
+                    statusMessage.textContent = 'Starting Kismet...';
+                    statusMessage.classList.remove('hidden');
+                }
+                
+                if (systemMessage) {
+                    systemMessage.textContent = 'Starting Kismet service...';
+                    systemMessage.style.color = '#ffaa00';
+                }
+                
+                showNotification('Starting Kismet...', 'info');
+                
+                const response = await fetch('/run-script', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ script: 'kismet' })
+                });
+                
+                const data = await response.json();
+                console.log('Start Kismet response:', data);
+                
+                if (response.ok && data.status === 'success') {
+                    showNotification('Kismet started successfully!', 'success');
+                    if (systemMessage) {
+                        systemMessage.textContent = 'Kismet is starting up...';
+                        systemMessage.style.color = '#00ff88';
+                    }
+                    
+                    // Wait a bit for Kismet to fully start, then update iframe
+                    setTimeout(() => {
+                        updateKismetStatus();
+                        updateServiceStatus();
+                        if (systemMessage) {
+                            systemMessage.textContent = 'Kismet is running. Monitoring WiFi activity...';
+                        }
+                    }, 3000);
+                } else {
+                    throw new Error(data.message || 'Failed to start Kismet');
+                }
+            } catch (error) {
+                console.error('Error starting Kismet:', error);
+                showNotification(`Error: ${error.message}`, 'error');
+                if (systemMessage) {
+                    systemMessage.textContent = 'Failed to start Kismet';
+                    systemMessage.style.color = '#ff4444';
+                }
+            } finally {
+                if (statusMessage) {
+                    setTimeout(() => {
+                        statusMessage.classList.add('hidden');
+                    }, 3000);
+                }
+            }
+        }
+
+        function stopKismet() {
+            const statusMessage = document.getElementById('status-message');
+            const systemMessage = document.getElementById('system-message');
+            
+            if (statusMessage) {
+                statusMessage.textContent = 'Stopping Kismet...';
+                statusMessage.classList.remove('hidden');
+            }
+            
+            if (systemMessage) {
+                systemMessage.textContent = 'Stopping Kismet service...';
+                systemMessage.style.color = '#ffaa00';
+            }
+            
+            showNotification('Stopping Kismet...', 'info');
+            
+            fetch('/stop-script', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ script: 'kismet' })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    showNotification('Kismet stopped successfully', 'success');
+                    if (systemMessage) {
+                        systemMessage.textContent = 'Kismet stopped. System ready.';
+                        systemMessage.style.color = '#00d2ff';
+                    }
+                    
+                    // Update iframe to show offline state
+                    updateKismetStatus();
+                    updateServiceStatus();
+                } else {
+                    showNotification(data.message || 'Failed to stop Kismet', 'error');
+                    if (systemMessage) {
+                        systemMessage.textContent = 'Failed to stop Kismet';
+                        systemMessage.style.color = '#ff4444';
+                    }
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showNotification('Error stopping Kismet', 'error');
+            })
+            .finally(() => {
+                if (statusMessage) {
+                    setTimeout(() => {
+                        statusMessage.classList.add('hidden');
+                    }, 3000);
+                }
+            });
+        }
+
+        // Box minimize/restore functionality
+        function toggleMinimize(button) {
+            const gridItem = button.closest('.grid-item');
+            if (!gridItem) return;
+            
+            const minimizedTabs = document.getElementById('minimized-tabs');
+            const boxHeader = gridItem.querySelector('.box-header h2');
+            const title = boxHeader ? boxHeader.textContent : 'Untitled';
+            
+            // Hide the grid item
+            gridItem.classList.add('minimized');
+            
+            // Create minimized tab
+            const tab = document.createElement('div');
+            tab.className = 'minimized-tab';
+            tab.innerHTML = `
+                ${title}
+                <button class="restore-button" onclick="restoreBox('${gridItem.id}')">▲</button>
+            `;
+            minimizedTabs.appendChild(tab);
+            
+            showNotification(`${title} minimized`, 'info');
+        }
+
+        function resetBoxPosition(box) {
+            box.style.position = '';
+            box.style.left = '';
+            box.style.top = '';
+            box.style.width = '';
+            box.style.height = '';
+            box.style.transform = '';
+            box.style.zIndex = '';
+            
+            // Reset grid positioning
+            box.style.gridColumn = '';
+            box.style.gridRow = '';
+            
+            // Remove dragging class
+            box.classList.remove('dragging');
+            
+            // Reset any inline styles that might have been added
+            const boxContent = box.querySelector('.grid-item-content');
+            if (boxContent) {
+                boxContent.style.height = '';
+            }
+        }
+
+        function restoreBox(boxId) {
+            const box = document.getElementById(boxId);
+            if (!box) return;
+            
+            // Remove minimized class to show the box
+            box.classList.remove('minimized');
+            
+            // Reset position to ensure it returns to grid
+            resetBoxPosition(box);
+            
+            // Remove the minimized tab
+            const minimizedTabs = document.getElementById('minimized-tabs');
+            const tabs = minimizedTabs.querySelectorAll('.minimized-tab');
+            tabs.forEach(tab => {
+                if (tab.textContent.includes(box.querySelector('.box-header h2').textContent)) {
+                    tab.remove();
+                }
+            });
+            
+            showNotification(`${box.querySelector('.box-header h2').textContent} restored`, 'info');
+        }
+
+        // Initialize draggable functionality with touch support
+        function initializeGrid() {
+            const gridItems = document.querySelectorAll('.grid-item');
+            gridItems.forEach(item => {
+                // Skip Kismet iframe for draggable functionality
+                if (item.id === 'kismet-iframe') return;
+                
+                const header = item.querySelector('.box-header');
+                if (header) {
+                    // Prevent text selection during drag
+                    header.addEventListener('selectstart', (e) => {
+                        e.preventDefault();
+                    });
+                    
+                    // Only make draggable on desktop
+                    if (window.innerWidth > 768) {
+                        let isDragging = false;
+                        let currentX;
+                        let currentY;
+                        let initialX;
+                        let initialY;
+                        let xOffset = 0;
+                        let yOffset = 0;
+                        
+                        function dragStart(e) {
+                            if (e.target.closest('.control-button-small')) return;
+                            
+                            e.preventDefault();
+                            const coords = getEventCoordinates(e);
+                            initialX = coords.x - xOffset;
+                            initialY = coords.y - yOffset;
+                            
+                            if (e.target === header || header.contains(e.target)) {
+                                isDragging = true;
+                                item.style.zIndex = '1000';
+                                item.style.transition = 'none';
+                            }
+                        }
+                        
+                        function dragMove(e) {
+                            if (!isDragging) return;
+                            
+                            e.preventDefault();
+                            const coords = getEventCoordinates(e);
+                            currentX = coords.x - initialX;
+                            currentY = coords.y - initialY;
+                            
+                            xOffset = currentX;
+                            yOffset = currentY;
+                            
+                            item.style.transform = `translate(${currentX}px, ${currentY}px)`;
+                        }
+                        
+                        function dragEnd(e) {
+                            initialX = currentX;
+                            initialY = currentY;
+                            isDragging = false;
+                            item.style.zIndex = '';
+                            item.style.transition = '';
+                        }
+                        
+                        addPointerEvents(header, {
+                            start: dragStart,
+                            move: dragMove,
+                            end: dragEnd
+                        });
+                    }
+                }
+            });
+            
+            // Add resize handles for desktop only
+            if (window.innerWidth > 768) {
+                gridItems.forEach(item => {
+                    if (item.id !== 'kismet-iframe') {
+                        createResizeHandles(item);
+                    }
+                });
+            }
+        }
+
+        function createResizeHandles(box) {
+            const positions = ['top', 'bottom', 'left', 'right', 'top-left', 'top-right', 'bottom-left', 'bottom-right'];
+            
+            positions.forEach(pos => {
+                const handle = document.createElement('div');
+                handle.className = `resize-handle ${pos}`;
+                handle.onmousedown = function(e) { 
+                    e.preventDefault();
+                    initResize(e, handle);
+                };
+                box.appendChild(handle);
+            });
+        }
+
+        function initResize(e, handle) {
+            e.preventDefault();
+            const box = handle.parentElement;
+            const startX = e.clientX;
+            const startY = e.clientY;
+            const startWidth = parseInt(document.defaultView.getComputedStyle(box).width, 10);
+            const startHeight = parseInt(document.defaultView.getComputedStyle(box).height, 10);
+            const startLeft = box.offsetLeft;
+            const startTop = box.offsetTop;
+
+            function doResize(e) {
+                const handleClass = handle.className;
+                
+                if (handleClass.includes('right')) {
+                    box.style.width = (startWidth + e.clientX - startX) + 'px';
+                }
+                if (handleClass.includes('left')) {
+                    const newWidth = startWidth - (e.clientX - startX);
+                    if (newWidth > 100) {
+                        box.style.width = newWidth + 'px';
+                        box.style.left = (startLeft + e.clientX - startX) + 'px';
+                    }
+                }
+                if (handleClass.includes('bottom')) {
+                    box.style.height = (startHeight + e.clientY - startY) + 'px';
+                }
+                if (handleClass.includes('top')) {
+                    const newHeight = startHeight - (e.clientY - startY);
+                    if (newHeight > 100) {
+                        box.style.height = newHeight + 'px';
+                        box.style.top = (startTop + e.clientY - startY) + 'px';
+                    }
+                }
+            }
+
+            function stopResize() {
+                document.removeEventListener('mousemove', doResize);
+                document.removeEventListener('mouseup', stopResize);
+            }
+
+            document.addEventListener('mousemove', doResize);
+            document.addEventListener('mouseup', stopResize);
+        }
+
+        // Add resize handles to all boxes when the page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeGrid();
+            
+            // Skip iframe resize on mobile
+            if (window.innerWidth > 768) {
+                // Initialize Kismet iframe resize handle
+                const resizeHandle = document.getElementById('resize-handle');
+                const kismetIframe = document.getElementById('kismet-iframe');
+                let isResizing = false;
+                let startY = 0;
+                let startHeight = 0;
+                
+                if (resizeHandle && kismetIframe) {
+                    resizeHandle.addEventListener('mousedown', function(e) {
+                        isResizing = true;
+                        startY = e.clientY;
+                        startHeight = parseInt(document.defaultView.getComputedStyle(kismetIframe).height, 10);
+                        e.preventDefault();
+                        
+                        // Change cursor for entire document during resize
+                        document.body.style.cursor = 'ns-resize';
+                        
+                        // Prevent text selection during resize
+                        document.body.style.userSelect = 'none';
+                    });
+                    
+                    document.addEventListener('mousemove', function(e) {
+                        if (!isResizing) return;
+                        
+                        const deltaY = startY - e.clientY;
+                        const newHeight = Math.max(200, Math.min(window.innerHeight * 0.8, startHeight + deltaY));
+                        
+                        kismetIframe.style.height = newHeight + 'px';
+                        adjustMainContentHeight();
+                    });
+                    
+                    document.addEventListener('mouseup', function() {
+                        if (isResizing) {
+                            isResizing = false;
+                            document.body.style.cursor = '';
+                            document.body.style.userSelect = '';
+                        }
+                    });
+                    
+                    // Prevent text selection on the resize handle
+                    resizeHandle.addEventListener('selectstart', function(e) {
+                        e.preventDefault();
+                    });
+                }
+            }
+        });
+
+        // Event delegation for dynamic content
+        document.addEventListener('click', function(e) {
+            // Handle minimize buttons
+            if (e.target.matches('[data-action="minimize"]')) {
+                toggleMinimize(e.target);
+            }
+            
+            // Handle control buttons
+            if (e.target.matches('[data-action]')) {
+                const action = e.target.getAttribute('data-action');
+                switch(action) {
+                    case 'startKismet':
+                        console.log('startKismet action detected, calling function');
+                        startKismet();
+                        break;
+                    case 'stopKismet':
+                        stopKismet();
+                        break;
+                    case 'addLoadProfile':
+                        addLoadProfile();
+                        break;
+                    case 'hackRFSweep':
+                        hackRFSweep();
+                        break;
+                }
+            }
+        });
+
+        // Expose functions globally
+        window.showNotification = showNotification;
+        window.toggleMinimize = toggleMinimize;
+        window.restoreBox = restoreBox;
+        window.startKismet = startKismet;
+        window.stopKismet = stopKismet;
+
+        // Placeholder functions for HackRF controls
+        function addLoadProfile() {
+            showNotification('Add Load Profile functionality not yet implemented', 'info');
+        }
+
+        function hackRFSweep() {
+            showNotification('HackRF Sweep functionality not yet implemented', 'info');
+        }
+    })();
+
+    // Handle mobile viewport changes
+    window.addEventListener('orientationchange', function() {
+        setTimeout(adjustMainContentHeight, 100);
+    });
+
+    // Improved touch scrolling for data feeds
+    document.querySelectorAll('.grid-item-content').forEach(element => {
+        let startY = 0;
+        let scrollTop = 0;
+        
+        element.addEventListener('touchstart', function(e) {
+            startY = e.touches[0].pageY;
+            scrollTop = element.scrollTop;
+        }, { passive: true });
+        
+        element.addEventListener('touchmove', function(e) {
+            const deltaY = startY - e.touches[0].pageY;
+            element.scrollTop = scrollTop + deltaY;
+        }, { passive: true });
+    });
+
+    // Enable swipe gestures for minimized tabs
+    const minimizedTabs = document.getElementById('minimized-tabs');
+    if (minimizedTabs && supportsTouch) {
+        let startX = 0;
+        let scrollLeft = 0;
+        
+        minimizedTabs.addEventListener('touchstart', function(e) {
+            startX = e.touches[0].pageX;
+            scrollLeft = minimizedTabs.scrollLeft;
+        }, { passive: true });
+        
+        minimizedTabs.addEventListener('touchmove', function(e) {
+            const deltaX = startX - e.touches[0].pageX;
+            minimizedTabs.scrollLeft = scrollLeft + deltaX;
+        }, { passive: true });
+    }
+    </script>
+</body>
+</html>

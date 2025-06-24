@@ -1,0 +1,46 @@
+[Unit]
+Description=WigleToTAK Backend Service
+Documentation=https://github.com/yourusername/wigletotak
+After=network.target gpsd.service
+Wants=gpsd.service
+
+[Service]
+Type=simple
+User=pi
+Group=pi
+WorkingDirectory=/opt/wigletotak/backend
+Environment="NODE_ENV=production"
+Environment="PORT=8001"
+Environment="LOG_LEVEL=info"
+Environment="NODE_OPTIONS=--max-old-space-size=512"
+
+# Service configuration
+ExecStartPre=/usr/bin/npm run migrate || /bin/true
+ExecStart=/usr/bin/node dist/server.js
+ExecReload=/bin/kill -USR2 $MAINPID
+Restart=always
+RestartSec=10
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=wigletotak
+
+# Security hardening
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/opt/wigletotak/backend/data
+ReadWritePaths=/opt/wigletotak/backend/logs
+ReadWritePaths=/var/log/wigletotak
+
+# Resource limits
+LimitNOFILE=65536
+LimitNPROC=512
+MemoryLimit=1G
+CPUQuota=200%
+
+# Health check
+ExecStartPost=/bin/bash -c 'for i in {1..30}; do curl -sf http://localhost:8001/health && exit 0 || sleep 1; done; exit 1'
+
+[Install]
+WantedBy=multi-user.target

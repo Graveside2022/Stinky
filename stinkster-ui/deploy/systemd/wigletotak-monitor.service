@@ -1,0 +1,21 @@
+[Unit]
+Description=WigleToTAK Health Monitor
+After=wigletotak.service
+
+[Service]
+Type=oneshot
+ExecStart=/opt/wigletotak/deploy/scripts/health-check.sh check
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=wigletotak-monitor
+
+# Run as non-privileged user
+User=pi
+Group=pi
+
+# Resource limits
+CPUQuota=10%
+MemoryLimit=128M
+
+[Install]
+WantedBy=multi-user.target

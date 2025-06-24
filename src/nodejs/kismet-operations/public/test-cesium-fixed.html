@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Cesium Fix Test</title>
+    <link href="https://cesium.com/downloads/cesiumjs/releases/1.119/Build/Cesium/Widgets/widgets.css" rel="stylesheet">
+    <script src="https://cesium.com/downloads/cesiumjs/releases/1.119/Build/Cesium/Cesium.js"></script>
+    <style>
+        #cesiumContainer { width: 100%; height: 600px; }
+        .status { background: #333; color: #fff; padding: 10px; }
+    </style>
+</head>
+<body>
+    <div class="status">
+        <h2>Cesium Globe Test - Fixed Version</h2>
+        <p id="status">Initializing...</p>
+    </div>
+    <div id="cesiumContainer"></div>
+    
+    <script>
+        // Set Cesium Ion access token
+        Cesium.Ion.defaultAccessToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiJlYWE1OWUxNy1mMWZiLTQzYjYtYTQ0OS1kMWFjYmFkNjc5YzAiLCJpZCI6NTc3MzMsImlhdCI6MTYyNzg0NTE4Mn0.XcKpgANiY19MC4bdFUXMVEBToBmqS8kuYpUlxJHYZxk';
+        
+        const status = document.getElementById('status');
+        
+        try {
+            const viewer = new Cesium.Viewer('cesiumContainer', {
+                terrainProvider: new Cesium.EllipsoidTerrainProvider(),
+                baseLayerPicker: false,
+                geocoder: false,
+                animation: false,
+                timeline: false
+            });
+            
+            // Try to add Esri World Imagery
+            viewer.imageryLayers.removeAll();
+            const imageryProvider = new Cesium.UrlTemplateImageryProvider({
+                url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+                credit: 'Tiles © Esri',
+                maximumLevel: 19
+            });
+            
+            viewer.imageryLayers.addImageryProvider(imageryProvider);
+            
+            status.innerHTML = '✓ Cesium initialized successfully with Esri World Imagery';
+            
+            // Set view to a recognizable location (San Francisco)
+            viewer.scene.camera.setView({
+                destination: Cesium.Cartesian3.fromDegrees(-122.4194, 37.7749, 10000),
+                orientation: {
+                    heading: Cesium.Math.toRadians(0),
+                    pitch: Cesium.Math.toRadians(-90),
+                    roll: 0.0
+                }
+            });
+            
+        } catch (error) {
+            status.innerHTML = '✗ Error: ' + error.message;
+            console.error('Cesium initialization error:', error);
+        }
+    </script>
+</body>
+</html>

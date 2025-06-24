@@ -1,0 +1,39 @@
+[Unit]
+Description=Spectrum Analyzer (HackRF) - Node.js Service
+Documentation=https://github.com/yourusername/stinkster
+After=network.target openwebrx-docker.service
+Wants=openwebrx-docker.service
+
+[Service]
+Type=simple
+User=pi
+Group=pi
+WorkingDirectory=/home/pi/projects/stinkster_christian/stinkster/src/nodejs/kismet-operations
+Environment="NODE_ENV=production"
+Environment="PORT=8092"
+Environment="PATH=/usr/bin:/usr/local/bin:/home/pi/.nvm/versions/node/v18.17.0/bin"
+EnvironmentFile=-/home/pi/projects/stinkster_christian/stinkster/.env.production
+ExecStart=/home/pi/projects/stinkster_christian/stinkster/src/nodejs/kismet-operations/start-optimized.sh
+Restart=always
+RestartSec=10
+
+# Logging
+StandardOutput=append:/var/log/spectrum-analyzer.log
+StandardError=append:/var/log/spectrum-analyzer.log
+
+# Process management
+KillMode=mixed
+KillSignal=SIGTERM
+TimeoutStopSec=10
+
+# Security hardening
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=read-only
+ReadWritePaths=/home/pi/projects/stinkster_christian/stinkster/src/nodejs/kismet-operations
+ReadWritePaths=/var/log
+ReadWritePaths=/home/pi/tmp
+
+[Install]
+WantedBy=multi-user.target

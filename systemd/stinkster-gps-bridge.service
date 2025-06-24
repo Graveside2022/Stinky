@@ -1,0 +1,50 @@
+[Unit]
+Description=Stinkster GPS Bridge - MAVLink to GPSD
+Documentation=https://github.com/yourusername/stinkster
+After=network.target
+Before=gpsd.service
+PartOf=stinkster.target
+
+[Service]
+Type=simple
+User=pi
+Group=pi
+WorkingDirectory=/home/pi/projects/stinkster_christian/stinkster/src/gpsmav
+Environment="PATH=/usr/bin:/usr/local/bin:/home/pi/.local/bin"
+Environment="PYTHONUNBUFFERED=1"
+
+# Activate virtual environment and run
+ExecStartPre=/bin/bash -c 'if [ ! -d "venv" ]; then python3 -m venv venv && source venv/bin/activate && pip install -r requirements.txt; fi'
+ExecStart=/bin/bash -c 'source venv/bin/activate && python3 mavgps.py'
+
+Restart=always
+RestartSec=10
+StartLimitBurst=5
+StartLimitIntervalSec=60
+
+# Logging
+StandardOutput=append:/var/log/stinkster-gps-bridge.log
+StandardError=append:/var/log/stinkster-gps-bridge.log
+
+# Process management
+KillMode=mixed
+KillSignal=SIGTERM
+TimeoutStopSec=10
+
+# Security
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=read-only
+ReadWritePaths=/home/pi/projects/stinkster_christian/stinkster/src/gpsmav
+ReadWritePaths=/var/log
+ReadWritePaths=/home/pi/tmp
+
+# Device access for GPS
+DeviceAllow=/dev/ttyUSB0 rw
+DeviceAllow=/dev/ttyACM0 rw
+DeviceAllow=/dev/ttyAMA0 rw
+SupplementaryGroups=dialout
+
+[Install]
+WantedBy=stinkster.target

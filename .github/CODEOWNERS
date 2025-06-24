@@ -1,0 +1,27 @@
+# Stinkster Code Owners
+# These owners will be automatically requested for review when someone opens a pull request.
+
+# Global owners (review all changes)
+* @yourusername
+
+# Component-specific ownership
+/src/hackrf/ @yourusername
+/src/gpsmav/ @yourusername
+/src/wigletotak/ @yourusername
+/src/nodejs/ @yourusername
+/src/orchestration/ @yourusername
+
+# Configuration and deployment
+/docker/ @yourusername
+/systemd/ @yourusername
+/config/ @yourusername
+/.github/ @yourusername
+
+# Documentation
+/docs/ @yourusername
+*.md @yourusername
+
+# Security-sensitive files
+.env* @yourusername
+**/secrets/ @yourusername
+**/credentials/ @yourusername

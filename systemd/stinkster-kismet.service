@@ -1,0 +1,46 @@
+[Unit]
+Description=Stinkster Kismet - WiFi Monitoring Service
+Documentation=https://github.com/yourusername/stinkster
+After=network.target gpsd.service stinkster-gps-bridge.service
+Wants=gpsd.service
+PartOf=stinkster.target
+
+[Service]
+Type=forking
+User=root
+Group=root
+WorkingDirectory=/home/pi/projects/stinkster_christian/stinkster
+Environment="KISMET_DATA_DIR=/home/pi/projects/stinkster_christian/stinkster/data/kismet"
+Environment="WIRELESS_INTERFACE=wlan2"
+Environment="LOG_DIR=/home/pi/tmp"
+
+# Use the existing start script
+ExecStart=/home/pi/projects/stinkster_christian/stinkster/src/scripts/start_kismet.sh
+PIDFile=/home/pi/projects/stinkster_christian/stinkster/data/kismet/kismet.pid
+
+Restart=always
+RestartSec=30
+StartLimitBurst=3
+StartLimitIntervalSec=300
+
+# Logging
+StandardOutput=append:/var/log/stinkster-kismet.log
+StandardError=append:/var/log/stinkster-kismet.log
+
+# Process management
+KillMode=control-group
+KillSignal=SIGTERM
+TimeoutStopSec=30
+
+# Network capabilities needed for monitor mode
+AmbientCapabilities=CAP_NET_ADMIN CAP_NET_RAW
+CapabilityBoundingSet=CAP_NET_ADMIN CAP_NET_RAW CAP_DAC_OVERRIDE CAP_SETUID CAP_SETGID
+
+# File access
+ReadWritePaths=/home/pi/projects/stinkster_christian/stinkster/data/kismet
+ReadWritePaths=/home/pi/.kismet
+ReadWritePaths=/var/log
+ReadWritePaths=/home/pi/tmp
+
+[Install]
+WantedBy=stinkster.target

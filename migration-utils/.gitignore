@@ -1,0 +1,19 @@
+# Dependencies
+node_modules/
+
+# Backup directory
+backups/
+
+# Log files
+*.log
+conversion-log.json
+lint-log.json
+verification-log.json
+rollback-log.json
+
+# Generated reports
+migration-progress.html
+
+# Temporary files
+*.tmp
+.DS_Store

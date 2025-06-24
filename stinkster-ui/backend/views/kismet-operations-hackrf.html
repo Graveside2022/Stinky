@@ -1,0 +1,910 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="cache-control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="pragma" content="no-cache">
+    <meta http-equiv="expires" content="0">
+    <title>Kismet Operations Center</title>
+    
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <style>
+        /* HackRF Professional Theme - Exact Match */
+        :root {
+            /* Backgrounds */
+            --bg-primary: #0a0a0a;
+            --bg-secondary: #141414;
+            --bg-card: #141414;
+            --bg-input: #1a1a1a;
+            --bg-hover: #2d2d2d;
+            --bg-button: #404040;
+            
+            /* Accent Colors - Exact HackRF Cyan */
+            --accent-primary: #00d2ff;
+            --accent-hover: #33daff;
+            --accent-muted: #0099cc;
+            --accent-active: #0077aa;
+            
+            /* Text Colors */
+            --text-primary: #FFFFFF;
+            --text-secondary: #a3a3a3;
+            --text-tertiary: #737373;
+            --text-muted: #525252;
+            --text-disabled: #525252;
+            
+            /* Signal Strength Colors */
+            --signal-none: #FFFFFF;
+            --signal-weak: #60A5FA;
+            --signal-moderate: #FBBF24;
+            --signal-strong: #FF6B35;
+            --signal-very-strong: #DC2626;
+            
+            /* Borders */
+            --border-primary: #262626;
+            --border-hover: #404040;
+            
+            /* Shadows */
+            --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.3);
+            --shadow-lg: 0 8px 16px rgba(0, 0, 0, 0.4);
+            
+            /* Typography */
+            --font-heading: Inter, system-ui, -apple-system, sans-serif;
+            --font-body: Inter, system-ui, -apple-system, sans-serif;
+            --font-mono: 'JetBrains Mono', 'Fira Code', 'Consolas', 'Monaco', monospace;
+        }
+
+        /* Reset and Base Styles */
+        *, *::before, *::after {
+            box-sizing: border-box;
+        }
+        
+        html {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            font-family: var(--font-body);
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* Geometric Background System */
+        .geometric-background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            overflow: hidden;
+        }
+
+        .geometric-background::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 25% 25%, rgba(59, 130, 246, 0.08) 0%, transparent 50%),
+                radial-gradient(circle at 75% 75%, rgba(0, 212, 255, 0.06) 0%, transparent 50%),
+                radial-gradient(circle at 50% 10%, rgba(147, 51, 234, 0.04) 0%, transparent 40%),
+                radial-gradient(circle at 10% 80%, rgba(59, 130, 246, 0.05) 0%, transparent 45%),
+                linear-gradient(135deg, rgba(20, 20, 20, 0.9) 0%, rgba(10, 10, 10, 0.95) 100%);
+            animation: float-shapes 45s ease-in-out infinite;
+        }
+
+        /* Grid Pattern */
+        .floating-shapes::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0.015;
+            background-image: 
+                linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+                linear-gradient(rgba(0, 212, 255, 0.02) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 212, 255, 0.02) 1px, transparent 1px);
+            background-size: 50px 50px, 50px 50px, 100px 100px, 100px 100px;
+            animation: grid-drift 70s linear infinite;
+        }
+
+        /* Hexagon Overlay */
+        .floating-shapes::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0.012;
+            background-image: url("data:image/svg+xml,%3Csvg width='80' height='80' viewBox='0 0 80 80' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' stroke='rgba(0,212,255,0.08)' stroke-width='1'%3E%3Cpath d='M40 20l17 10v20L40 60l-17-10V30z'/%3E%3Cpath d='M23 30l17-10 17 10M57 50l-17 10-17-10'/%3E%3C/g%3E%3C/svg%3E");
+            animation: hexagon-float 50s ease-in-out infinite reverse;
+        }
+
+        .floating-shape {
+            position: absolute;
+            background: rgba(0, 212, 255, 0.01);
+            border: 1px solid rgba(0, 212, 255, 0.03);
+            border-radius: 50%;
+            animation: float 20s infinite linear;
+        }
+
+        .floating-shape:nth-child(1) {
+            width: 100px;
+            height: 100px;
+            top: 10%;
+            left: 10%;
+            animation-delay: 0s;
+        }
+
+        .floating-shape:nth-child(2) {
+            width: 150px;
+            height: 150px;
+            top: 60%;
+            left: 80%;
+            animation-delay: -5s;
+        }
+
+        .floating-shape:nth-child(3) {
+            width: 80px;
+            height: 80px;
+            top: 80%;
+            left: 20%;
+            animation-delay: -10s;
+        }
+
+        @keyframes float {
+            0%, 100% {
+                transform: translateY(0px) rotate(0deg);
+                opacity: 0.01;
+            }
+            50% {
+                transform: translateY(-20px) rotate(180deg);
+                opacity: 0.02;
+            }
+        }
+
+        @keyframes float-shapes {
+            0%, 100% { 
+                transform: translate(0, 0) rotate(0deg) scale(1); 
+                opacity: 0.025;
+            }
+            25% { 
+                transform: translate(30px, -20px) rotate(90deg) scale(1.05); 
+                opacity: 0.035;
+            }
+            50% { 
+                transform: translate(-20px, 30px) rotate(180deg) scale(0.95); 
+                opacity: 0.02;
+            }
+            75% { 
+                transform: translate(20px, -30px) rotate(270deg) scale(1.02); 
+                opacity: 0.03;
+            }
+        }
+
+        @keyframes grid-drift {
+            0% { transform: translate(0, 0); }
+            100% { transform: translate(50px, 50px); }
+        }
+
+        @keyframes hexagon-float {
+            0%, 100% { 
+                transform: translate(0, 0) scale(1); 
+                opacity: 0.012;
+            }
+            33% { 
+                transform: translate(-25px, 15px) scale(1.02); 
+                opacity: 0.018;
+            }
+            66% { 
+                transform: translate(15px, -25px) scale(0.98); 
+                opacity: 0.008;
+            }
+        }
+
+        /* Glass Morphism Header */
+        .glass-header {
+            background: rgba(20, 20, 20, 0.8);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(0, 212, 255, 0.1);
+            padding: 1.5rem 2rem;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-title {
+            font-size: 2rem;
+            font-weight: 800;
+            color: var(--text-primary);
+            text-align: center;
+            margin: 0;
+            letter-spacing: 0.5px;
+            text-shadow: 0 0 20px rgba(0, 212, 255, 0.3);
+        }
+
+        /* Container System */
+        .main-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+            display: grid;
+            grid-template-columns: 1fr 2fr 1fr;
+            gap: 2rem;
+            min-height: calc(100vh - 120px);
+        }
+
+        /* Card Components */
+        .glass-card {
+            background: rgba(20, 20, 20, 0.8);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid var(--border-primary);
+            border-radius: 12px;
+            padding: 0;
+            box-shadow: var(--shadow-lg);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .glass-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(0, 212, 255, 0.2), transparent);
+        }
+
+        .glass-card:hover {
+            border-color: rgba(0, 212, 255, 0.2);
+            box-shadow: var(--shadow-lg), 0 0 30px rgba(0, 212, 255, 0.1);
+        }
+
+        .card-header {
+            padding: 1.5rem 2rem;
+            border-bottom: 1px solid var(--border-primary);
+            background: rgba(38, 38, 38, 0.3);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .card-title {
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: var(--accent-primary);
+            margin: 0;
+            letter-spacing: 0.5px;
+        }
+
+        .card-content {
+            padding: 2rem;
+        }
+
+        /* Button System */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0.75rem 1.5rem;
+            font-size: 0.875rem;
+            font-weight: 600;
+            font-family: var(--font-body);
+            border-radius: 8px;
+            border: 1px solid;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-decoration: none;
+            min-width: 120px;
+        }
+
+        .btn-primary {
+            background: var(--accent-primary);
+            color: #000000;
+            border-color: var(--accent-active);
+        }
+
+        .btn-primary:hover {
+            background: var(--accent-hover);
+            border-color: var(--accent-primary);
+            transform: translateY(-1px);
+        }
+
+        .btn-success {
+            background: #10b981;
+            color: #ffffff;
+            border-color: #059669;
+        }
+
+        .btn-success:hover {
+            background: #059669;
+            border-color: #047857;
+        }
+
+        .btn-danger {
+            background: #ef4444;
+            color: #ffffff;
+            border-color: #dc2626;
+        }
+
+        .btn-danger:hover {
+            background: #dc2626;
+            border-color: #b91c1c;
+        }
+
+        .btn-secondary {
+            background: var(--bg-button);
+            color: var(--text-primary);
+            border-color: var(--border-primary);
+        }
+
+        .btn-secondary:hover {
+            background: var(--bg-hover);
+            border-color: var(--border-hover);
+        }
+
+        /* Status Indicators */
+        .status-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #ef4444;
+            display: inline-block;
+            margin-right: 0.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .status-dot.online {
+            background: var(--accent-primary);
+            box-shadow: 0 0 12px rgba(0, 212, 255, 0.6);
+        }
+
+        .status-indicator {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem 1rem;
+            background: rgba(26, 26, 26, 0.6);
+            border: 1px solid var(--border-primary);
+            border-radius: 8px;
+            margin-bottom: 0.75rem;
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+        }
+
+        /* Data Feed */
+        .data-item {
+            padding: 1rem;
+            background: rgba(26, 26, 26, 0.6);
+            border: 1px solid var(--border-primary);
+            border-radius: 8px;
+            margin-bottom: 0.75rem;
+            font-family: var(--font-mono);
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+
+        .data-value {
+            color: var(--accent-primary);
+            font-weight: 600;
+            font-size: 1.25rem;
+        }
+
+        .data-label {
+            color: var(--text-tertiary);
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 0.25rem;
+        }
+
+        /* Grid Layout */
+        .button-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .data-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1024px) {
+            .main-container {
+                grid-template-columns: 1fr;
+                gap: 1.5rem;
+                padding: 1rem;
+            }
+            
+            .button-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .data-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 640px) {
+            .data-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .card-content {
+                padding: 1.5rem;
+            }
+            
+            .header-title {
+                font-size: 1.5rem;
+            }
+        }
+
+        /* Notification System */
+        .notification {
+            position: fixed;
+            top: 2rem;
+            right: 2rem;
+            background: rgba(20, 20, 20, 0.9);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--accent-primary);
+            border-radius: 8px;
+            padding: 1rem 1.5rem;
+            color: var(--accent-primary);
+            font-family: var(--font-mono);
+            font-size: 0.875rem;
+            z-index: 1000;
+            transform: translateX(100%);
+            transition: transform 0.3s ease;
+        }
+
+        .notification.show {
+            transform: translateX(0);
+        }
+
+        .notification.success {
+            border-color: #10b981;
+            color: #10b981;
+        }
+
+        .notification.error {
+            border-color: #ef4444;
+            color: #ef4444;
+        }
+
+        /* System Info */
+        .system-info {
+            font-family: var(--font-mono);
+            font-size: 0.8rem;
+            line-height: 1.6;
+        }
+
+        .system-info strong {
+            color: var(--accent-primary);
+        }
+
+        /* Loading States */
+        .loading {
+            opacity: 0.6;
+            pointer-events: none;
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid var(--border-primary);
+            border-radius: 50%;
+            border-top-color: var(--accent-primary);
+            animation: spin 1s linear infinite;
+            margin-right: 0.5rem;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Custom Scrollbar */
+        .scrollable {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .scrollable::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .scrollable::-webkit-scrollbar-track {
+            background: var(--bg-input);
+            border-radius: 3px;
+        }
+
+        .scrollable::-webkit-scrollbar-thumb {
+            background: var(--border-primary);
+            border-radius: 3px;
+        }
+
+        .scrollable::-webkit-scrollbar-thumb:hover {
+            background: var(--border-hover);
+        }
+    </style>
+</head>
+<body>
+    <!-- Geometric Background -->
+    <div class="geometric-background">
+        <div class="floating-shapes">
+            <div class="floating-shape"></div>
+            <div class="floating-shape"></div>
+            <div class="floating-shape"></div>
+        </div>
+    </div>
+
+    <!-- Notification -->
+    <div id="notification" class="notification"></div>
+
+    <!-- Header -->
+    <header class="glass-header">
+        <h1 class="header-title">Kismet Operations Center</h1>
+    </header>
+
+    <!-- Main Container -->
+    <div class="main-container">
+        <!-- Left Column -->
+        <div class="space-y-6">
+            <!-- HackRF Controls -->
+            <div class="glass-card">
+                <div class="card-header">
+                    <h2 class="card-title">HackRF One</h2>
+                </div>
+                <div class="card-content">
+                    <div class="button-grid">
+                        <button class="btn btn-primary" onclick="showNotification('Load Profile functionality coming soon', 'info')">
+                            Add Load Profile
+                        </button>
+                        <button class="btn btn-secondary" onclick="window.open('http://' + window.location.hostname + ':3002', '_blank')">
+                            HackRF Sweep
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Service Controls -->
+            <div class="glass-card">
+                <div class="card-header">
+                    <h2 class="card-title">Service Control</h2>
+                </div>
+                <div class="card-content">
+                    <div class="button-grid">
+                        <button class="btn btn-success" onclick="startKismet()">
+                            <span id="start-spinner" class="spinner" style="display: none;"></span>
+                            Start Kismet
+                        </button>
+                        <button class="btn btn-danger" onclick="stopKismet()">
+                            <span id="stop-spinner" class="spinner" style="display: none;"></span>
+                            Stop Kismet
+                        </button>
+                    </div>
+                    
+                    <div class="space-y-3">
+                        <div class="status-indicator">
+                            <div class="status-dot" id="kismet-status"></div>
+                            <span>Kismet Service</span>
+                        </div>
+                        <div class="status-indicator">
+                            <div class="status-dot" id="wigle-status"></div>
+                            <span>WigleToTAK Service</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Center Column -->
+        <div class="glass-card">
+            <div class="card-header">
+                <h2 class="card-title">Kismet Data Feed</h2>
+            </div>
+            <div class="card-content">
+                <!-- Data Overview -->
+                <div class="data-grid">
+                    <div class="data-item">
+                        <div class="data-label">Devices</div>
+                        <div class="data-value" id="devices-count">0</div>
+                    </div>
+                    <div class="data-item">
+                        <div class="data-label">Networks</div>
+                        <div class="data-value" id="networks-count">0</div>
+                    </div>
+                    <div class="data-item">
+                        <div class="data-label">Last Update</div>
+                        <div class="data-value" id="last-update">--</div>
+                    </div>
+                </div>
+
+                <!-- Recent Devices -->
+                <div class="mb-6">
+                    <h3 class="text-sm font-semibold text-accent-primary mb-3 uppercase tracking-wide">Recent Devices</h3>
+                    <div id="devices-list" class="scrollable space-y-2">
+                        <div class="data-item">No devices detected</div>
+                    </div>
+                </div>
+
+                <!-- Activity Feed -->
+                <div>
+                    <h3 class="text-sm font-semibold text-accent-primary mb-3 uppercase tracking-wide">Activity Feed</h3>
+                    <div id="activity-feed" class="scrollable space-y-2">
+                        <div class="data-item">Waiting for activity...</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Column -->
+        <div class="space-y-6">
+            <!-- Quick Access -->
+            <div class="glass-card">
+                <div class="card-header">
+                    <h2 class="card-title">Quick Access</h2>
+                </div>
+                <div class="card-content">
+                    <div class="button-grid">
+                        <a href="#" onclick="window.open('http://' + window.location.hostname + ':2501', '_blank'); return false;" class="btn btn-secondary">
+                            Kismet Web UI
+                        </a>
+                        <a href="#" onclick="window.open('http://' + window.location.hostname + ':8000', '_blank'); return false;" class="btn btn-secondary">
+                            WigleToTAK
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- System Status -->
+            <div class="glass-card">
+                <div class="card-header">
+                    <h2 class="card-title">System Status</h2>
+                </div>
+                <div class="card-content">
+                    <div class="system-info" id="system-info">
+                        <p><strong>IP Address:</strong> <span id="ip-address">Loading...</span></p>
+                        <p><strong>GPS Status:</strong> <span id="gps-status">Loading...</span></p>
+                        <p><strong>Latitude:</strong> <span id="gps-lat">--</span></p>
+                        <p><strong>Longitude:</strong> <span id="gps-lon">--</span></p>
+                        <p><strong>Altitude:</strong> <span id="gps-alt">--</span></p>
+                        <p><strong>MGRS Grid:</strong> <span id="gps-mgrs">--</span></p>
+                        <p><strong>GPS Time:</strong> <span id="gps-time">--</span></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // CSS class utility for Tailwind-like spacing
+        document.addEventListener('DOMContentLoaded', function() {
+            // Add spacing classes
+            const spaceY6Elements = document.querySelectorAll('.space-y-6');
+            spaceY6Elements.forEach(el => {
+                const children = Array.from(el.children);
+                children.forEach((child, index) => {
+                    if (index > 0) {
+                        child.style.marginTop = '1.5rem';
+                    }
+                });
+            });
+
+            const spaceY3Elements = document.querySelectorAll('.space-y-3');
+            spaceY3Elements.forEach(el => {
+                const children = Array.from(el.children);
+                children.forEach((child, index) => {
+                    if (index > 0) {
+                        child.style.marginTop = '0.75rem';
+                    }
+                });
+            });
+
+            const spaceY2Elements = document.querySelectorAll('.space-y-2');
+            spaceY2Elements.forEach(el => {
+                const children = Array.from(el.children);
+                children.forEach((child, index) => {
+                    if (index > 0) {
+                        child.style.marginTop = '0.5rem';
+                    }
+                });
+            });
+
+            // Initialize
+            initializeApp();
+        });
+
+        // Notification system
+        function showNotification(message, type = 'info') {
+            const notification = document.getElementById('notification');
+            notification.textContent = message;
+            notification.className = `notification show ${type}`;
+            
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 5000);
+        }
+
+        // Service control functions
+        async function startKismet() {
+            const spinner = document.getElementById('start-spinner');
+            spinner.style.display = 'inline-block';
+            
+            try {
+                showNotification('Starting Kismet...', 'info');
+                const response = await fetch('/api/system/services', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ action: 'start', service: 'kismet' })
+                });
+                
+                if (response.ok) {
+                    showNotification('Kismet started successfully', 'success');
+                    setTimeout(updateServiceStatus, 2000);
+                } else {
+                    showNotification('Failed to start Kismet', 'error');
+                }
+            } catch (error) {
+                console.error('Error starting Kismet:', error);
+                showNotification('Error starting Kismet', 'error');
+            } finally {
+                spinner.style.display = 'none';
+            }
+        }
+
+        async function stopKismet() {
+            const spinner = document.getElementById('stop-spinner');
+            spinner.style.display = 'inline-block';
+            
+            try {
+                showNotification('Stopping Kismet...', 'info');
+                const response = await fetch('/api/system/services', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ action: 'stop', service: 'kismet' })
+                });
+                
+                if (response.ok) {
+                    showNotification('Kismet stopped successfully', 'success');
+                    setTimeout(updateServiceStatus, 2000);
+                } else {
+                    showNotification('Failed to stop Kismet', 'error');
+                }
+            } catch (error) {
+                console.error('Error stopping Kismet:', error);
+                showNotification('Error stopping Kismet', 'error');
+            } finally {
+                spinner.style.display = 'none';
+            }
+        }
+
+        // Status update functions
+        async function updateServiceStatus() {
+            try {
+                const response = await fetch('/api/system/status');
+                const data = await response.json();
+                
+                const kismetStatus = document.getElementById('kismet-status');
+                const wigleStatus = document.getElementById('wigle-status');
+                
+                if (data.services?.kismet?.running) {
+                    kismetStatus.classList.add('online');
+                } else {
+                    kismetStatus.classList.remove('online');
+                }
+                
+                if (data.services?.wigletotak?.running) {
+                    wigleStatus.classList.add('online');
+                } else {
+                    wigleStatus.classList.remove('online');
+                }
+            } catch (error) {
+                console.error('Error updating service status:', error);
+            }
+        }
+
+        async function updateSystemInfo() {
+            try {
+                const response = await fetch('/api/system/status');
+                const data = await response.json();
+                
+                if (data.system) {
+                    document.getElementById('ip-address').textContent = data.system.ip || 'Unknown';
+                    document.getElementById('gps-status').textContent = data.gps?.status || 'Unknown';
+                    document.getElementById('gps-lat').textContent = data.gps?.lat || '--';
+                    document.getElementById('gps-lon').textContent = data.gps?.lon || '--';
+                    document.getElementById('gps-alt').textContent = data.gps?.alt || '--';
+                    document.getElementById('gps-mgrs').textContent = data.gps?.mgrs || '--';
+                    document.getElementById('gps-time').textContent = data.gps?.time || '--';
+                }
+            } catch (error) {
+                console.error('Error updating system info:', error);
+            }
+        }
+
+        async function updateKismetData() {
+            try {
+                const response = await fetch('/api/kismet/devices');
+                if (!response.ok) return;
+                
+                const data = await response.json();
+                
+                document.getElementById('devices-count').textContent = data.devices?.length || '0';
+                document.getElementById('networks-count').textContent = data.networks?.length || '0';
+                document.getElementById('last-update').textContent = new Date().toLocaleTimeString();
+                
+                // Update device list
+                const devicesList = document.getElementById('devices-list');
+                devicesList.innerHTML = '';
+                
+                if (data.devices && data.devices.length > 0) {
+                    data.devices.slice(0, 5).forEach(device => {
+                        const deviceElement = document.createElement('div');
+                        deviceElement.className = 'data-item';
+                        deviceElement.innerHTML = `
+                            <strong>${device.name || 'Unknown Device'}</strong><br>
+                            Type: ${device.type || 'Unknown'}<br>
+                            Signal: ${device.signal || 'Unknown'} dBm
+                        `;
+                        devicesList.appendChild(deviceElement);
+                    });
+                } else {
+                    devicesList.innerHTML = '<div class="data-item">No devices detected</div>';
+                }
+                
+                // Update activity feed
+                const activityFeed = document.getElementById('activity-feed');
+                if (data.activity && data.activity.length > 0) {
+                    activityFeed.innerHTML = '';
+                    data.activity.slice(0, 10).forEach(item => {
+                        const activityElement = document.createElement('div');
+                        activityElement.className = 'data-item';
+                        activityElement.textContent = item.message || 'Unknown activity';
+                        activityFeed.appendChild(activityElement);
+                    });
+                }
+            } catch (error) {
+                console.error('Error updating Kismet data:', error);
+            }
+        }
+
+        // Initialize application
+        function initializeApp() {
+            updateServiceStatus();
+            updateSystemInfo();
+            updateKismetData();
+            
+            // Set up periodic updates
+            setInterval(updateServiceStatus, 5000);
+            setInterval(updateSystemInfo, 10000);
+            setInterval(updateKismetData, 3000);
+        }
+    </script>
+</body>
+</html>

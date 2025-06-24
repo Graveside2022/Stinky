@@ -1,0 +1,41 @@
+[Unit]
+Description=WigleToTAK - Node.js Service
+Documentation=https://github.com/yourusername/stinkster
+After=network.target kismet.service
+Wants=kismet.service
+
+[Service]
+Type=simple
+User=pi
+Group=pi
+WorkingDirectory=/home/pi/projects/stinkster_christian/stinkster/src/nodejs/wigle-to-tak
+Environment="NODE_ENV=production"
+Environment="PORT=8000"
+Environment="PATH=/usr/bin:/usr/local/bin:/home/pi/.nvm/versions/node/v18.17.0/bin"
+EnvironmentFile=-/home/pi/projects/stinkster_christian/stinkster/.env.production
+ExecStart=/home/pi/projects/stinkster_christian/stinkster/src/nodejs/wigle-to-tak/start-optimized.sh
+Restart=always
+RestartSec=10
+
+# Logging
+StandardOutput=append:/var/log/wigle-to-tak.log
+StandardError=append:/var/log/wigle-to-tak.log
+
+# Process management
+KillMode=mixed
+KillSignal=SIGTERM
+TimeoutStopSec=10
+
+# Security hardening
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=read-only
+ReadWritePaths=/home/pi/projects/stinkster_christian/stinkster/src/nodejs/wigle-to-tak
+ReadWritePaths=/var/log
+ReadWritePaths=/home/pi/tmp
+ReadWritePaths=/home/pi/kismet_ops
+ReadWritePaths=/home/pi/WigletoTAK
+
+[Install]
+WantedBy=multi-user.target

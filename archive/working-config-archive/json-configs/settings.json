@@ -1,0 +1,68 @@
+{
+    "version": 7,
+    "receiver_name": "OpenWebRX - HackRF Only",
+    "receiver_location": "Raspberry Pi",
+    "receiver_asl": 200,
+    "receiver_admin": "admin@localhost",
+    "receiver_gps": {
+        "lat": 0.0,
+        "lon": 0.0
+    },
+    "photo_title": "HackRF SDR Receiver",
+    "photo_desc": "HackRF One Software Defined Radio",
+    "waterfall_scheme": "GoogleTurboWaterfall",
+    "fft_fps": 9,
+    "audio_compression": "adpcm",
+    "fft_compression": "adpcm",
+    "waterfall_levels": {
+        "min": -88.0,
+        "max": -20.0
+    },
+    "tuning_precision": 1,
+    "services": {
+        "sdrhu": false,
+        "pskreporter": false,
+        "wsjt": false,
+        "js8": false,
+        "packet": false,
+        "pocsag": false
+    },
+    "sdrs": {
+        "hackrf": {
+            "name": "HackRF One",
+            "type": "hackrf",
+            "ppm": 0,
+            "always_on": true,
+            "profiles": {
+                "fm_broadcast": {
+                    "name": "FM Broadcast",
+                    "center_freq": 98000000,
+                    "rf_gain": "VGA=20,LNA=16,AMP=0",
+                    "samp_rate": 2400000,
+                    "start_freq": 98000000,
+                    "start_mod": "wfm",
+                    "waterfall_min_level": -65,
+                    "lfo_offset": 0,
+                    "initial_squelch_level": -150,
+                    "auto_squelch": false,
+                    "squelch_level": -150,
+                    "demod_auto_start": true
+                },
+                "2m": {
+                    "name": "2m Amateur Band",
+                    "center_freq": 100000000,
+                    "rf_gain": "LNA=40,AMP=0,VGA=35",
+                    "samp_rate": 2400000,
+                    "start_freq": 101500000,
+                    "start_mod": "nfm",
+                    "waterfall_min_level": -72,
+                    "lfo_offset": 300,
+                    "initial_squelch_level": -150,
+                    "auto_squelch": false,
+                    "squelch_level": -150,
+                    "demod_auto_start": true
+                }
+            }
+        }
+    }
+}

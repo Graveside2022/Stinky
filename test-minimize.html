@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Minimize Buttons</title>
+    <style>
+        body {
+            background: #030610;
+            color: #d0d8f0;
+            font-family: Arial, sans-serif;
+            padding: 20px;
+        }
+        .grid-item {
+            background: rgba(12, 22, 48, 0.85);
+            border: 1px solid rgba(0, 210, 255, 0.3);
+            border-radius: 8px;
+            margin-bottom: 20px;
+            max-width: 600px;
+        }
+        .box-header {
+            background: linear-gradient(90deg, 
+                rgba(0, 210, 255, 0.1) 0%, 
+                rgba(0, 210, 255, 0.2) 50%,
+                rgba(0, 210, 255, 0.1) 100%);
+            border-bottom: 1px solid rgba(0, 210, 255, 0.3);
+            padding: 0.75rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .box-header h2 {
+            color: #00d2ff;
+            margin: 0;
+            font-size: 1rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        .grid-item-content {
+            padding: 1rem;
+        }
+        button {
+            background: none;
+            border: none;
+            color: #00d2ff;
+            cursor: pointer;
+            padding: 0.25rem;
+        }
+        button:hover {
+            color: #fff;
+        }
+        #test-results {
+            background: rgba(0, 50, 80, 0.7);
+            border: 1px solid rgba(0, 210, 255, 0.3);
+            padding: 1rem;
+            margin-top: 2rem;
+            font-family: monospace;
+            white-space: pre-wrap;
+        }
+    </style>
+</head>
+<body>
+    <h1>Testing Minimize Button Layout</h1>
+    
+    <div class="grid-item" id="test-container-1">
+        <div class="box-header">
+            <h2>Test Box 1</h2>
+            <button onclick="testMinimize('test-container-1', 'Test Box 1')">
+                <svg style="width: 20px; height: 20px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"></path>
+                </svg>
+            </button>
+        </div>
+        <div class="grid-item-content">
+            <p>This is test content 1. Click the minimize button above.</p>
+        </div>
+    </div>
+
+    <div class="grid-item" id="test-container-2">
+        <div class="box-header">
+            <h2>Test Box 2 - With Multiple Buttons</h2>
+            <div style="display: flex; gap: 0.5rem;">
+                <button onclick="alert('Open clicked')">
+                    <svg style="width: 20px; height: 20px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
+                    </svg>
+                </button>
+                <button onclick="alert('Refresh clicked')">
+                    <svg style="width: 20px; height: 20px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                    </svg>
+                </button>
+                <button onclick="testMinimize('test-container-2', 'Test Box 2')">
+                    <svg style="width: 20px; height: 20px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"></path>
+                    </svg>
+                </button>
+            </div>
+        </div>
+        <div class="grid-item-content">
+            <p>This box has multiple buttons. Test if the minimize button works.</p>
+        </div>
+    </div>
+
+    <div id="test-results">
+        <h3>Test Results:</h3>
+        <div id="results-content">Click buttons to test...</div>
+    </div>
+
+    <script>
+        function testMinimize(containerId, title) {
+            const container = document.getElementById(containerId);
+            const results = document.getElementById('results-content');
+            
+            if (!container) {
+                results.innerHTML += `\n❌ ERROR: Container '${containerId}' not found!`;
+                return;
+            }
+            
+            results.innerHTML += `\n✅ Minimize clicked for '${title}'`;
+            results.innerHTML += `\n   - Container found: ${containerId}`;
+            results.innerHTML += `\n   - Current display: ${window.getComputedStyle(container).display}`;
+            
+            // Actually minimize
+            container.style.display = 'none';
+            results.innerHTML += `\n   - Container hidden successfully`;
+        }
+
+        // Test if buttons are clickable
+        document.addEventListener('DOMContentLoaded', function() {
+            const buttons = document.querySelectorAll('button');
+            const results = document.getElementById('results-content');
+            
+            results.innerHTML = `Found ${buttons.length} buttons on page\n`;
+            
+            buttons.forEach((btn, idx) => {
+                const rect = btn.getBoundingClientRect();
+                const computed = window.getComputedStyle(btn);
+                
+                results.innerHTML += `\nButton ${idx + 1}:`;
+                results.innerHTML += `\n  - Position: ${rect.left}x${rect.top}`;
+                results.innerHTML += `\n  - Size: ${rect.width}x${rect.height}`;
+                results.innerHTML += `\n  - Z-index: ${computed.zIndex}`;
+                results.innerHTML += `\n  - Display: ${computed.display}`;
+                results.innerHTML += `\n  - Visibility: ${computed.visibility}`;
+                results.innerHTML += `\n  - Pointer Events: ${computed.pointerEvents}`;
+                results.innerHTML += `\n  - Onclick: ${btn.onclick ? 'Set' : 'Not set'}`;
+            });
+        });
+    </script>
+</body>
+</html>

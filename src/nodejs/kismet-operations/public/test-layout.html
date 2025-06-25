@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Layout Test</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            background: #0a0f1c;
+            color: white;
+            font-family: Arial, sans-serif;
+        }
+        
+        .middle-long-box {
+            width: 100%;
+            max-width: 800px;
+            margin: 0 auto;
+            border: 2px solid #00d2ff;
+            padding: 10px;
+            background: rgba(0, 210, 255, 0.05);
+        }
+        
+        .grid-item {
+            background: rgba(3, 6, 16, 0.9);
+            border: 1px solid rgba(0, 210, 255, 0.3);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        
+        .box-header {
+            background: rgba(0, 210, 255, 0.1);
+            border-bottom: 1px solid rgba(0, 210, 255, 0.3);
+            padding: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .box-header h2 {
+            margin: 0;
+            color: #00d2ff;
+            font-size: 1.2rem;
+        }
+        
+        .grid-item-content {
+            padding: 15px;
+        }
+        
+        #wifi-data-feed {
+            height: 350px;
+            margin-bottom: 10px;
+        }
+        
+        #hackrf-sweeper {
+            height: 350px;
+        }
+        
+        .status {
+            background: rgba(0, 210, 255, 0.1);
+            padding: 10px;
+            border-radius: 4px;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <h1 style="text-align: center; color: #00d2ff;">Layout Test - Boxes Should Stack Vertically</h1>
+    
+    <div class="middle-long-box">
+        <div id="wifi-data-feed" class="grid-item">
+            <div class="box-header">
+                <h2>Kismet Data Feed</h2>
+            </div>
+            <div class="grid-item-content">
+                <div class="status">This box is 350px tall</div>
+                <p>The HackRF Sweeper box should appear directly below this box with only a 10px gap.</p>
+            </div>
+        </div>
+        
+        <div id="hackrf-sweeper" class="grid-item">
+            <div class="box-header">
+                <h2>HackRF Sweeper</h2>
+            </div>
+            <div class="grid-item-content">
+                <div class="status">This box is also 350px tall</div>
+                <p>This box should be positioned directly under the Kismet Data Feed box, not floating in the middle of the screen.</p>
+            </div>
+        </div>
+    </div>
+    
+    <div style="margin-top: 20px; padding: 20px; background: rgba(255, 255, 255, 0.1); border-radius: 8px;">
+        <h3 style="color: #00d2ff;">Layout Information:</h3>
+        <ul>
+            <li>Container: .middle-long-box (no flex display)</li>
+            <li>Box 1: #wifi-data-feed (height: 350px, margin-bottom: 10px)</li>
+            <li>Box 2: #hackrf-sweeper (height: 350px)</li>
+            <li>Expected behavior: Vertical stacking with 10px gap</li>
+        </ul>
+    </div>
+</body>
+</html>

@@ -1,0 +1,90 @@
+version: '3.8'
+
+services:
+  openwebrx:
+    container_name: openwebrx-hackrf
+    # Use official OpenWebRX image - more stable and maintained
+    image: jketterl/openwebrx:latest
+    ports:
+      - "8073:8073"
+    # Proper USB device mounting for HackRF
+    devices:
+      # Mount the entire USB bus - required for HackRF detection
+      - "/dev/bus/usb:/dev/bus/usb:rw"
+    # Alternative specific device mounting (uncomment if above doesn't work)
+    # devices:
+    #   - "/dev/bus/usb/001/005:/dev/bus/usb/001/005:rw"  # Adjust device number as needed
+    volumes:
+      # Configuration directory
+      - "./config:/var/lib/openwebrx:rw"
+      # Logs directory  
+      - "./logs:/var/log/openwebrx:rw"
+      # Mount udev rules for proper device detection
+      - "/etc/udev/rules.d:/etc/udev/rules.d:ro"
+      # Mount system USB info
+      - "/sys/bus/usb:/sys/bus/usb:ro"
+      # Proc bus USB mount removed - not needed on modern systems
+    environment:
+      - OPENWEBRX_ADMIN_USER=admin
+      - OPENWEBRX_ADMIN_PASSWORD=hackrf
+      # Enable device debugging
+      - OPENWEBRX_DEBUG=1
+      # Set proper user permissions
+      - PUID=1000
+      - PGID=1000
+    # Privileged mode required for USB device access
+    privileged: true
+    # Add necessary capabilities for USB device access
+    cap_add:
+      - SYS_ADMIN
+      - DAC_OVERRIDE
+      - CHOWN
+      - FOWNER
+      - FSETID
+      - KILL
+      - SETGID
+      - SETUID
+      - SETPCAP
+      - NET_BIND_SERVICE
+      - NET_RAW
+      - SYS_CHROOT
+      - MKNOD
+      - AUDIT_WRITE
+      - SETFCAP
+    # Allow access to USB devices
+    security_opt:
+      - apparmor:unconfined
+    # Remove user specification to allow s6-overlay to work properly
+    # User will be set by environment variables PUID/PGID
+    group_add:
+      - "20"    # dialout group
+      - "29"    # audio group  
+      - "46"    # plugdev group for USB devices
+    restart: unless-stopped
+    # Improved healthcheck with proper timeout
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8073/ || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 120s  # Give more time for initialization
+    # Network configuration
+    network_mode: "bridge"
+    # Add dependency checks
+    depends_on: []
+    # Container labels for management
+    labels:
+      - "com.stinkster.service=openwebrx"
+      - "com.stinkster.description=OpenWebRX HackRF SDR Interface"
+    # Init process to handle signals properly
+    # Disabled init as it conflicts with s6-overlay
+    # init: true
+    # Resource limits to prevent system overload
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+          cpus: '2.0'
+        reservations:
+          memory: 256M
+          cpus: '0.5'

@@ -1,0 +1,19 @@
+[Unit]
+Description=Node.js Kismet Operations Center Monitor
+After=network.target
+
+[Service]
+Type=simple
+User=pi
+ExecStart=/home/pi/projects/stinkster_malone/stinkster/scripts/nodejs-monitor.sh
+Restart=always
+RestartSec=30
+StandardOutput=journal
+StandardError=journal
+
+# Environment
+Environment="PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+Environment="NODE_ENV=production"
+
+[Install]
+WantedBy=multi-user.target

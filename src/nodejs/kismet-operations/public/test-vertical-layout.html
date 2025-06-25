@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vertical Layout Test</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            background: #0a0a0a;
+            color: #00d2ff;
+            font-family: monospace;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            border: 2px solid #00d2ff;
+            padding: 20px;
+            background: rgba(0, 210, 255, 0.05);
+        }
+        
+        .middle-long-box {
+            width: 100%;
+            border: 2px solid #ff00ff;
+            padding: 10px;
+            background: rgba(255, 0, 255, 0.05);
+        }
+        
+        .grid-item {
+            border: 2px solid #00ff00;
+            background: rgba(0, 255, 0, 0.05);
+            margin-bottom: 0;
+        }
+        
+        .box-header {
+            background: rgba(0, 210, 255, 0.2);
+            padding: 10px;
+            border-bottom: 1px solid #00d2ff;
+        }
+        
+        .grid-item-content {
+            padding: 20px;
+            height: calc(350px - 60px);
+            overflow-y: auto;
+        }
+        
+        #wifi-data-feed {
+            height: 350px;
+            margin-bottom: 10px;
+        }
+        
+        #hackrf-sweeper {
+            height: 350px;
+        }
+        
+        /* Test with and without this */
+        .test-flex .middle-long-box {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Vertical Stacking Test</h1>
+        <p>This tests if the boxes stack correctly without flex display.</p>
+        
+        <h2>Test 1: Normal Document Flow (No Flex)</h2>
+        <div class="middle-long-box">
+            <div id="wifi-data-feed" class="grid-item" style="height: 350px; margin-bottom: 10px;">
+                <div class="box-header">
+                    <h2>Kismet Data Feed</h2>
+                </div>
+                <div class="grid-item-content">
+                    This box should be 350px tall with 10px margin bottom
+                </div>
+            </div>
+            
+            <div id="hackrf-sweeper" class="grid-item" style="height: 350px;">
+                <div class="box-header">
+                    <h2>HackRF Sweeper</h2>
+                </div>
+                <div class="grid-item-content">
+                    This box should be 350px tall and appear directly below the first box
+                </div>
+            </div>
+        </div>
+        
+        <h2 style="margin-top: 40px;">Test 2: With Flex Display</h2>
+        <div class="test-flex">
+            <div class="middle-long-box">
+                <div id="wifi-data-feed-2" class="grid-item" style="height: 350px;">
+                    <div class="box-header">
+                        <h2>Kismet Data Feed (Flex)</h2>
+                    </div>
+                    <div class="grid-item-content">
+                        With flex display and gap: 10px
+                    </div>
+                </div>
+                
+                <div id="hackrf-sweeper-2" class="grid-item" style="height: 350px;">
+                    <div class="box-header">
+                        <h2>HackRF Sweeper (Flex)</h2>
+                    </div>
+                    <div class="grid-item-content">
+                        This should also stack vertically
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

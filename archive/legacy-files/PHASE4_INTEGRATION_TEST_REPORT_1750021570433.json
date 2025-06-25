@@ -1,0 +1,150 @@
+{
+  "timestamp": "2025-06-15T21:06:10.064Z",
+  "phase": "Phase 4 Migration Cutover",
+  "agent": "Agent 3",
+  "services": {
+    "spectrum-analyzer-node": {
+      "status": "error",
+      "error": "",
+      "responseTime": 83
+    },
+    "wigle-to-tak-node": {
+      "status": "healthy",
+      "httpStatus": 200,
+      "responseTime": 39,
+      "data": {
+        "broadcasting": false,
+        "takServerIp": "0.0.0.0",
+        "takServerPort": 6969,
+        "analysisMode": "realtime",
+        "antennaSensitivity": "standard",
+        "whitelistedSsids": [],
+        "whitelistedMacs": [],
+        "blacklistedSsids": [],
+        "blacklistedMacs": [],
+        "takMulticastState": true,
+        "directory": "./",
+        "processedMacs": 0,
+        "processedEntries": 0
+      }
+    },
+    "gpsd": {
+      "status": "healthy",
+      "protocol": "GPSD TCP",
+      "response": "{\"class\":\"VERSION\",\"release\":\"3.22\",\"rev\":\"3.22\",\"proto_major\":3,\"proto_minor\":14}\r\n{\"class\":\"DEVICE...",
+      "responseTime": 5
+    },
+    "openwebrx": {
+      "status": "error",
+      "error": "",
+      "responseTime": 8
+    }
+  },
+  "integrations": {
+    "spectrumAPI": {
+      "/api/status": {
+        "status": "error",
+        "error": ""
+      },
+      "/api/profiles": {
+        "status": "error",
+        "error": ""
+      },
+      "/api/scan/vhf": {
+        "status": "error",
+        "error": ""
+      },
+      "/api/config": {
+        "status": "error",
+        "error": ""
+      },
+      "/api/signals": {
+        "status": "error",
+        "error": ""
+      }
+    },
+    "wigleAPI": {
+      "/api/status": {
+        "status": "success",
+        "httpStatus": 200,
+        "responseTime": 22,
+        "dataStructure": {
+          "type": "object",
+          "keys": [
+            "broadcasting",
+            "takServerIp",
+            "takServerPort",
+            "analysisMode",
+            "antennaSensitivity",
+            "whitelistedSsids",
+            "whitelistedMacs",
+            "blacklistedSsids",
+            "blacklistedMacs",
+            "takMulticastState"
+          ],
+          "totalKeys": 13
+        }
+      },
+      "/list_wigle_files": {
+        "status": "success",
+        "httpStatus": 200,
+        "responseTime": 12,
+        "dataStructure": {
+          "type": "object",
+          "keys": [
+            "files"
+          ],
+          "totalKeys": 1
+        }
+      }
+    },
+    "webSocket": {
+      "status": "error",
+      "error": ""
+    },
+    "openWebRX": {
+      "status": "unavailable",
+      "error": "",
+      "note": "Will test direct WebSocket connection to Node.js instead"
+    },
+    "gpsd": {
+      "status": "integrated",
+      "protocol": "TCP:2947",
+      "dataFormat": "GPSD JSON"
+    },
+    "takBroadcast": {
+      "status": "success",
+      "protocol": "UDP Multicast",
+      "target": "239.2.3.1:6969",
+      "messageSize": 471
+    },
+    "dataFlows": {
+      "gps": "available",
+      "note": "GPSD service responding on port 2947",
+      "wifi": "ready",
+      "wigleFiles": {
+        "files": []
+      }
+    }
+  },
+  "summary": {
+    "overallStatus": "PARTIAL",
+    "serviceHealth": "2/4",
+    "integrationSuccess": "2/7",
+    "phase4Ready": false,
+    "recommendations": [
+      "Resolve spectrum-analyzer-node connectivity issues: ",
+      "Resolve openwebrx connectivity issues: ",
+      "Start OpenWebRX Docker container for full spectrum analyzer integration",
+      "Fix WebSocket connectivity for real-time spectrum data"
+    ]
+  },
+  "performance": {
+    "wigle": {
+      "averageResponseTime": 12,
+      "minResponseTime": 7,
+      "maxResponseTime": 16,
+      "samples": 5
+    }
+  }
+}

@@ -1,0 +1,12 @@
+{
+    "version": 2,
+    "users": {
+        "admin": {
+            "user": "admin",
+            "bcrypt_hash": "$2b$12$rTkXRKw1jvxkQjYH/8ZKzuMZYNqzMPqLYZLDj7KKTMML4MXHtKfQC",
+            "is_enabled": true,
+            "must_change_password": false,
+            "roles": ["admin", "user"]
+        }
+    }
+}

@@ -1,0 +1,22 @@
+[Unit]
+Description=Tailscale Connection Monitor
+After=network.target tailscaled.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=root
+ExecStart=/home/pi/projects/stinkster_malone/stinkster/scripts/tailscale-monitor.sh
+Restart=always
+RestartSec=30
+StandardOutput=journal
+StandardError=journal
+
+# Environment
+Environment="PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+
+# Run with full privileges for network management
+# NoNewPrivileges=false is default, so we remove the restriction
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,34 @@
+{
+  "name": "stinkster-shared",
+  "version": "2.0.0",
+  "description": "Shared utilities and libraries for Stinkster Node.js services",
+  "main": "index.js",
+  "scripts": {
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix"
+  },
+  "dependencies": {
+    "axios": "^1.10.0",
+    "joi": "^17.11.0",
+    "lodash": "^4.17.21",
+    "moment": "^2.29.4",
+    "uuid": "^9.0.1",
+    "winston": "^3.11.0",
+    "ws": "^8.18.2"
+  },
+  "devDependencies": {
+    "eslint": "^8.53.0",
+    "jest": "^29.7.0"
+  },
+  "keywords": [
+    "shared-utilities",
+    "configuration",
+    "logging",
+    "validation",
+    "common-functions"
+  ],
+  "author": "Stinkster Project Contributors",
+  "license": "MIT"
+}

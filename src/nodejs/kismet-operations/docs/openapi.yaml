@@ -1,0 +1,785 @@
+openapi: 3.0.3
+info:
+  title: HackRF Spectrum Analyzer API
+  description: |
+    Real-time RF spectrum analysis service with OpenWebRX integration.
+    
+    This API provides endpoints for:
+    - Real-time FFT data streaming
+    - Signal detection and analysis
+    - Configuration management
+    - System health monitoring
+    
+    The service integrates with OpenWebRX to receive FFT data from HackRF hardware
+    and provides both REST API endpoints and WebSocket connections for real-time updates.
+  version: 2.0.0
+  contact:
+    name: Stinkster Development Team
+    email: support@stinkster.local
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+
+servers:
+  - url: http://localhost:8092
+    description: Local development server
+  - url: http://10.42.0.1:8092
+    description: Raspberry Pi host
+  - url: https://spectrum.stinkster.com
+    description: Production server (future)
+
+tags:
+  - name: System
+    description: System health and status endpoints
+  - name: Configuration
+    description: Service configuration management
+  - name: Signals
+    description: Signal detection and analysis
+  - name: FFT
+    description: FFT data management
+  - name: Scanning
+    description: Frequency scanning operations
+  - name: Connection
+    description: OpenWebRX connection management
+
+paths:
+  /health:
+    get:
+      summary: Get service health status
+      description: Returns detailed health information about the service including memory usage, uptime, and connection status
+      operationId: getHealth
+      tags:
+        - System
+      responses:
+        '200':
+          description: Service is healthy
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthStatus'
+              example:
+                status: healthy
+                service: spectrum-analyzer
+                timestamp: "2025-06-16T12:00:00.000Z"
+                uptime: 3600.5
+                memory:
+                  rss: 67108864
+                  heapTotal: 35139584
+                  heapUsed: 29654321
+                port: 8092
+                version: "2.0.0"
+                openwebrx_connected: true
+                fft_buffer_size: 150
+                connected_clients: 3
+        '503':
+          description: Service is unhealthy
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/status:
+    get:
+      summary: Get system status
+      description: Returns comprehensive system status including OpenWebRX connection state, data availability, and current configuration
+      operationId: getStatus
+      tags:
+        - System
+      responses:
+        '200':
+          description: Current system status
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SystemStatus'
+              example:
+                openwebrx_connected: true
+                real_data: true
+                fft_buffer_size: 150
+                config:
+                  fft_size: 1024
+                  center_freq: 145000000
+                  samp_rate: 2400000
+                  fft_compression: none
+                  signal_threshold: -70
+                last_fft_time: 1750031234567
+                mode: "REAL DATA MODE"
+                server_uptime: 3600.5
+                connected_clients: 3
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/config:
+    get:
+      summary: Get current configuration
+      description: Returns the current spectrum analyzer configuration including FFT parameters and detection threshold
+      operationId: getConfig
+      tags:
+        - Configuration
+      responses:
+        '200':
+          description: Current configuration
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Configuration'
+              example:
+                fft_size: 1024
+                center_freq: 145000000
+                samp_rate: 2400000
+                fft_compression: none
+                signal_threshold: -70
+    
+    post:
+      summary: Update configuration
+      description: Update spectrum analyzer configuration. Only provided fields will be updated.
+      operationId: updateConfig
+      tags:
+        - Configuration
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ConfigurationUpdate'
+            example:
+              center_freq: 146000000
+              signal_threshold: -75
+      responses:
+        '200':
+          description: Configuration updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConfigurationResponse'
+        '400':
+          description: Invalid configuration parameters
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Configuration update failed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/connect:
+    post:
+      summary: Connect to OpenWebRX
+      description: Establish WebSocket connection to OpenWebRX for receiving FFT data
+      operationId: connectOpenWebRX
+      tags:
+        - Connection
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                url:
+                  type: string
+                  format: uri
+                  description: WebSocket URL for OpenWebRX
+                  example: "ws://localhost:8073/ws/"
+      responses:
+        '200':
+          description: Connection initiated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  url:
+                    type: string
+        '500':
+          description: Connection failed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/disconnect:
+    post:
+      summary: Disconnect from OpenWebRX
+      description: Close the WebSocket connection to OpenWebRX
+      operationId: disconnectOpenWebRX
+      tags:
+        - Connection
+      responses:
+        '200':
+          description: Disconnected successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+        '500':
+          description: Disconnection failed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/signals:
+    get:
+      summary: Get detected signals
+      description: Returns a list of signals detected above the specified threshold
+      operationId: getSignals
+      tags:
+        - Signals
+      parameters:
+        - name: threshold
+          in: query
+          description: Signal detection threshold in dBm
+          required: false
+          schema:
+            type: number
+            default: -70
+            example: -75
+      responses:
+        '200':
+          description: List of detected signals
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SignalsResponse'
+        '500':
+          description: Signal detection error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/signals/stats:
+    get:
+      summary: Get signal statistics
+      description: Returns statistical analysis of detected signals
+      operationId: getSignalStats
+      tags:
+        - Signals
+      responses:
+        '200':
+          description: Signal statistics
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SignalStatistics'
+        '500':
+          description: Statistics calculation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/fft/latest:
+    get:
+      summary: Get latest FFT data
+      description: Returns the most recent FFT data sample from the buffer
+      operationId: getLatestFFT
+      tags:
+        - FFT
+      responses:
+        '200':
+          description: Latest FFT data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FFTDataResponse'
+        '500':
+          description: Error retrieving FFT data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/fft/clear:
+    post:
+      summary: Clear FFT buffer
+      description: Clears all FFT data from the buffer
+      operationId: clearFFTBuffer
+      tags:
+        - FFT
+      responses:
+        '200':
+          description: Buffer cleared successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+        '500':
+          description: Error clearing buffer
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/profiles:
+    get:
+      summary: Get scan profiles
+      description: Returns available frequency scan profiles for signal detection
+      operationId: getScanProfiles
+      tags:
+        - Scanning
+      responses:
+        '200':
+          description: Available scan profiles
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ScanProfiles'
+              example:
+                vhf:
+                  name: "VHF Amateur (144-148 MHz)"
+                  ranges: [[144.0, 148.0]]
+                  step: 25
+                  description: "VHF Amateur Radio Band"
+                uhf:
+                  name: "UHF Amateur (420-450 MHz)"
+                  ranges: [[420.0, 450.0]]
+                  step: 25
+                  description: "UHF Amateur Radio Band"
+
+  /api/scan/{profileId}:
+    get:
+      summary: Scan frequency profile
+      description: Performs a scan using the specified frequency profile and returns detected signals
+      operationId: scanProfile
+      tags:
+        - Scanning
+      parameters:
+        - name: profileId
+          in: path
+          description: Profile identifier
+          required: true
+          schema:
+            type: string
+            enum: [vhf, uhf, ism]
+          example: vhf
+      responses:
+        '200':
+          description: Scan completed successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ScanResponse'
+        '400':
+          description: Invalid profile identifier
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Scan error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+components:
+  schemas:
+    HealthStatus:
+      type: object
+      required:
+        - status
+        - service
+        - timestamp
+        - uptime
+      properties:
+        status:
+          type: string
+          enum: [healthy, unhealthy]
+          description: Overall service health status
+        service:
+          type: string
+          description: Service name
+        timestamp:
+          type: string
+          format: date-time
+          description: Health check timestamp
+        uptime:
+          type: number
+          description: Service uptime in seconds
+        memory:
+          type: object
+          description: Memory usage statistics
+          properties:
+            rss:
+              type: integer
+              description: Resident set size
+            heapTotal:
+              type: integer
+              description: Total heap size
+            heapUsed:
+              type: integer
+              description: Used heap size
+            external:
+              type: integer
+              description: External memory usage
+            arrayBuffers:
+              type: integer
+              description: Array buffer memory
+        port:
+          type: integer
+          description: Service port number
+        version:
+          type: string
+          description: API version
+        openwebrx_connected:
+          type: boolean
+          description: OpenWebRX connection status
+        fft_buffer_size:
+          type: integer
+          description: Current FFT buffer size
+        connected_clients:
+          type: integer
+          description: Number of connected WebSocket clients
+
+    Configuration:
+      type: object
+      required:
+        - fft_size
+        - center_freq
+        - samp_rate
+        - fft_compression
+        - signal_threshold
+      properties:
+        fft_size:
+          type: integer
+          minimum: 0
+          description: FFT bin size (0 = auto)
+        center_freq:
+          type: integer
+          minimum: 0
+          description: Center frequency in Hz
+        samp_rate:
+          type: integer
+          minimum: 0
+          description: Sample rate in Hz
+        fft_compression:
+          type: string
+          description: FFT data compression method
+        signal_threshold:
+          type: number
+          description: Signal detection threshold in dBm
+
+    ConfigurationUpdate:
+      type: object
+      properties:
+        center_freq:
+          type: integer
+          minimum: 0
+          description: Center frequency in Hz
+        samp_rate:
+          type: integer
+          minimum: 0
+          description: Sample rate in Hz
+        signal_threshold:
+          type: number
+          description: Signal detection threshold in dBm
+
+    ConfigurationResponse:
+      type: object
+      required:
+        - success
+        - message
+        - config
+      properties:
+        success:
+          type: boolean
+        message:
+          type: string
+        config:
+          $ref: '#/components/schemas/Configuration'
+
+    SystemStatus:
+      type: object
+      required:
+        - openwebrx_connected
+        - real_data
+        - fft_buffer_size
+        - config
+        - mode
+      properties:
+        openwebrx_connected:
+          type: boolean
+          description: OpenWebRX connection status
+        real_data:
+          type: boolean
+          description: Whether real FFT data is available
+        fft_buffer_size:
+          type: integer
+          description: Current FFT buffer size
+        config:
+          $ref: '#/components/schemas/Configuration'
+        last_fft_time:
+          type: integer
+          nullable: true
+          description: Timestamp of last FFT data
+        mode:
+          type: string
+          enum: ['REAL DATA MODE', 'DEMO MODE']
+          description: Current operation mode
+        server_uptime:
+          type: number
+          description: Server uptime in seconds
+        connected_clients:
+          type: integer
+          description: Number of connected clients
+
+    Signal:
+      type: object
+      required:
+        - frequency
+        - power
+        - bin
+        - confidence
+      properties:
+        frequency:
+          type: number
+          description: Signal frequency in Hz
+        power:
+          type: number
+          description: Signal power in dBm
+        bin:
+          type: integer
+          description: FFT bin index
+        confidence:
+          type: number
+          minimum: 0
+          maximum: 1
+          description: Detection confidence (0.0-1.0)
+
+    SignalsResponse:
+      type: object
+      required:
+        - signals
+        - threshold
+        - timestamp
+        - fft_buffer_size
+        - real_data
+        - signal_count
+      properties:
+        signals:
+          type: array
+          items:
+            $ref: '#/components/schemas/Signal'
+        threshold:
+          type: number
+          description: Detection threshold used
+        timestamp:
+          type: integer
+          description: Response timestamp
+        fft_buffer_size:
+          type: integer
+          description: Current buffer size
+        real_data:
+          type: boolean
+          description: Whether data is from real hardware
+        signal_count:
+          type: integer
+          description: Number of signals detected
+
+    SignalStatistics:
+      type: object
+      properties:
+        total_signals:
+          type: integer
+        average_power:
+          type: number
+        peak_power:
+          type: number
+        frequency_range:
+          type: object
+          properties:
+            min:
+              type: integer
+            max:
+              type: integer
+        signals_by_strength:
+          type: object
+          properties:
+            strong:
+              type: integer
+            medium:
+              type: integer
+            weak:
+              type: integer
+        detection_rate:
+          type: number
+        last_update:
+          type: integer
+
+    FFTData:
+      type: object
+      required:
+        - fft_data
+        - center_freq
+        - samp_rate
+        - timestamp
+      properties:
+        fft_data:
+          type: array
+          items:
+            type: number
+          description: Array of power values in dBm
+        center_freq:
+          type: integer
+          description: Center frequency in Hz
+        samp_rate:
+          type: integer
+          description: Sample rate in Hz
+        timestamp:
+          type: integer
+          description: Data timestamp
+
+    FFTDataResponse:
+      type: object
+      required:
+        - success
+      properties:
+        success:
+          type: boolean
+        data:
+          $ref: '#/components/schemas/FFTData'
+        buffer_size:
+          type: integer
+
+    ScanProfile:
+      type: object
+      required:
+        - name
+        - ranges
+        - step
+        - description
+      properties:
+        name:
+          type: string
+        ranges:
+          type: array
+          items:
+            type: array
+            items:
+              type: number
+            minItems: 2
+            maxItems: 2
+        step:
+          type: number
+          description: Frequency step in kHz
+        description:
+          type: string
+
+    ScanProfiles:
+      type: object
+      additionalProperties:
+        $ref: '#/components/schemas/ScanProfile'
+
+    ScanSignal:
+      type: object
+      required:
+        - id
+        - frequency
+        - strength
+        - bandwidth
+        - confidence
+        - type
+      properties:
+        id:
+          type: string
+          description: Unique signal identifier
+        frequency:
+          type: string
+          description: Frequency in MHz
+        strength:
+          type: string
+          description: Signal strength in dBm
+        bandwidth:
+          type: string
+          description: Bandwidth in kHz
+        confidence:
+          type: number
+          minimum: 0
+          maximum: 1
+        type:
+          type: string
+          description: Signal type (real or demo)
+
+    ScanResponse:
+      type: object
+      required:
+        - profile
+        - signals
+        - scan_time
+        - real_data
+      properties:
+        profile:
+          $ref: '#/components/schemas/ScanProfile'
+        signals:
+          type: array
+          items:
+            $ref: '#/components/schemas/ScanSignal'
+        scan_time:
+          type: integer
+          description: Scan timestamp
+        real_data:
+          type: boolean
+          description: Whether signals are from real hardware
+
+    ErrorResponse:
+      type: object
+      required:
+        - success
+        - message
+      properties:
+        success:
+          type: boolean
+          example: false
+        message:
+          type: string
+          description: Human-readable error message
+        error:
+          type: string
+          description: Error code
+        details:
+          type: string
+          description: Additional error details
+        timestamp:
+          type: string
+          format: date-time
+
+  securitySchemes:
+    apiKey:
+      type: apiKey
+      in: header
+      name: X-API-Key
+      description: API key for authentication (future implementation)
+
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: JWT token authentication (future implementation)
+
+# Future security implementation
+# security:
+#   - apiKey: []
+#   - bearerAuth: []

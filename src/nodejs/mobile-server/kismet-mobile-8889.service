@@ -1,0 +1,18 @@
+[Unit]
+Description=Kismet Mobile Operations Center on Port 8889
+After=network.target
+
+[Service]
+Type=simple
+User=pi
+WorkingDirectory=/home/pi/projects/stinkster_malone/stinkster/src/nodejs/mobile-server
+ExecStart=/usr/bin/node serve-mobile.js
+Restart=always
+RestartSec=10
+StandardOutput=append:/home/pi/projects/stinkster_malone/stinkster/logs/kismet-mobile-8889.log
+StandardError=append:/home/pi/projects/stinkster_malone/stinkster/logs/kismet-mobile-8889.log
+Environment="NODE_ENV=production"
+Environment="PORT=8889"
+
+[Install]
+WantedBy=multi-user.target

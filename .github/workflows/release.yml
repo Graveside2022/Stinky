@@ -1,0 +1,158 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  release:
+    name: Create Release
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.9'
+    
+    - name: Set up Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18.x'
+    
+    - name: Get version
+      id: get_version
+      run: echo "VERSION=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
+    
+    - name: Generate changelog
+      id: changelog
+      run: |
+        PREVIOUS_TAG=$(git describe --tags --abbrev=0 HEAD^ 2>/dev/null || echo "")
+        if [ -z "$PREVIOUS_TAG" ]; then
+          PREVIOUS_TAG=$(git rev-list --max-parents=0 HEAD)
+        fi
+        
+        echo "# Changelog" > CHANGELOG_TEMP.md
+        echo "" >> CHANGELOG_TEMP.md
+        echo "## ${{ steps.get_version.outputs.VERSION }}" >> CHANGELOG_TEMP.md
+        echo "" >> CHANGELOG_TEMP.md
+        
+        # Get commit messages since last tag
+        git log $PREVIOUS_TAG..HEAD --pretty=format:"- %s (%an)" >> CHANGELOG_TEMP.md
+        
+        echo "" >> CHANGELOG_TEMP.md
+        echo "" >> CHANGELOG_TEMP.md
+        echo "## Component Versions" >> CHANGELOG_TEMP.md
+        echo "- Python Components: $(cat src/*/requirements.txt | wc -l) dependencies" >> CHANGELOG_TEMP.md
+        echo "- Node.js Components: $(cat package.json | grep version | head -1)" >> CHANGELOG_TEMP.md
+        
+        # Output to GitHub variable
+        echo "CHANGELOG<<EOF" >> $GITHUB_OUTPUT
+        cat CHANGELOG_TEMP.md >> $GITHUB_OUTPUT
+        echo "EOF" >> $GITHUB_OUTPUT
+    
+    - name: Build CSS assets
+      run: |
+        npm ci
+        npm run build
+    
+    - name: Create release archive
+      run: |
+        # Create release directory
+        mkdir -p stinkster-${{ steps.get_version.outputs.VERSION }}
+        
+        # Copy essential files
+        cp -r src/ stinkster-${{ steps.get_version.outputs.VERSION }}/
+        cp -r assets/ stinkster-${{ steps.get_version.outputs.VERSION }}/
+        cp -r config/ stinkster-${{ steps.get_version.outputs.VERSION }}/
+        cp -r systemd/ stinkster-${{ steps.get_version.outputs.VERSION }}/
+        cp -r scripts/ stinkster-${{ steps.get_version.outputs.VERSION }}/
+        cp -r docker/ stinkster-${{ steps.get_version.outputs.VERSION }}/
+        cp *.html stinkster-${{ steps.get_version.outputs.VERSION }}/
+        cp *.json stinkster-${{ steps.get_version.outputs.VERSION }}/
+        cp *.yml stinkster-${{ steps.get_version.outputs.VERSION }}/
+        cp *.md stinkster-${{ steps.get_version.outputs.VERSION }}/
+        cp LICENSE stinkster-${{ steps.get_version.outputs.VERSION }}/
+        cp .env.example stinkster-${{ steps.get_version.outputs.VERSION }}/
+        
+        # Create archives
+        tar -czf stinkster-${{ steps.get_version.outputs.VERSION }}.tar.gz stinkster-${{ steps.get_version.outputs.VERSION }}
+        zip -r stinkster-${{ steps.get_version.outputs.VERSION }}.zip stinkster-${{ steps.get_version.outputs.VERSION }}
+    
+    - name: Calculate checksums
+      run: |
+        sha256sum stinkster-${{ steps.get_version.outputs.VERSION }}.tar.gz > checksums-sha256.txt
+        sha256sum stinkster-${{ steps.get_version.outputs.VERSION }}.zip >> checksums-sha256.txt
+        md5sum stinkster-${{ steps.get_version.outputs.VERSION }}.tar.gz > checksums-md5.txt
+        md5sum stinkster-${{ steps.get_version.outputs.VERSION }}.zip >> checksums-md5.txt
+    
+    - name: Create Release
+      id: create_release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: ${{ github.ref }}
+        release_name: Release ${{ steps.get_version.outputs.VERSION }}
+        body: |
+          ${{ steps.changelog.outputs.CHANGELOG }}
+          
+          ## Installation
+          
+          See the [Quick Start Guide](https://github.com/${{ github.repository }}/blob/main/QUICK_START.md) for installation instructions.
+          
+          ## Checksums
+          
+          SHA256:
+          ```
+          $(cat checksums-sha256.txt)
+          ```
+          
+          MD5:
+          ```
+          $(cat checksums-md5.txt)
+          ```
+          
+          ## Legal Notice
+          
+          This release includes components with various licenses. See LICENSE and THIRD_PARTY_LICENSES.md for details.
+          
+          **WARNING**: This software involves RF transmission capabilities. Users must comply with local regulations.
+        draft: true
+        prerelease: false
+    
+    - name: Upload Release Asset - TAR
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./stinkster-${{ steps.get_version.outputs.VERSION }}.tar.gz
+        asset_name: stinkster-${{ steps.get_version.outputs.VERSION }}.tar.gz
+        asset_content_type: application/gzip
+    
+    - name: Upload Release Asset - ZIP
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./stinkster-${{ steps.get_version.outputs.VERSION }}.zip
+        asset_name: stinkster-${{ steps.get_version.outputs.VERSION }}.zip
+        asset_content_type: application/zip
+    
+    - name: Upload Checksums
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./checksums-sha256.txt
+        asset_name: checksums-sha256.txt
+        asset_content_type: text/plain

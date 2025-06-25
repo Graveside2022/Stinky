@@ -1,0 +1,1472 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta http-equiv="cache-control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="pragma" content="no-cache">
+    <meta http-equiv="expires" content="0">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>Kismet Operations Center</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="assets/css/styles.css">
+    <style>
+        /* Mobile-First CSS Reset */
+        *, *::before, *::after {
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        html {
+            font-size: 16px;
+            -webkit-text-size-adjust: 100%;
+            touch-action: manipulation;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background: #030610;
+            color: #d0d8f0;
+            min-height: 100vh;
+            overflow-x: hidden;
+            overflow-y: auto;
+            position: relative;
+        }
+
+        /* Simplified background for performance */
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #030610 0%, #0a0f1e 50%, #030610 100%);
+            z-index: -2;
+        }
+
+        /* Grid pattern overlay */
+        body::after {
+            content: "";
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: url('data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2270%22%20height%3D%2270%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Cdefs%3E%3Cpattern%20id%3D%22grid%22%20width%3D%2270%22%20height%3D%2270%22%20patternUnits%3D%22userSpaceOnUse%22%3E%3Cpath%20d%3D%22M%200%2010%20L%2070%2010%20M%2010%200%20L%2010%2070%22%20stroke%3D%22%2300d2ff%22%20stroke-opacity%3D%220.1%22%20stroke-width%3D%221%22%2F%3E%3C%2Fpattern%3E%3C%2Fdefs%3E%3Crect%20width%3D%22100%25%22%20height%3D%22100%25%22%20fill%3D%22url(%23grid)%22%2F%3E%3C%2Fsvg%3E');
+            opacity: 0.4;
+            z-index: -1;
+        }
+
+        /* Main Container */
+        .app-container {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            width: 100%;
+            position: relative;
+        }
+
+        /* Top Banner - Mobile Optimized */
+        .top-banner {
+            background: rgba(12, 22, 48, 0.85);
+            backdrop-filter: blur(12px);
+            border-bottom: 2px solid rgba(0, 210, 255, 0.4);
+            padding: 1rem;
+            text-align: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 20px rgba(0, 220, 255, 0.35);
+        }
+
+        .top-banner h1 {
+            background: linear-gradient(to right, #fff, #00d2ff, #fff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-transform: uppercase;
+            letter-spacing: 0.3em;
+            font-size: clamp(1.5rem, 4vw, 3.75rem);
+            font-weight: 800;
+            margin: 0;
+            animation: shine 3s linear infinite;
+        }
+
+        @keyframes shine {
+            0% { background-position: -100% 0; }
+            100% { background-position: 200% 0; }
+        }
+
+        /* Main Content Wrapper */
+        .main-wrapper {
+            flex: 1;
+            padding: 1rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        /* Grid Item - Mobile First */
+        .grid-item {
+            background: rgba(12, 22, 48, 0.85);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(0, 210, 255, 0.3);
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+            min-height: auto;
+            display: flex;
+            flex-direction: column;
+            transition: all 0.3s ease;
+        }
+
+        .grid-item:hover {
+            transform: scale(1.02);
+            box-shadow: 0 0 20px rgba(0, 210, 255, 0.3);
+        }
+
+        /* Box Header - Mobile Optimized */
+        .box-header {
+            background: linear-gradient(90deg, 
+                rgba(0, 210, 255, 0.1) 0%, 
+                rgba(0, 210, 255, 0.2) 50%,
+                rgba(0, 210, 255, 0.1) 100%);
+            border-bottom: 1px solid rgba(0, 210, 255, 0.3);
+            padding: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            min-height: 3.5rem;
+            cursor: move;
+        }
+
+        .box-header h2 {
+            color: #00f2ff;
+            margin: 0;
+            font-size: 1.1rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        /* Control Buttons */
+        .box-controls {
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+        }
+
+        .control-button-small {
+            background: none;
+            border: none;
+            color: #00d2ff;
+            font-size: 1.25rem;
+            padding: 0.5rem;
+            min-width: 2.5rem;
+            min-height: 2.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border-radius: 4px;
+        }
+
+        .control-button-small:hover {
+            background: rgba(0, 210, 255, 0.1);
+            transform: scale(1.1);
+        }
+
+        /* Grid Item Content */
+        .grid-item-content {
+            flex: 1;
+            padding: 1rem;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        /* Button styles matching current implementation */
+        .btn-cyber {
+            border-radius: 4px;
+            font-weight: 500;
+            letter-spacing: 1px;
+            overflow: hidden;
+            padding: 0.75rem 1.5rem;
+            position: relative;
+            text-transform: uppercase;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            width: 100%;
+            border-width: 1px;
+            border-style: solid;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            min-height: 3rem;
+            font-size: 0.875rem;
+        }
+
+        .btn-cyber:before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .btn-cyber:hover:before {
+            left: 100%;
+        }
+
+        /* Service control button colors */
+        .btn-green {
+            background-color: rgba(0, 255, 136, 0.2);
+            border-color: #00ff88;
+            color: #00ff88;
+        }
+
+        .btn-green:hover {
+            background-color: rgba(0, 255, 136, 0.3);
+        }
+
+        .btn-blue {
+            background-color: rgba(0, 210, 255, 0.2);
+            border-color: #00d2ff;
+            color: #00d2ff;
+        }
+
+        .btn-blue:hover {
+            background-color: rgba(0, 210, 255, 0.3);
+        }
+
+        .btn-orange {
+            background-color: rgba(255, 170, 0, 0.2);
+            border-color: #ffaa00;
+            color: #ffaa00;
+        }
+
+        .btn-orange:hover {
+            background-color: rgba(255, 170, 0, 0.3);
+        }
+
+        .btn-red {
+            background-color: rgba(255, 68, 68, 0.2);
+            border-color: #ff4444;
+            color: #ff4444;
+        }
+
+        .btn-red:hover {
+            background-color: rgba(255, 68, 68, 0.3);
+        }
+
+        .btn-yellow {
+            background-color: rgba(255, 204, 0, 0.2);
+            border-color: #ffcc00;
+            color: #ffcc00;
+        }
+
+        .btn-yellow:hover {
+            background-color: rgba(255, 204, 0, 0.3);
+        }
+
+        /* Status dot */
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            display: inline-block;
+            background-color: #666;
+            transition: all 0.3s ease;
+        }
+
+        .status-dot.active {
+            background-color: #0f0;
+            box-shadow: 0 0 10px #0f0;
+        }
+
+        .status-dot.starting {
+            background-color: #ffaa00;
+            box-shadow: 0 0 10px #ffaa00;
+        }
+
+        .status-dot.inactive {
+            background-color: #666;
+        }
+
+        /* Navigation tabs */
+        .nav-tabs {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            padding-bottom: 0.5rem;
+        }
+
+        .nav-tab {
+            background: rgba(12, 22, 48, 0.85);
+            border: 1px solid rgba(0, 210, 255, 0.3);
+            border-radius: 4px;
+            padding: 0.75rem 1.5rem;
+            color: #b8c5e0;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+            font-size: 0.875rem;
+        }
+
+        .nav-tab:hover {
+            color: #00d2ff;
+            background: rgba(0, 210, 255, 0.1);
+            border-color: rgba(0, 210, 255, 0.5);
+        }
+
+        .nav-tab.active {
+            color: #00d2ff;
+            border-bottom: 2px solid #00d2ff;
+        }
+
+        /* Tab content */
+        .tab-pane {
+            display: none;
+        }
+
+        .tab-pane.active {
+            display: block;
+        }
+
+        /* Service status */
+        .service-status {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .status-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0.75rem;
+            background: rgba(26, 31, 58, 1);
+            border-radius: 4px;
+        }
+
+        /* Feed container */
+        .feed-container {
+            max-height: 200px;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+            space-y: 0.5rem;
+        }
+
+        .feed-item {
+            padding: 0.5rem;
+            background: rgba(26, 31, 58, 1);
+            border-radius: 4px;
+            font-size: 0.75rem;
+            color: #7a8a9a;
+            margin-bottom: 0.5rem;
+            animation: fadeIn 0.4s ease-in-out;
+        }
+
+        .feed-item-blink {
+            animation: blink-animation 1.5s ease-in-out infinite;
+        }
+
+        @keyframes blink-animation {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+
+        @keyframes fadeIn {
+            0% { opacity: 0; transform: translateY(10px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Input styles */
+        .input-cyber {
+            width: 100%;
+            background-color: rgba(26, 31, 58, 1);
+            border: 1px solid rgba(0, 210, 255, 0.3);
+            border-radius: 4px;
+            padding: 0.5rem 0.75rem;
+            color: #d0d8f0;
+            transition: all 0.3s ease;
+            font-size: 0.875rem;
+        }
+
+        .input-cyber:focus {
+            outline: none;
+            border-color: #00d2ff;
+            box-shadow: 0 0 0 2px rgba(0, 210, 255, 0.2);
+        }
+
+        /* Table styles */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            text-align: left;
+            padding: 0.5rem 1rem;
+            border-bottom: 1px solid rgba(0, 210, 255, 0.3);
+            color: #b8c5e0;
+            font-size: 0.875rem;
+        }
+
+        td {
+            padding: 0.5rem 1rem;
+            font-size: 0.875rem;
+        }
+
+        /* Notification styles */
+        .notification {
+            position: fixed;
+            bottom: 1rem;
+            right: 1rem;
+            max-width: 24rem;
+            background: rgba(26, 31, 58, 1);
+            border: 1px solid #00d2ff;
+            border-radius: 8px;
+            padding: 1rem;
+            box-shadow: 0 0 20px rgba(0, 210, 255, 0.3);
+            z-index: 1000;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.3s ease;
+        }
+
+        .notification.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .notification.success {
+            border-color: #44ff44;
+            color: #44ff44;
+        }
+
+        .notification.error {
+            border-color: #ff4444;
+            color: #ff4444;
+        }
+
+        /* Status overlay */
+        .status-message {
+            position: fixed;
+            inset: 0;
+            background: rgba(3, 6, 16, 0.8);
+            backdrop-filter: blur(8px);
+            z-index: 1001;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+        }
+
+        .status-message-content {
+            background: rgba(26, 31, 58, 1);
+            border: 2px solid #00d2ff;
+            border-radius: 8px;
+            padding: 2rem;
+            max-width: 28rem;
+            width: 100%;
+            box-shadow: 0 0 20px rgba(0, 210, 255, 0.8);
+        }
+
+        /* Loading overlay */
+        .loading {
+            position: fixed;
+            inset: 0;
+            background: rgba(3, 6, 16, 0.9);
+            backdrop-filter: blur(8px);
+            z-index: 1002;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .loading-spinner {
+            width: 4rem;
+            height: 4rem;
+            border: 4px solid transparent;
+            border-top-color: #00d2ff;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Minimized tabs */
+        #minimized-tabs {
+            position: fixed;
+            top: 76px;
+            left: 0;
+            right: 0;
+            z-index: 999;
+            height: 40px;
+            background: rgba(12, 22, 48, 0.85);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(0, 210, 255, 0.35);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+            padding: 0.25rem 1.25rem;
+            display: none;
+            gap: 0.5rem;
+            overflow-x: auto;
+        }
+
+        .minimized-tab {
+            background: rgba(0, 50, 80, 0.55);
+            border: 1px solid rgba(0, 210, 255, 0.3);
+            border-radius: 4px;
+            padding: 0.25rem 1rem;
+            color: #00d2ff;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+            font-size: 0.875rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        /* Iframe container */
+        .iframe-container {
+            position: relative;
+            width: 100%;
+            height: 500px;
+            border: 1px solid rgba(0, 210, 255, 0.3);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .iframe-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        /* Resize handles */
+        .resize-handle {
+            position: absolute;
+            background: rgba(0, 210, 255, 0.3);
+            transition: background 0.3s ease;
+        }
+
+        .resize-handle:hover {
+            background: rgba(0, 210, 255, 0.5);
+        }
+
+        .resize-handle.top, .resize-handle.bottom {
+            height: 4px;
+            width: 96px;
+            left: 50%;
+            transform: translateX(-50%);
+            cursor: ns-resize;
+        }
+
+        .resize-handle.top {
+            top: 0;
+        }
+
+        .resize-handle.bottom {
+            bottom: 0;
+        }
+
+        .resize-handle.left, .resize-handle.right {
+            width: 4px;
+            height: 96px;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: ew-resize;
+        }
+
+        .resize-handle.left {
+            left: 0;
+        }
+
+        .resize-handle.right {
+            right: 0;
+        }
+
+        /* Grid layout */
+        .button-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.75rem;
+        }
+
+        /* Stats grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #00ff88;
+        }
+
+        .stat-label {
+            font-size: 0.75rem;
+            color: #b8c5e0;
+            text-transform: uppercase;
+        }
+
+        /* Scrollbar styles */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: rgba(10, 15, 30, 0.6);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #00d2ff;
+            border-radius: 3px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #00f2ff;
+        }
+
+        /* Side stack for desktop layout */
+        .side-stack {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        /* Tablet and Desktop styles */
+        @media (min-width: 768px) {
+            .main-wrapper {
+                max-width: 1400px;
+                margin: 0 auto;
+                padding: 2rem;
+            }
+
+            .button-grid {
+                grid-template-columns: repeat(4, 1fr);
+            }
+
+            .btn-cyber {
+                font-size: 1rem;
+            }
+
+            .nav-tab {
+                font-size: 1rem;
+            }
+
+            .box-header h2 {
+                font-size: 1.25rem;
+            }
+
+            .stat-value {
+                font-size: 2rem;
+            }
+
+            .input-cyber {
+                font-size: 1rem;
+            }
+        }
+
+        @media (min-width: 1024px) {
+            .main-wrapper {
+                display: grid;
+                grid-template-columns: 1fr 2fr 1fr;
+                gap: 1.5rem;
+            }
+
+            .nav-tabs {
+                justify-content: center;
+            }
+
+            .status-message-content {
+                max-width: 32rem;
+            }
+        }
+
+        /* Hide on mobile */
+        @media (max-width: 768px) {
+            .resize-handle {
+                display: none !important;
+            }
+
+            .hide-mobile {
+                display: none !important;
+            }
+
+            .minimized-tabs {
+                top: 60px;
+            }
+
+            .iframe-container {
+                height: calc(100vh - 300px);
+                min-height: 400px;
+            }
+        }
+
+        /* Safe area support */
+        @supports (padding: env(safe-area-inset-left)) {
+            .main-wrapper {
+                padding-left: max(1rem, env(safe-area-inset-left));
+                padding-right: max(1rem, env(safe-area-inset-right));
+                padding-bottom: max(1rem, env(safe-area-inset-bottom));
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Notification Container -->
+    <div id="notification" class="notification"></div>
+    
+    <!-- Status Message Overlay -->
+    <div id="status-message" class="status-message hidden">
+        <div class="status-message-content">
+            <h3 class="text-xl font-bold text-cyber-blue mb-4">System Status</h3>
+            <p id="status-content" class="text-text-primary"></p>
+            <button onclick="hideStatus()" class="btn-cyber btn-blue mt-6 w-full">
+                Close
+            </button>
+        </div>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div id="loading" class="loading hidden">
+        <div class="text-center">
+            <div class="loading-spinner"></div>
+            <p class="mt-4 text-cyber-blue">Loading...</p>
+        </div>
+    </div>
+
+    <!-- Minimized Tabs Container -->
+    <div id="minimized-tabs"></div>
+    
+    <div class="app-container">
+        <header class="top-banner">
+            <h1>STINKSTER</h1>
+        </header>
+
+        <div class="main-wrapper">
+            <!-- Mobile Navigation Tabs -->
+            <nav class="nav-tabs lg:hidden">
+                <button class="nav-tab active" data-tab="kismet">Kismet Tracker</button>
+                <button class="nav-tab" data-tab="atak">ATAK Operations</button>
+                <button class="nav-tab" data-tab="wigle">Wigle to TAK</button>
+            </nav>
+
+            <!-- Tab Content for Mobile -->
+            <div class="tab-content lg:contents">
+                <!-- Left Column - Configuration and System Info -->
+                <div class="side-stack tab-pane lg:block" id="wigle-tab">
+                    <!-- Configuration Panel -->
+                    <div class="grid-item">
+                        <div class="box-header">
+                            <h2>Configuration</h2>
+                            <div class="box-controls">
+                                <button class="control-button-small" onclick="toggleMinimize(this)">▼</button>
+                            </div>
+                        </div>
+                        <div class="grid-item-content">
+                            <form class="space-y-4">
+                                <div>
+                                    <label class="block text-sm font-medium mb-2" style="color: #b8c5e0;">TAK Server IP</label>
+                                    <input type="text" class="input-cyber" value="239.2.3.1" placeholder="239.2.3.1">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium mb-2" style="color: #b8c5e0;">TAK Port</label>
+                                    <input type="number" class="input-cyber" value="6969" placeholder="6969">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium mb-2" style="color: #b8c5e0;">Update Interval (s)</label>
+                                    <input type="number" class="input-cyber" value="5" min="1" max="60">
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+
+                    <!-- Device List -->
+                    <div class="grid-item">
+                        <div class="box-header">
+                            <h2>Detected Devices</h2>
+                            <div class="box-controls">
+                                <button class="control-button-small" onclick="toggleMinimize(this)">▼</button>
+                            </div>
+                        </div>
+                        <div class="grid-item-content">
+                            <div style="overflow-x: auto;">
+                                <table>
+                                    <thead>
+                                        <tr>
+                                            <th>Device</th>
+                                            <th class="hide-mobile">Type</th>
+                                            <th>Signal</th>
+                                            <th>Last Seen</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="device-list">
+                                        <tr>
+                                            <td colspan="4" style="text-align: center; padding: 2rem; color: #7a8a9a;">
+                                                No devices detected. Start the service to begin scanning.
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Center Column - Main Content -->
+                <div class="tab-pane active lg:block" id="kismet-tab">
+                    <!-- Kismet Live View -->
+                    <div class="grid-item" id="kismet-container">
+                        <div class="box-header">
+                            <h2>Kismet Operations</h2>
+                            <div class="box-controls">
+                                <button class="control-button-small" onclick="minimizeToTab('kismet-container', 'Kismet')">▼</button>
+                            </div>
+                        </div>
+                        <div class="grid-item-content" style="padding: 0;">
+                            <div class="iframe-container">
+                                <iframe src="http://localhost:2501"></iframe>
+                                <div class="resize-handle top"></div>
+                                <div class="resize-handle bottom"></div>
+                                <div class="resize-handle left"></div>
+                                <div class="resize-handle right"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Kismet Data Feed -->
+                    <div class="grid-item">
+                        <div class="box-header">
+                            <h2>Kismet Data Feed</h2>
+                            <div class="box-controls">
+                                <button class="control-button-small" onclick="toggleMinimize(this)">▼</button>
+                            </div>
+                        </div>
+                        <div class="grid-item-content">
+                            <div class="stats-grid">
+                                <div class="stat-item">
+                                    <div class="stat-value" id="devices-count">0</div>
+                                    <div class="stat-label">Devices</div>
+                                </div>
+                                <div class="stat-item">
+                                    <div class="stat-value" id="networks-count">0</div>
+                                    <div class="stat-label">Networks</div>
+                                </div>
+                                <div class="stat-item">
+                                    <div class="stat-value" id="last-update">--</div>
+                                    <div class="stat-label">Last Update</div>
+                                </div>
+                            </div>
+
+                            <div style="margin-bottom: 1rem;">
+                                <h3 style="color: #00d2ff; margin: 0 0 0.75rem 0; font-size: 1rem;">Recent Devices</h3>
+                                <div id="devices-list" class="feed-container">
+                                    <div class="feed-item">No devices detected</div>
+                                </div>
+                            </div>
+
+                            <div>
+                                <h3 style="color: #00d2ff; margin: 0 0 0.75rem 0; font-size: 1rem;">Activity Feed</h3>
+                                <div id="kismet-feed" class="feed-container">
+                                    <div class="feed-item">Waiting for activity...</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Column - Controls and Status -->
+                <div class="side-stack tab-pane lg:block" id="atak-tab">
+                    <!-- Service Controls -->
+                    <div class="grid-item">
+                        <div class="box-header">
+                            <h2>Service Controls</h2>
+                            <div class="box-controls">
+                                <button class="control-button-small" onclick="toggleMinimize(this)">▼</button>
+                            </div>
+                        </div>
+                        <div class="grid-item-content">
+                            <div class="button-grid">
+                                <button class="btn-cyber btn-green" onclick="startService('gps')">
+                                    <span class="status-dot inactive"></span>
+                                    <span class="hide-mobile">Start </span>GPS
+                                </button>
+                                <button class="btn-cyber btn-blue" onclick="startService('kismet')">
+                                    <span class="status-dot inactive"></span>
+                                    <span class="hide-mobile">Start </span>Kismet
+                                </button>
+                                <button class="btn-cyber btn-orange" onclick="startService('wigle')">
+                                    <span class="status-dot inactive"></span>
+                                    <span class="hide-mobile">Start </span>Wigle
+                                </button>
+                                <button class="btn-cyber btn-red" onclick="stopAllServices()">
+                                    Stop All
+                                </button>
+                            </div>
+                            <button class="btn-cyber btn-yellow mt-4" onclick="startConversion()">
+                                Start Conversion
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Service Status -->
+                    <div class="grid-item">
+                        <div class="box-header">
+                            <h2>Service Status</h2>
+                            <div class="box-controls">
+                                <button class="control-button-small" onclick="toggleMinimize(this)">▼</button>
+                            </div>
+                        </div>
+                        <div class="grid-item-content">
+                            <div class="service-status">
+                                <div class="status-item">
+                                    <span>GPS Service</span>
+                                    <span style="color: #dc3545;">Offline</span>
+                                </div>
+                                <div class="status-item">
+                                    <span>Kismet Scanner</span>
+                                    <span style="color: #dc3545;">Offline</span>
+                                </div>
+                                <div class="status-item">
+                                    <span>WigleToTAK</span>
+                                    <span style="color: #dc3545;">Offline</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- System Status -->
+                    <div class="grid-item">
+                        <div class="box-header">
+                            <h2>System Status</h2>
+                            <div class="box-controls">
+                                <button class="control-button-small" onclick="toggleMinimize(this)">▼</button>
+                            </div>
+                        </div>
+                        <div class="grid-item-content">
+                            <div id="system-message" style="font-size: 1rem; color: #00e2ff; text-align: center; padding: 0.75rem; margin-bottom: 1rem;">
+                                Loading system status...
+                            </div>
+                            <div id="gps-info" style="line-height: 1.8;">
+                                <p style="margin: 0.5rem 0; display: flex; justify-content: space-between;">
+                                    <strong style="color: #00d2ff;">IP Address:</strong>
+                                    <span id="ip-address">Loading...</span>
+                                </p>
+                                <p style="margin: 0.5rem 0; display: flex; justify-content: space-between;">
+                                    <strong style="color: #00d2ff;">GPS Status:</strong>
+                                    <span id="gps-status">Loading...</span>
+                                </p>
+                                <p style="margin: 0.5rem 0; display: flex; justify-content: space-between;">
+                                    <strong style="color: #00d2ff;">Latitude:</strong>
+                                    <span id="gps-lat">--</span>
+                                </p>
+                                <p style="margin: 0.5rem 0; display: flex; justify-content: space-between;">
+                                    <strong style="color: #00d2ff;">Longitude:</strong>
+                                    <span id="gps-lon">--</span>
+                                </p>
+                                <p style="margin: 0.5rem 0; display: flex; justify-content: space-between;">
+                                    <strong style="color: #00d2ff;">Altitude:</strong>
+                                    <span id="gps-alt">--</span>
+                                </p>
+                                <p style="margin: 0.5rem 0; display: flex; justify-content: space-between;">
+                                    <strong style="color: #00d2ff;">MGRS Grid:</strong>
+                                    <span id="gps-mgrs">--</span>
+                                </p>
+                                <p style="margin: 0.5rem 0; display: flex; justify-content: space-between;">
+                                    <strong style="color: #00d2ff;">GPS Time:</strong>
+                                    <span id="gps-time">--</span>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Activity Feed -->
+                    <div class="grid-item">
+                        <div class="box-header">
+                            <h2>Activity Feed</h2>
+                            <div class="box-controls">
+                                <button class="control-button-small" onclick="toggleMinimize(this)">▼</button>
+                            </div>
+                        </div>
+                        <div class="grid-item-content">
+                            <div class="feed-container">
+                                <div class="feed-item">
+                                    System initialized
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Include all original JavaScript functionality -->
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="/mgrs.min.js"></script>
+    <script>
+        // Include all original JavaScript functions
+        const socket = io();
+        let minimizedElements = new Map();
+        let servicesStarting = false;
+        let statusUpdateInterval = null;
+        let currentMessageIndex = 0;
+        const messages = [
+            "Calibrating Chroniton Emitters...",
+            "Quantum Field Sync: 99.97%",
+            "Reality Matrix Stabilized.",
+            "Interface Online. Welcome, Commander."
+        ];
+
+        // Tab switching for mobile
+        document.querySelectorAll('.nav-tab').forEach(tab => {
+            tab.addEventListener('click', function() {
+                // Remove active class from all tabs
+                document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+                document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+                
+                // Add active class to clicked tab
+                this.classList.add('active');
+                const tabName = this.getAttribute('data-tab');
+                document.getElementById(`${tabName}-tab`).classList.add('active');
+            });
+        });
+
+        // Toggle minimize function
+        function toggleMinimize(button) {
+            const gridItem = button.closest('.grid-item');
+            const content = gridItem.querySelector('.grid-item-content');
+            const isMinimized = content.style.display === 'none';
+            
+            if (isMinimized) {
+                content.style.display = 'block';
+                button.textContent = '▼';
+            } else {
+                content.style.display = 'none';
+                button.textContent = '▲';
+            }
+        }
+
+        // Minimize to tab
+        function minimizeToTab(containerId, name) {
+            const container = document.getElementById(containerId);
+            const minimizedTabs = document.getElementById('minimized-tabs');
+            
+            // Hide the container
+            container.style.display = 'none';
+            
+            // Show minimized tabs bar if not visible
+            minimizedTabs.style.display = 'flex';
+            
+            // Create minimized tab
+            const tab = document.createElement('div');
+            tab.className = 'minimized-tab';
+            tab.innerHTML = `${name} <span style="cursor: pointer;" onclick="restoreFromTab('${containerId}', this.parentElement)">×</span>`;
+            tab.onclick = function(e) {
+                if (e.target.tagName !== 'SPAN') {
+                    restoreFromTab(containerId, this);
+                }
+            };
+            
+            minimizedTabs.appendChild(tab);
+            minimizedElements.set(containerId, container);
+        }
+
+        // Restore from tab
+        function restoreFromTab(containerId, tab) {
+            const container = minimizedElements.get(containerId);
+            if (container) {
+                container.style.display = 'block';
+                tab.remove();
+                minimizedElements.delete(containerId);
+                
+                // Hide minimized tabs bar if empty
+                const minimizedTabs = document.getElementById('minimized-tabs');
+                if (minimizedTabs.children.length === 0) {
+                    minimizedTabs.style.display = 'none';
+                }
+            }
+        }
+
+        // All other original functions
+        function updateSystemMessage() {
+            const messageElement = document.getElementById('system-message');
+            if (messageElement) {
+                messageElement.style.opacity = '0';
+                setTimeout(() => {
+                    messageElement.textContent = messages[currentMessageIndex];
+                    messageElement.style.opacity = '1';
+                    currentMessageIndex = (currentMessageIndex + 1) % messages.length;
+                }, 300);
+            }
+        }
+
+        function updateSystemStatus() {
+            fetch('/info')
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('ip-address').textContent = data.ip || 'Unknown';
+                    document.getElementById('gps-status').textContent = data.gps_connected ? 'Connected' : 'Disconnected';
+                    
+                    if (data.gps_connected && data.gps_data) {
+                        document.getElementById('gps-lat').textContent = data.gps_data.lat?.toFixed(6) || '--';
+                        document.getElementById('gps-lon').textContent = data.gps_data.lon?.toFixed(6) || '--';
+                        document.getElementById('gps-alt').textContent = data.gps_data.alt ? `${data.gps_data.alt.toFixed(1)}m` : '--';
+                        document.getElementById('gps-time').textContent = data.gps_data.time || '--';
+                        
+                        if (data.gps_data.lat && data.gps_data.lon && typeof mgrs !== 'undefined') {
+                            try {
+                                const mgrsCoord = mgrs.forward([data.gps_data.lon, data.gps_data.lat], 5);
+                                document.getElementById('gps-mgrs').textContent = mgrsCoord;
+                            } catch (e) {
+                                document.getElementById('gps-mgrs').textContent = '--';
+                            }
+                        } else {
+                            document.getElementById('gps-mgrs').textContent = '--';
+                        }
+                    } else {
+                        document.getElementById('gps-lat').textContent = '--';
+                        document.getElementById('gps-lon').textContent = '--';
+                        document.getElementById('gps-alt').textContent = '--';
+                        document.getElementById('gps-time').textContent = '--';
+                        document.getElementById('gps-mgrs').textContent = '--';
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching system status:', error);
+                });
+        }
+
+        function updateKismetData() {
+            fetch('/kismet-data')
+                .then(response => response.json())
+                .then(data => {
+                    // Update stats
+                    document.getElementById('devices-count').textContent = data.devices || 0;
+                    document.getElementById('networks-count').textContent = data.networks || 0;
+                    document.getElementById('last-update').textContent = new Date().toLocaleTimeString();
+                    
+                    // Update devices list
+                    const devicesList = document.getElementById('devices-list');
+                    if (data.recent_devices && data.recent_devices.length > 0) {
+                        devicesList.innerHTML = data.recent_devices.slice(0, 5).map(device => `
+                            <div class="feed-item">
+                                <strong>${escapeHtml(device.mac || 'Unknown')}</strong> - ${escapeHtml(device.type || 'Unknown')}
+                                <br><small>Signal: ${device.signal || '--'} dBm</small>
+                            </div>
+                        `).join('');
+                    }
+                    
+                    // Update activity feed
+                    const kismetFeed = document.getElementById('kismet-feed');
+                    if (data.activity && data.activity.length > 0) {
+                        kismetFeed.innerHTML = data.activity.slice(0, 10).map(item => `
+                            <div class="feed-item">${escapeHtml(item)}</div>
+                        `).join('');
+                        
+                        // Add blink effect to first item
+                        const firstItem = kismetFeed.querySelector('.feed-item');
+                        if (firstItem) {
+                            firstItem.classList.add('feed-item-blink');
+                            setTimeout(() => {
+                                firstItem.classList.remove('feed-item-blink');
+                            }, 2000);
+                        }
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching Kismet data:', error);
+                });
+        }
+
+        function updateKismetStatus() {
+            if (servicesStarting) return;
+            
+            fetch('/script-status')
+                .then(response => response.json())
+                .then(data => {
+                    // Update status dots
+                    const statusDots = document.querySelectorAll('.status-dot');
+                    statusDots.forEach(dot => {
+                        dot.classList.remove('active', 'starting', 'inactive');
+                        if (data.kismet_running) {
+                            dot.classList.add('active');
+                        } else {
+                            dot.classList.add('inactive');
+                        }
+                    });
+                    
+                    // Update status text
+                    const statusItems = document.querySelectorAll('.status-item span:last-child');
+                    if (statusItems.length >= 3) {
+                        statusItems[0].textContent = data.gps_running ? 'Online' : 'Offline';
+                        statusItems[0].style.color = data.gps_running ? '#44ff44' : '#dc3545';
+                        
+                        statusItems[1].textContent = data.kismet_running ? 'Online' : 'Offline';
+                        statusItems[1].style.color = data.kismet_running ? '#44ff44' : '#dc3545';
+                        
+                        statusItems[2].textContent = data.wigle_running ? 'Online' : 'Offline';
+                        statusItems[2].style.color = data.wigle_running ? '#44ff44' : '#dc3545';
+                    }
+                })
+                .catch(error => {
+                    console.error('Error checking script status:', error);
+                });
+        }
+
+        function showNotification(message, type = 'info') {
+            const notification = document.getElementById('notification');
+            const notificationMessage = document.createElement('p');
+            notificationMessage.textContent = message;
+            notificationMessage.style.color = type === 'success' ? '#44ff44' : type === 'error' ? '#ff4444' : '#00d2ff';
+            
+            notification.innerHTML = '';
+            notification.appendChild(notificationMessage);
+            notification.className = 'notification show';
+            if (type === 'success') notification.classList.add('success');
+            if (type === 'error') notification.classList.add('error');
+            
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 5000);
+        }
+
+        function startService(service) {
+            showNotification(`Starting ${service} service...`, 'info');
+            startKismet();
+        }
+
+        function stopAllServices() {
+            showNotification('Stopping all services...', 'info');
+            stopKismet();
+        }
+
+        function startConversion() {
+            showNotification('Starting WigleToTAK conversion...', 'info');
+            // Implement conversion start logic
+        }
+
+        function startKismet() {
+            fetch('/api/start-script', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showNotification('Kismet services started successfully!', 'success');
+                    servicesStarting = true;
+                    startStatusUpdates();
+                    
+                    // Set status dots to starting
+                    document.querySelectorAll('.status-dot').forEach(dot => {
+                        dot.classList.remove('active', 'inactive');
+                        dot.classList.add('starting');
+                    });
+                    
+                    // Reset after 60 seconds
+                    setTimeout(() => {
+                        servicesStarting = false;
+                    }, 60000);
+                } else {
+                    showNotification('Failed to start Kismet services', 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showNotification('Error starting services', 'error');
+            });
+        }
+
+        function stopKismet() {
+            fetch('/stop-script', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showNotification('All services stopped', 'success');
+                    
+                    // Update status dots
+                    document.querySelectorAll('.status-dot').forEach(dot => {
+                        dot.classList.remove('active', 'starting');
+                        dot.classList.add('inactive');
+                    });
+                    
+                    // Update status text
+                    const statusItems = document.querySelectorAll('.status-item span:last-child');
+                    statusItems.forEach(item => {
+                        item.textContent = 'Offline';
+                        item.style.color = '#dc3545';
+                    });
+                } else {
+                    showNotification('Failed to stop services', 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showNotification('Error stopping services', 'error');
+            });
+        }
+
+        function startStatusUpdates() {
+            if (statusUpdateInterval) {
+                clearInterval(statusUpdateInterval);
+            }
+            statusUpdateInterval = setInterval(updateKismetStatus, 1000);
+        }
+
+        function hideStatus() {
+            document.getElementById('status-message').classList.add('hidden');
+        }
+
+        function escapeHtml(text) {
+            const map = {
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#039;'
+            };
+            return text.replace(/[&<>"']/g, m => map[m]);
+        }
+
+        // Mobile viewport height fix
+        function setVH() {
+            let vh = window.innerHeight * 0.01;
+            document.documentElement.style.setProperty('--vh', `${vh}px`);
+        }
+
+        // Initialize resize functionality
+        function initResize() {
+            const resizeHandles = document.querySelectorAll('.resize-handle');
+            resizeHandles.forEach(handle => {
+                let isResizing = false;
+                let startX = 0;
+                let startY = 0;
+                let startWidth = 0;
+                let startHeight = 0;
+                let container = null;
+
+                handle.addEventListener('mousedown', (e) => {
+                    isResizing = true;
+                    startX = e.clientX;
+                    startY = e.clientY;
+                    container = handle.closest('.iframe-container');
+                    startWidth = parseInt(document.defaultView.getComputedStyle(container).width, 10);
+                    startHeight = parseInt(document.defaultView.getComputedStyle(container).height, 10);
+                    document.addEventListener('mousemove', doResize);
+                    document.addEventListener('mouseup', stopResize);
+                });
+
+                function doResize(e) {
+                    if (!isResizing) return;
+                    
+                    if (handle.classList.contains('right')) {
+                        container.style.width = (startWidth + e.clientX - startX) + 'px';
+                    } else if (handle.classList.contains('bottom')) {
+                        container.style.height = (startHeight + e.clientY - startY) + 'px';
+                    }
+                }
+
+                function stopResize() {
+                    isResizing = false;
+                    document.removeEventListener('mousemove', doResize);
+                    document.removeEventListener('mouseup', stopResize);
+                }
+            });
+        }
+
+        // Initialize draggable functionality
+        function initDraggable() {
+            const headers = document.querySelectorAll('.box-header');
+            headers.forEach(header => {
+                let isDragging = false;
+                let startX = 0;
+                let startY = 0;
+                let offsetX = 0;
+                let offsetY = 0;
+                let gridItem = null;
+
+                header.addEventListener('mousedown', (e) => {
+                    if (e.target.closest('.box-controls')) return;
+                    
+                    isDragging = true;
+                    gridItem = header.closest('.grid-item');
+                    startX = e.clientX - offsetX;
+                    startY = e.clientY - offsetY;
+                    
+                    document.addEventListener('mousemove', doDrag);
+                    document.addEventListener('mouseup', stopDrag);
+                });
+
+                function doDrag(e) {
+                    if (!isDragging) return;
+                    
+                    offsetX = e.clientX - startX;
+                    offsetY = e.clientY - startY;
+                    
+                    gridItem.style.transform = `translate(${offsetX}px, ${offsetY}px)`;
+                }
+
+                function stopDrag() {
+                    isDragging = false;
+                    document.removeEventListener('mousemove', doDrag);
+                    document.removeEventListener('mouseup', stopDrag);
+                }
+            });
+        }
+
+        // Initialize everything when DOM is loaded
+        document.addEventListener('DOMContentLoaded', function() {
+            setVH();
+            window.addEventListener('resize', setVH);
+            window.addEventListener('orientationchange', setVH);
+            
+            // Initialize functionality
+            initResize();
+            initDraggable();
+            
+            // Start updates
+            updateSystemStatus();
+            updateKismetData();
+            updateKismetStatus();
+            
+            // Set up periodic updates
+            setInterval(updateSystemMessage, 7000);
+            setInterval(updateSystemStatus, 5000);
+            setInterval(updateKismetData, 2000);
+            setInterval(updateKismetStatus, 5000);
+        });
+    </script>
+</body>
+</html>

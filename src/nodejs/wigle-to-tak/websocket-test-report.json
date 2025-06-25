@@ -1,0 +1,47 @@
+{
+  "timestamp": "2025-06-15T20:42:08.907Z",
+  "summary": {
+    "total": 5,
+    "passed": 5,
+    "failed": 0,
+    "totalTime": 888
+  },
+  "results": [
+    {
+      "name": "Basic WebSocket Connection",
+      "status": "PASS",
+      "duration": 122,
+      "error": null
+    },
+    {
+      "name": "OpenWebRX Handshake Sequence",
+      "status": "PASS",
+      "duration": 253,
+      "error": null
+    },
+    {
+      "name": "FFT Data Reception",
+      "status": "PASS",
+      "duration": 115,
+      "error": null
+    },
+    {
+      "name": "Binary Message Parsing",
+      "status": "PASS",
+      "duration": 96,
+      "error": null
+    },
+    {
+      "name": "Protocol Compatibility",
+      "status": "PASS",
+      "duration": 302,
+      "error": null
+    }
+  ],
+  "mockServerConfig": {
+    "fft_size": 1024,
+    "center_freq": 145000000,
+    "samp_rate": 2400000,
+    "fft_compression": "none"
+  }
+}

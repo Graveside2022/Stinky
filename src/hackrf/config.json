@@ -1,0 +1,11 @@
+{
+  "frequency": 945000000,
+  "sample_rate": 2000000,
+  "threshold": -60,
+  "lna_gain": 24,
+  "vga_gain": 52,
+  "dest_ip": "239.2.3.1",
+  "dest_port": 18999,
+  "capture_size": 1048576,
+  "running": false
+}

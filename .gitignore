@@ -1,0 +1,103 @@
+# Dependencies
+node_modules/
+venv/
+.venv/
+env/
+ENV/
+pip-wheel-metadata/
+*.egg-info/
+dist/
+build/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg
+*.egg-info/
+.installed.cfg
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.dmypy.json
+dmypy.json
+.pyre/
+.pytype/
+htmlcov/
+.tox/
+.coverage
+.coverage.*
+.cache
+.hypothesis/
+
+# Logs
+*.log
+*.out
+logs/
+*.pid
+*.seed
+*.pid.lock
+
+# Runtime data
+pids/
+*.tmp
+*.temp
+
+# Testing
+coverage/
+.nyc_output/
+test-results/
+jest-results/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# Build outputs
+dist/
+build/
+*.spec
+
+# Package manager locks (we want package.json but not locks for cleaner repo)
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# Backup and output directories
+backups/
+outputs/
+
+# Temporary files
+*.tmp
+*.temp
+*.bak
+.~*
+
+# Service output files
+server.out
+*.service.out
+
+# Data files that shouldn't be in repo
+data/*.csv
+data/*.json
+data/*.db
+data/*.sqlite
+
+# Config examples (keep the examples directory but not generated configs)
+config/generated/
+
+# Session and continuity files (these change frequently)
+SESSION_CONTINUITY.md
+GITHUB_CLEANUP_SUMMARY.md
+DOCUMENTATION_UPDATE_SUMMARY.mddata/offline-tiles/NE2_50M_SR_W/NE2_50M_SR_W.tif

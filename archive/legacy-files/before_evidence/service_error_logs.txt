@@ -1,0 +1,100 @@
+Jun 20 14:40:17 stinky systemd[1]: kismet-operations-center.service: Failed with result 'exit-code'.
+Jun 20 14:40:17 stinky systemd[1]: kismet-operations-center.service: Consumed 1.681s CPU time.
+Jun 20 14:40:27 stinky systemd[1]: kismet-operations-center.service: Scheduled restart job, restart counter is at 254.
+Jun 20 14:40:27 stinky systemd[1]: Stopped kismet-operations-center.service - Kismet Operations Center - Node.js WiFi Monitoring Dashboard.
+Jun 20 14:40:27 stinky systemd[1]: kismet-operations-center.service: Consumed 1.681s CPU time.
+Jun 20 14:40:27 stinky systemd[1]: Started kismet-operations-center.service - Kismet Operations Center - Node.js WiFi Monitoring Dashboard.
+Jun 20 14:40:29 stinky systemd[1]: kismet-operations-center.service: Main process exited, code=exited, status=1/FAILURE
+Jun 20 14:40:29 stinky systemd[1]: kismet-operations-center.service: Failed with result 'exit-code'.
+Jun 20 14:40:29 stinky systemd[1]: kismet-operations-center.service: Consumed 1.807s CPU time.
+Jun 20 14:40:39 stinky systemd[1]: kismet-operations-center.service: Scheduled restart job, restart counter is at 255.
+Jun 20 14:40:39 stinky systemd[1]: Stopped kismet-operations-center.service - Kismet Operations Center - Node.js WiFi Monitoring Dashboard.
+Jun 20 14:40:39 stinky systemd[1]: kismet-operations-center.service: Consumed 1.807s CPU time.
+Jun 20 14:40:39 stinky systemd[1]: Started kismet-operations-center.service - Kismet Operations Center - Node.js WiFi Monitoring Dashboard.
+Jun 20 14:40:40 stinky systemd[1]: kismet-operations-center.service: Main process exited, code=exited, status=1/FAILURE
+Jun 20 14:40:40 stinky systemd[1]: kismet-operations-center.service: Failed with result 'exit-code'.
+Jun 20 14:40:40 stinky systemd[1]: kismet-operations-center.service: Consumed 1.609s CPU time.
+Jun 20 14:40:50 stinky systemd[1]: kismet-operations-center.service: Scheduled restart job, restart counter is at 256.
+Jun 20 14:40:50 stinky systemd[1]: Stopped kismet-operations-center.service - Kismet Operations Center - Node.js WiFi Monitoring Dashboard.
+Jun 20 14:40:50 stinky systemd[1]: kismet-operations-center.service: Consumed 1.609s CPU time.
+Jun 20 14:40:50 stinky systemd[1]: Started kismet-operations-center.service - Kismet Operations Center - Node.js WiFi Monitoring Dashboard.
+Jun 20 14:40:52 stinky systemd[1]: kismet-operations-center.service: Main process exited, code=exited, status=1/FAILURE
+Jun 20 14:40:52 stinky systemd[1]: kismet-operations-center.service: Failed with result 'exit-code'.
+Jun 20 14:40:52 stinky systemd[1]: kismet-operations-center.service: Consumed 1.640s CPU time.
+Jun 20 14:41:02 stinky systemd[1]: kismet-operations-center.service: Scheduled restart job, restart counter is at 257.
+Jun 20 14:41:02 stinky systemd[1]: Stopped kismet-operations-center.service - Kismet Operations Center - Node.js WiFi Monitoring Dashboard.
+Jun 20 14:41:02 stinky systemd[1]: kismet-operations-center.service: Consumed 1.640s CPU time.
+Jun 20 14:41:02 stinky systemd[1]: Started kismet-operations-center.service - Kismet Operations Center - Node.js WiFi Monitoring Dashboard.
+Jun 20 14:41:04 stinky systemd[1]: kismet-operations-center.service: Main process exited, code=exited, status=1/FAILURE
+Jun 20 14:41:04 stinky systemd[1]: kismet-operations-center.service: Failed with result 'exit-code'.
+Jun 20 14:41:04 stinky systemd[1]: kismet-operations-center.service: Consumed 1.700s CPU time.
+Jun 20 14:41:14 stinky systemd[1]: kismet-operations-center.service: Scheduled restart job, restart counter is at 258.
+Jun 20 14:41:14 stinky systemd[1]: Stopped kismet-operations-center.service - Kismet Operations Center - Node.js WiFi Monitoring Dashboard.
+Jun 20 14:41:14 stinky systemd[1]: kismet-operations-center.service: Consumed 1.700s CPU time.
+Jun 20 14:41:14 stinky systemd[1]: Started kismet-operations-center.service - Kismet Operations Center - Node.js WiFi Monitoring Dashboard.
+Jun 20 14:41:15 stinky systemd[1]: kismet-operations-center.service: Main process exited, code=exited, status=1/FAILURE
+Jun 20 14:41:15 stinky systemd[1]: kismet-operations-center.service: Failed with result 'exit-code'.
+Jun 20 14:41:15 stinky systemd[1]: kismet-operations-center.service: Consumed 1.610s CPU time.
+Jun 20 14:41:25 stinky systemd[1]: kismet-operations-center.service: Scheduled restart job, restart counter is at 259.
+Jun 20 14:41:25 stinky systemd[1]: Stopped kismet-operations-center.service - Kismet Operations Center - Node.js WiFi Monitoring Dashboard.
+Jun 20 14:41:25 stinky systemd[1]: kismet-operations-center.service: Consumed 1.610s CPU time.
+Jun 20 14:41:25 stinky systemd[1]: Started kismet-operations-center.service - Kismet Operations Center - Node.js WiFi Monitoring Dashboard.
+Jun 20 14:41:26 stinky systemd[1]: kismet-operations-center.service: Main process exited, code=exited, status=1/FAILURE
+Jun 20 14:41:26 stinky systemd[1]: kismet-operations-center.service: Failed with result 'exit-code'.
+Jun 20 14:41:26 stinky systemd[1]: kismet-operations-center.service: Consumed 1.575s CPU time.
+Jun 20 14:41:37 stinky systemd[1]: kismet-operations-center.service: Scheduled restart job, restart counter is at 260.
+Jun 20 14:41:37 stinky systemd[1]: Stopped kismet-operations-center.service - Kismet Operations Center - Node.js WiFi Monitoring Dashboard.
+Jun 20 14:41:37 stinky systemd[1]: kismet-operations-center.service: Consumed 1.575s CPU time.
+Jun 20 14:41:37 stinky systemd[1]: Started kismet-operations-center.service - Kismet Operations Center - Node.js WiFi Monitoring Dashboard.
+Jun 20 14:41:38 stinky systemd[1]: kismet-operations-center.service: Main process exited, code=exited, status=1/FAILURE
+Jun 20 14:41:38 stinky systemd[1]: kismet-operations-center.service: Failed with result 'exit-code'.
+Jun 20 14:41:38 stinky systemd[1]: kismet-operations-center.service: Consumed 1.908s CPU time.
+Jun 20 14:41:48 stinky systemd[1]: kismet-operations-center.service: Scheduled restart job, restart counter is at 261.
+Jun 20 14:41:48 stinky systemd[1]: Stopped kismet-operations-center.service - Kismet Operations Center - Node.js WiFi Monitoring Dashboard.
+Jun 20 14:41:48 stinky systemd[1]: kismet-operations-center.service: Consumed 1.908s CPU time.
+Jun 20 14:41:48 stinky systemd[1]: Started kismet-operations-center.service - Kismet Operations Center - Node.js WiFi Monitoring Dashboard.
+Jun 20 14:41:50 stinky systemd[1]: kismet-operations-center.service: Main process exited, code=exited, status=1/FAILURE
+Jun 20 14:41:50 stinky systemd[1]: kismet-operations-center.service: Failed with result 'exit-code'.
+Jun 20 14:41:50 stinky systemd[1]: kismet-operations-center.service: Consumed 1.675s CPU time.
+Jun 20 14:42:00 stinky systemd[1]: kismet-operations-center.service: Scheduled restart job, restart counter is at 262.
+Jun 20 14:42:00 stinky systemd[1]: Stopped kismet-operations-center.service - Kismet Operations Center - Node.js WiFi Monitoring Dashboard.
+Jun 20 14:42:00 stinky systemd[1]: kismet-operations-center.service: Consumed 1.675s CPU time.
+Jun 20 14:42:00 stinky systemd[1]: Started kismet-operations-center.service - Kismet Operations Center - Node.js WiFi Monitoring Dashboard.
+Jun 20 14:42:01 stinky systemd[1]: kismet-operations-center.service: Main process exited, code=exited, status=1/FAILURE
+Jun 20 14:42:01 stinky systemd[1]: kismet-operations-center.service: Failed with result 'exit-code'.
+Jun 20 14:42:01 stinky systemd[1]: kismet-operations-center.service: Consumed 1.555s CPU time.
+Jun 20 14:42:12 stinky systemd[1]: kismet-operations-center.service: Scheduled restart job, restart counter is at 263.
+Jun 20 14:42:12 stinky systemd[1]: Stopped kismet-operations-center.service - Kismet Operations Center - Node.js WiFi Monitoring Dashboard.
+Jun 20 14:42:12 stinky systemd[1]: kismet-operations-center.service: Consumed 1.555s CPU time.
+Jun 20 14:42:12 stinky systemd[1]: Started kismet-operations-center.service - Kismet Operations Center - Node.js WiFi Monitoring Dashboard.
+Jun 20 14:42:13 stinky systemd[1]: kismet-operations-center.service: Main process exited, code=exited, status=1/FAILURE
+Jun 20 14:42:13 stinky systemd[1]: kismet-operations-center.service: Failed with result 'exit-code'.
+Jun 20 14:42:13 stinky systemd[1]: kismet-operations-center.service: Consumed 1.654s CPU time.
+Jun 20 14:42:23 stinky systemd[1]: kismet-operations-center.service: Scheduled restart job, restart counter is at 264.
+Jun 20 14:42:23 stinky systemd[1]: Stopped kismet-operations-center.service - Kismet Operations Center - Node.js WiFi Monitoring Dashboard.
+Jun 20 14:42:23 stinky systemd[1]: kismet-operations-center.service: Consumed 1.654s CPU time.
+Jun 20 14:42:23 stinky systemd[1]: Started kismet-operations-center.service - Kismet Operations Center - Node.js WiFi Monitoring Dashboard.
+Jun 20 14:42:25 stinky systemd[1]: kismet-operations-center.service: Main process exited, code=exited, status=1/FAILURE
+Jun 20 14:42:25 stinky systemd[1]: kismet-operations-center.service: Failed with result 'exit-code'.
+Jun 20 14:42:25 stinky systemd[1]: kismet-operations-center.service: Consumed 1.766s CPU time.
+Jun 20 14:42:35 stinky systemd[1]: kismet-operations-center.service: Scheduled restart job, restart counter is at 265.
+Jun 20 14:42:35 stinky systemd[1]: Stopped kismet-operations-center.service - Kismet Operations Center - Node.js WiFi Monitoring Dashboard.
+Jun 20 14:42:35 stinky systemd[1]: kismet-operations-center.service: Consumed 1.766s CPU time.
+Jun 20 14:42:35 stinky systemd[1]: Started kismet-operations-center.service - Kismet Operations Center - Node.js WiFi Monitoring Dashboard.
+Jun 20 14:42:36 stinky systemd[1]: kismet-operations-center.service: Main process exited, code=exited, status=1/FAILURE
+Jun 20 14:42:36 stinky systemd[1]: kismet-operations-center.service: Failed with result 'exit-code'.
+Jun 20 14:42:36 stinky systemd[1]: kismet-operations-center.service: Consumed 1.619s CPU time.
+Jun 20 14:42:46 stinky systemd[1]: kismet-operations-center.service: Scheduled restart job, restart counter is at 266.
+Jun 20 14:42:46 stinky systemd[1]: Stopped kismet-operations-center.service - Kismet Operations Center - Node.js WiFi Monitoring Dashboard.
+Jun 20 14:42:46 stinky systemd[1]: kismet-operations-center.service: Consumed 1.619s CPU time.
+Jun 20 14:42:46 stinky systemd[1]: Started kismet-operations-center.service - Kismet Operations Center - Node.js WiFi Monitoring Dashboard.
+Jun 20 14:42:48 stinky systemd[1]: kismet-operations-center.service: Main process exited, code=exited, status=1/FAILURE
+Jun 20 14:42:48 stinky systemd[1]: kismet-operations-center.service: Failed with result 'exit-code'.
+Jun 20 14:42:48 stinky systemd[1]: kismet-operations-center.service: Consumed 1.721s CPU time.
+Jun 20 14:42:58 stinky systemd[1]: kismet-operations-center.service: Scheduled restart job, restart counter is at 267.
+Jun 20 14:42:58 stinky systemd[1]: Stopped kismet-operations-center.service - Kismet Operations Center - Node.js WiFi Monitoring Dashboard.
+Jun 20 14:42:58 stinky systemd[1]: kismet-operations-center.service: Consumed 1.721s CPU time.
+Jun 20 14:42:58 stinky systemd[1]: Started kismet-operations-center.service - Kismet Operations Center - Node.js WiFi Monitoring Dashboard.
+Jun 20 14:43:00 stinky systemd[1]: kismet-operations-center.service: Main process exited, code=exited, status=1/FAILURE
+Jun 20 14:43:00 stinky systemd[1]: kismet-operations-center.service: Failed with result 'exit-code'.
+Jun 20 14:43:00 stinky systemd[1]: kismet-operations-center.service: Consumed 1.670s CPU time.

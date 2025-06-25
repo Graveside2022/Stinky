@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>Wigle to TAK Converter</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="assets/css/styles.css">
+    <style>
+        /* Mobile-specific overrides */
+        @media (max-width: 768px) {
+            .container { padding-left: 0.75rem !important; padding-right: 0.75rem !important; }
+            header h1 { font-size: 1.25rem !important; }
+            .btn-cyber { font-size: 0.875rem !important; padding: 0.5rem 0.75rem !important; }
+            .grid-cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)) !important; }
+            body { overflow-x: hidden !important; }
+            table { font-size: 0.75rem !important; }
+            .overflow-x-auto { -webkit-overflow-scrolling: touch; }
+            #device-filter { width: 120px !important; }
+            .export-btn { display: none !important; }
+            #activity-log { height: 120px !important; }
+        }
+        /* Safe area adjustments */
+        @supports (padding: env(safe-area-inset-left)) {
+            .container {
+                padding-left: max(0.75rem, env(safe-area-inset-left));
+                padding-right: max(0.75rem, env(safe-area-inset-right));
+            }
+        }
+        /* Landscape optimization */
+        @media (max-width: 932px) and (orientation: landscape) {
+            header { padding: 0.5rem !important; }
+            .glass { padding: 0.75rem !important; }
+            #activity-log { height: 100px !important; }
+        }
+        /* Hide some columns on mobile */
+        @media (max-width: 480px) {
+            .hide-mobile { display: none !important; }
+        }
+    </style>
+</head>
+<body class="min-h-screen bg-dark-bg text-text-primary font-sans flex flex-col overflow-x-hidden">
+    <!-- Background Effects - Optimized for mobile -->
+    <div class="fixed inset-0 -z-20">
+        <div class="absolute inset-0 bg-gradient-to-br from-dark-bg via-dark-surface to-dark-bg"></div>
+        <div class="absolute inset-0 opacity-20 md:opacity-40 bg-[url('data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2270%22%20height%3D%2270%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Cdefs%3E%3Cpattern%20id%3D%22grid%22%20width%3D%2270%22%20height%3D%2270%22%20patternUnits%3D%22userSpaceOnUse%22%3E%3Cpath%20d%3D%22M%200%2010%20L%2070%2010%20M%2010%200%20L%2010%2070%22%20stroke%3D%22%2300d2ff%22%20stroke-opacity%3D%220.1%22%20stroke-width%3D%221%22%2F%3E%3C%2Fpattern%3E%3C%2Fdefs%3E%3Crect%20width%3D%22100%25%22%20height%3D%22100%25%22%20fill%3D%22url(%23grid)%22%2F%3E%3C%2Fsvg%3E')] animate-background-pan-slow"></div>
+    </div>
+
+    <!-- Top Banner - Smaller on mobile -->
+    <header class="w-full bg-glass-dark backdrop-blur-sm border-b border-cyber-blue/40 shadow-cyber-glow px-4 py-2 md:px-6 md:py-3 text-center flex-shrink-0 z-10">
+        <h1 class="text-xl md:text-3xl font-bold uppercase tracking-wider md:tracking-cyber-wide text-cyber-blue animate-pulse-glow">
+            WIGLE TO TAK CONVERTER
+        </h1>
+    </header>
+
+    <!-- Main Content -->
+    <div class="container mx-auto px-3 md:px-4 py-3 md:py-6 flex-1 max-w-6xl w-full">
+        <!-- Status and Controls - Stack on mobile -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-3 md:gap-6 mb-3 md:mb-6">
+            <!-- Configuration Panel -->
+            <div class="glass rounded-cyber-lg p-3 md:p-6 shadow-cyber">
+                <h2 class="text-lg md:text-xl font-bold text-cyber-cyan mb-3 md:mb-4">Configuration</h2>
+                
+                <form id="config-form" class="space-y-3 md:space-y-4">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
+                        <div>
+                            <label class="block text-xs md:text-sm font-medium text-text-secondary mb-1 md:mb-2">TAK Server IP</label>
+                            <input type="text" id="tak-ip" class="input-cyber text-sm md:text-base" value="239.2.3.1" placeholder="239.2.3.1">
+                        </div>
+                        <div>
+                            <label class="block text-xs md:text-sm font-medium text-text-secondary mb-1 md:mb-2">TAK Port</label>
+                            <input type="number" id="tak-port" class="input-cyber text-sm md:text-base" value="6969" placeholder="6969">
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
+                        <div>
+                            <label class="block text-xs md:text-sm font-medium text-text-secondary mb-1 md:mb-2">Update Interval (sec)</label>
+                            <input type="number" id="update-interval" class="input-cyber text-sm md:text-base" value="5" min="1" max="60">
+                        </div>
+                        <div>
+                            <label class="block text-xs md:text-sm font-medium text-text-secondary mb-1 md:mb-2">Source Mode</label>
+                            <select id="source-mode" class="input-cyber text-sm md:text-base">
+                                <option value="realtime">Real-time (Kismet)</option>
+                                <option value="file">File Upload</option>
+                                <option value="demo">Demo Mode</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="pt-3 md:pt-4">
+                        <button type="submit" class="btn-cyber text-sm md:text-base bg-cyber-green/20 border border-cyber-green text-cyber-green hover:bg-cyber-green/30 w-full">
+                            Apply Configuration
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Status Panel -->
+            <div class="glass rounded-cyber-lg p-3 md:p-6 shadow-cyber">
+                <h2 class="text-lg md:text-xl font-bold text-cyber-cyan mb-3 md:mb-4">Service Status</h2>
+                
+                <div class="space-y-3 md:space-y-4">
+                    <!-- Service Indicators -->
+                    <div class="grid grid-cols-2 gap-3 md:gap-4">
+                        <div class="bg-dark-elevated rounded-cyber p-2.5 md:p-4">
+                            <div class="flex items-center mb-1 md:mb-2">
+                                <span class="status-dot inactive mr-1.5 md:mr-2" id="wigle-status"></span>
+                                <span class="text-xs md:text-sm font-medium">WigleToTAK</span>
+                            </div>
+                            <p class="text-xs text-text-tertiary" id="wigle-status-text">Offline</p>
+                        </div>
+                        <div class="bg-dark-elevated rounded-cyber p-2.5 md:p-4">
+                            <div class="flex items-center mb-1 md:mb-2">
+                                <span class="status-dot inactive mr-1.5 md:mr-2" id="tak-status"></span>
+                                <span class="text-xs md:text-sm font-medium">TAK Server</span>
+                            </div>
+                            <p class="text-xs text-text-tertiary" id="tak-status-text">Not Connected</p>
+                        </div>
+                    </div>
+
+                    <!-- Statistics -->
+                    <div class="grid grid-cols-3 gap-2">
+                        <div class="bg-dark-elevated rounded-cyber p-2 md:p-3 text-center">
+                            <p class="text-lg md:text-2xl font-bold text-cyber-green" id="devices-converted">0</p>
+                            <p class="text-xs text-text-tertiary">Devices</p>
+                        </div>
+                        <div class="bg-dark-elevated rounded-cyber p-2 md:p-3 text-center">
+                            <p class="text-lg md:text-2xl font-bold text-cyber-blue" id="packets-sent">0</p>
+                            <p class="text-xs text-text-tertiary">Packets</p>
+                        </div>
+                        <div class="bg-dark-elevated rounded-cyber p-2 md:p-3 text-center">
+                            <p class="text-lg md:text-2xl font-bold text-cyber-yellow" id="conversion-rate">0/s</p>
+                            <p class="text-xs text-text-tertiary">Rate</p>
+                        </div>
+                    </div>
+
+                    <!-- Control Buttons -->
+                    <div class="grid grid-cols-2 gap-3 md:gap-4">
+                        <button class="btn-cyber text-sm md:text-base bg-cyber-green/20 border border-cyber-green text-cyber-green hover:bg-cyber-green/30" onclick="startConversion()">
+                            Start
+                        </button>
+                        <button class="btn-cyber text-sm md:text-base bg-cyber-red/20 border border-cyber-red text-cyber-red hover:bg-cyber-red/30" onclick="stopConversion()">
+                            Stop
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Device List -->
+        <div class="glass rounded-cyber-lg p-3 md:p-6 shadow-cyber">
+            <div class="flex items-center justify-between mb-3 md:mb-4">
+                <h2 class="text-lg md:text-xl font-bold text-cyber-cyan">Active Devices</h2>
+                <div class="flex items-center gap-2 md:gap-4">
+                    <input type="text" id="device-filter" class="input-cyber text-sm md:text-base w-32 md:w-64" placeholder="Filter...">
+                    <button class="btn-cyber export-btn bg-cyber-blue/20 border border-cyber-blue text-cyber-blue hover:bg-cyber-blue/30 px-3 py-1.5 md:px-4 md:py-2 text-sm md:text-base" onclick="exportDevices()">
+                        Export
+                    </button>
+                </div>
+            </div>
+
+            <div class="overflow-x-auto -mx-3 px-3 md:mx-0 md:px-0">
+                <table class="w-full min-w-[500px]">
+                    <thead>
+                        <tr class="border-b border-cyber-blue/30">
+                            <th class="px-2 md:px-4 py-1.5 md:py-2 text-left text-xs md:text-sm text-text-secondary cursor-pointer hover:text-cyber-blue" onclick="sortDevices('mac')">
+                                MAC <span class="text-xs">↕</span>
+                            </th>
+                            <th class="px-2 md:px-4 py-1.5 md:py-2 text-left text-xs md:text-sm text-text-secondary cursor-pointer hover:text-cyber-blue hide-mobile" onclick="sortDevices('type')">
+                                Type <span class="text-xs">↕</span>
+                            </th>
+                            <th class="px-2 md:px-4 py-1.5 md:py-2 text-left text-xs md:text-sm text-text-secondary cursor-pointer hover:text-cyber-blue" onclick="sortDevices('ssid')">
+                                SSID <span class="text-xs">↕</span>
+                            </th>
+                            <th class="px-2 md:px-4 py-1.5 md:py-2 text-left text-xs md:text-sm text-text-secondary cursor-pointer hover:text-cyber-blue" onclick="sortDevices('signal')">
+                                Signal <span class="text-xs">↕</span>
+                            </th>
+                            <th class="px-2 md:px-4 py-1.5 md:py-2 text-left text-xs md:text-sm text-text-secondary cursor-pointer hover:text-cyber-blue hide-mobile" onclick="sortDevices('lastseen')">
+                                Last Seen <span class="text-xs">↕</span>
+                            </th>
+                            <th class="px-2 md:px-4 py-1.5 md:py-2 text-left text-xs md:text-sm text-text-secondary">Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="device-list">
+                        <tr>
+                            <td colspan="6" class="px-2 md:px-4 py-6 md:py-8 text-center text-xs md:text-sm text-text-tertiary">
+                                No devices detected. Start the conversion service to begin.
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Pagination -->
+            <div class="flex items-center justify-between mt-3 md:mt-4">
+                <div class="text-xs md:text-sm text-text-secondary">
+                    <span id="showing-start">0</span>-<span id="showing-end">0</span> of <span id="total-devices">0</span>
+                </div>
+                <div class="flex gap-2">
+                    <button class="px-2 py-1 md:px-3 bg-dark-elevated rounded-cyber text-xs md:text-sm text-text-secondary hover:text-cyber-blue disabled:opacity-50" onclick="previousPage()" id="prev-page" disabled>
+                        Prev
+                    </button>
+                    <button class="px-2 py-1 md:px-3 bg-dark-elevated rounded-cyber text-xs md:text-sm text-text-secondary hover:text-cyber-blue disabled:opacity-50" onclick="nextPage()" id="next-page" disabled>
+                        Next
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Activity Log -->
+        <div class="glass rounded-cyber-lg p-3 md:p-6 shadow-cyber mt-3 md:mt-6">
+            <div class="flex items-center justify-between mb-3 md:mb-4">
+                <h2 class="text-lg md:text-xl font-bold text-cyber-cyan">Activity Log</h2>
+                <button class="text-xs md:text-sm text-cyber-blue hover:text-cyber-cyan" onclick="clearLog()">
+                    Clear
+                </button>
+            </div>
+            
+            <div id="activity-log" class="h-32 md:h-48 overflow-y-auto scrollbar-cyber bg-dark-elevated rounded-cyber p-2 md:p-4 space-y-1 font-mono text-xs md:text-sm">
+                <div class="text-text-tertiary">[System] WigleToTAK converter initialized</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript -->
+    <script src="assets/js/wigle.js"></script>
+    <script>
+        // Mobile viewport height fix
+        function setVH() {
+            let vh = window.innerHeight * 0.01;
+            document.documentElement.style.setProperty('--vh', `${vh}px`);
+        }
+        setVH();
+        window.addEventListener('resize', setVH);
+        window.addEventListener('orientationchange', setVH);
+    </script>
+</body>
+</html>

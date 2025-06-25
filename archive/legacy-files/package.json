@@ -1,0 +1,71 @@
+{
+  "name": "stinkster",
+  "version": "1.0.0",
+  "description": "Raspberry Pi-based SDR and WiFi intelligence platform with TAK integration",
+  "keywords": [
+    "sdr",
+    "hackrf",
+    "wifi",
+    "kismet",
+    "tak",
+    "gps",
+    "raspberry-pi",
+    "iot",
+    "security",
+    "monitoring",
+    "radio",
+    "spectrum-analyzer"
+  ],
+  "homepage": "https://github.com/yourusername/stinkster#readme",
+  "bugs": {
+    "url": "https://github.com/yourusername/stinkster/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/yourusername/stinkster.git"
+  },
+  "license": "MIT",
+  "author": "Your Name <your.email@example.com>",
+  "main": "index.js",
+  "scripts": {
+    "dev": "tailwindcss -i ./src/styles.css -o ./assets/css/styles.css --watch",
+    "build": "npm run build:css && npm run build:minify",
+    "build:css": "tailwindcss -i ./src/styles.css -o ./assets/css/styles.css",
+    "build:minify": "tailwindcss -i ./src/styles.css -o ./assets/css/styles.min.css --minify",
+    "build:critical": "node scripts/extract-critical.js",
+    "analyze": "node scripts/analyze-bundle.js",
+    "serve": "npx http-server . -p 8080"
+  },
+  "dependencies": {
+    "tailwindcss": "^3.3.0",
+    "@tailwindcss/forms": "^0.5.7",
+    "@tailwindcss/typography": "^0.5.10",
+    "@tailwindcss/container-queries": "^0.1.1"
+  },
+  "devDependencies": {
+    "autoprefixer": "^10.4.16",
+    "postcss": "^8.4.32",
+    "cssnano": "^6.0.2",
+    "http-server": "^14.1.1"
+  },
+  "browserslist": [
+    "> 1%",
+    "last 2 versions",
+    "not dead",
+    "not ie 11"
+  ],
+  "engines": {
+    "node": ">=16.0.0",
+    "npm": ">=7.0.0"
+  },
+  "files": [
+    "assets/",
+    "src/",
+    "index.html",
+    "*.html",
+    "LICENSE",
+    "README.md",
+    "CONTRIBUTING.md",
+    "SECURITY.md"
+  ]
+}

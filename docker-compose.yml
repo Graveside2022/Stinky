@@ -1,0 +1,37 @@
+services:
+  openwebrx:
+    image: openwebrx-hackrf-only:latest
+    container_name: openwebrx
+    restart: unless-stopped
+    ports:
+      - "8073:8073"
+    volumes:
+      - /dev/bus/usb:/dev/bus/usb
+      # Mount auto-start HackRF configuration (with always_on and open squelch)
+      - ./config/openwebrx-profiles/openwebrx-hackrf-config.json:/var/lib/openwebrx/sdrs.json
+      # Mount auto-start settings
+      - ./docker/config/settings.json:/var/lib/openwebrx/settings.json
+      # Mount custom entrypoint for auto-activation
+      - ./docker/simple-entrypoint.sh:/custom-entrypoint.sh
+      # Note: Removed openwebrx-settings volume to avoid conflict with sdrs.json mount
+      - openwebrx-config:/etc/openwebrx
+    devices:
+      - /dev/bus/usb:/dev/bus/usb
+    privileged: true
+    environment:
+      - OPENWEBRX_ADMIN_USER=admin
+      - OPENWEBRX_ADMIN_PASSWORD=hackrf
+      - OPENWEBRX_AUTOSTART=true
+      - OPENWEBRX_DEFAULT_PROFILE=fm_broadcast
+    # Use HackRF-specific entrypoint from the custom image
+    entrypoint: ["/opt/openwebrx/start-hackrf.sh"]
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8073"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    
+volumes:
+  openwebrx-settings:
+  openwebrx-config:

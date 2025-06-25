@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Offline Tiles</title>
+    <link href="https://cesium.com/downloads/cesiumjs/releases/1.119/Build/Cesium/Widgets/widgets.css" rel="stylesheet">
+    <script src="https://cesium.com/downloads/cesiumjs/releases/1.119/Build/Cesium/Cesium.js"></script>
+    <script src="/js/cesium-offline-config.js"></script>
+    <style>
+        body { margin: 0; padding: 0; font-family: Arial, sans-serif; }
+        #cesiumContainer { width: 100%; height: 600px; }
+        .status { background: #333; color: #fff; padding: 10px; }
+        .controls { padding: 10px; background: #f0f0f0; }
+        button { margin: 5px; padding: 5px 10px; }
+    </style>
+</head>
+<body>
+    <div class="status">
+        <h2>Offline Tiles Test</h2>
+        <p id="status">Initializing...</p>
+    </div>
+    <div class="controls">
+        <button onclick="toggleLayer()">Toggle Online/Offline</button>
+        <button onclick="testTileUrl()">Test Tile URL</button>
+        <span id="current-layer">Current: Loading...</span>
+    </div>
+    <div id="cesiumContainer"></div>
+    
+    <script>
+        let viewer = null;
+        let layerInfo = null;
+        let currentIsOffline = true;
+        
+        async function initialize() {
+            const status = document.getElementById('status');
+            
+            try {
+                // Set Cesium Ion token
+                Cesium.Ion.defaultAccessToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiJlYWE1OWUxNy1mMWZiLTQzYjYtYTQ0OS1kMWFjYmFkNjc5YzAiLCJpZCI6NTc3MzMsImlhdCI6MTYyNzg0NTE4Mn0.XcKpgANiY19MC4bdFUXMVEBToBmqS8kuYpUlxJHYZxk';
+                
+                // Create viewer
+                viewer = new Cesium.Viewer('cesiumContainer', {
+                    terrainProvider: new Cesium.EllipsoidTerrainProvider(),
+                    imageryProvider: false,
+                    baseLayerPicker: false,
+                    geocoder: false,
+                    homeButton: false,
+                    sceneModePicker: false,
+                    navigationHelpButton: false,
+                    animation: false,
+                    timeline: false,
+                    fullscreenButton: false,
+                    vrButton: false
+                });
+                
+                // Initialize imagery
+                layerInfo = await window.CesiumOfflineConfig.initializeImagery(viewer);
+                
+                if (layerInfo.offline) {
+                    status.innerHTML = '✓ Offline tiles loaded successfully!';
+                    currentIsOffline = true;
+                    document.getElementById('current-layer').textContent = 'Current: Offline Tiles';
+                } else {
+                    status.innerHTML = '⚠ Offline tiles not available, using online imagery';
+                    currentIsOffline = false;
+                    document.getElementById('current-layer').textContent = 'Current: Online Tiles';
+                }
+                
+                // Set view to world
+                viewer.scene.camera.setView({
+                    destination: Cesium.Cartesian3.fromDegrees(0, 0, 20000000)
+                });
+                
+            } catch (error) {
+                status.innerHTML = '✗ Error: ' + error.message;
+                console.error('Initialization error:', error);
+            }
+        }
+        
+        function toggleLayer() {
+            if (!layerInfo) return;
+            
+            if (layerInfo.offline) {
+                if (currentIsOffline && layerInfo.onlineLayer) {
+                    layerInfo.offlineLayer.show = false;
+                    layerInfo.onlineLayer.show = true;
+                    currentIsOffline = false;
+                    document.getElementById('current-layer').textContent = 'Current: Online Tiles';
+                } else if (!currentIsOffline && layerInfo.offlineLayer) {
+                    layerInfo.offlineLayer.show = true;
+                    layerInfo.onlineLayer.show = false;
+                    currentIsOffline = true;
+                    document.getElementById('current-layer').textContent = 'Current: Offline Tiles';
+                }
+            }
+        }
+        
+        async function testTileUrl() {
+            const testUrl = '/offline-tiles/tiles/2/1/1.png';
+            try {
+                const response = await fetch(testUrl);
+                if (response.ok) {
+                    alert(`Tile test successful!\nURL: ${testUrl}\nStatus: ${response.status}`);
+                } else {
+                    alert(`Tile test failed!\nURL: ${testUrl}\nStatus: ${response.status}`);
+                }
+            } catch (error) {
+                alert(`Tile test error: ${error.message}`);
+            }
+        }
+        
+        // Initialize when page loads
+        window.onload = initialize;
+    </script>
+</body>
+</html>

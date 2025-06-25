@@ -1,0 +1,326 @@
+/* WigleToTAK Interface Styles */
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 10px;
+    line-height: 1.6;
+    background-color: #000;
+    color: #ffcc00;
+}
+
+.container {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+
+.controls-column {
+    flex: 1;
+    min-width: 300px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.instructions-column {
+    flex: 2;
+    min-width: 400px;
+    background-color: #000;
+    border: 2px solid #ffcc00;
+    border-radius: 5px;
+    padding: 15px;
+}
+
+.section {
+    background-color: #000;
+    border: 2px solid #ffcc00;
+    border-radius: 5px;
+    padding: 15px;
+    margin-bottom: 5px;
+}
+
+h1 {
+    color: #ffcc00;
+    margin-top: 0;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+h2 {
+    color: #ffcc00;
+    margin-top: 0;
+    margin-bottom: 10px;
+    font-size: 1.2em;
+}
+
+.status-indicators {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 15px;
+    flex-wrap: wrap;
+}
+
+.status-item {
+    flex: 1;
+    min-width: 120px;
+    text-align: center;
+    padding: 10px;
+    border-radius: 5px;
+    border: 1px solid #ffcc00;
+}
+
+.status-item.active {
+    background-color: #004400;
+    color: #00ff00;
+    border-color: #00ff00;
+}
+
+.status-item.inactive {
+    background-color: #440000;
+    color: #ff4444;
+    border-color: #ff4444;
+}
+
+input[type="text"], 
+input[type="number"], 
+select {
+    width: 100%;
+    padding: 8px;
+    margin: 5px 0;
+    background-color: #fff;
+    border: 1px solid #ccc;
+    border-radius: 3px;
+    box-sizing: border-box;
+    color: #000;
+}
+
+input[type="file"] {
+    width: 100%;
+    padding: 8px;
+    margin: 5px 0;
+    background-color: #fff;
+    border: 1px solid #ccc;
+    border-radius: 3px;
+    color: #000;
+}
+
+input[type="checkbox"] {
+    margin-right: 8px;
+    vertical-align: middle;
+    transform: scale(1.2);
+}
+
+button {
+    padding: 10px 15px;
+    margin: 5px 5px 5px 0;
+    cursor: pointer;
+    border-radius: 5px;
+    border: none;
+    font-weight: bold;
+    transition: background-color 0.3s;
+}
+
+button.green {
+    background-color: #4CAF50;
+    color: white;
+}
+
+button.green:hover {
+    background-color: #45a049;
+}
+
+button.red {
+    background-color: #f44336;
+    color: white;
+}
+
+button.red:hover {
+    background-color: #da190b;
+}
+
+button.blue {
+    background-color: #2196F3;
+    color: white;
+}
+
+button.blue:hover {
+    background-color: #1976D2;
+}
+
+button:disabled {
+    background-color: #666;
+    color: #ccc;
+    cursor: not-allowed;
+}
+
+.description {
+    margin-top: 5px;
+    font-size: 0.9em;
+    color: #cccccc;
+}
+
+.toggle {
+    display: flex;
+    align-items: center;
+    margin: 10px 0;
+    gap: 10px;
+}
+
+.toggle label {
+    cursor: pointer;
+}
+
+.hidden {
+    display: none;
+}
+
+.list-container {
+    width: 100%;
+    max-height: 150px;
+    overflow-y: auto;
+    margin-top: 10px;
+    background-color: #111;
+    border: 1px solid #ffcc00;
+    border-radius: 3px;
+}
+
+.list-item {
+    padding: 8px;
+    border-bottom: 1px solid #333;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.list-item:hover {
+    background-color: #333;
+}
+
+.list-item:last-child {
+    border-bottom: none;
+}
+
+.instruction-section {
+    margin-bottom: 15px;
+}
+
+.instruction-title {
+    color: #ffcc00;
+    margin-bottom: 5px;
+    font-weight: bold;
+}
+
+.control-group {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-top: 10px;
+}
+
+.form-row {
+    display: flex;
+    gap: 15px;
+    align-items: end;
+    flex-wrap: wrap;
+}
+
+.form-col {
+    flex: 1;
+    min-width: 120px;
+}
+
+.progress-bar {
+    width: 100%;
+    height: 20px;
+    background-color: #333;
+    border-radius: 10px;
+    overflow: hidden;
+    margin: 10px 0;
+}
+
+.progress-fill {
+    height: 100%;
+    background-color: #4CAF50;
+    width: 0%;
+    transition: width 0.3s;
+}
+
+.log-output {
+    background-color: #111;
+    border: 1px solid #ffcc00;
+    border-radius: 3px;
+    padding: 10px;
+    height: 200px;
+    overflow-y: auto;
+    font-family: 'Courier New', monospace;
+    font-size: 12px;
+    margin-top: 10px;
+}
+
+.file-info {
+    background-color: #112;
+    border: 1px solid #ffcc00;
+    border-radius: 3px;
+    padding: 10px;
+    margin-top: 10px;
+    font-size: 14px;
+}
+
+/* Responsive design */
+@media (max-width: 1024px) {
+    .container {
+        flex-direction: column;
+    }
+    
+    .controls-column {
+        min-width: auto;
+    }
+    
+    .instructions-column {
+        min-width: auto;
+    }
+}
+
+@media (max-width: 768px) {
+    body {
+        padding: 5px;
+    }
+    
+    .form-row {
+        flex-direction: column;
+    }
+    
+    .form-col {
+        min-width: auto;
+    }
+    
+    .status-indicators {
+        flex-direction: column;
+    }
+    
+    .control-group {
+        flex-direction: column;
+    }
+    
+    button {
+        width: 100%;
+        margin: 5px 0;
+    }
+}
+
+@media (max-width: 480px) {
+    h1 {
+        font-size: 1.5em;
+    }
+    
+    h2 {
+        font-size: 1.1em;
+    }
+    
+    .section {
+        padding: 10px;
+    }
+    
+    .log-output {
+        height: 150px;
+    }
+}

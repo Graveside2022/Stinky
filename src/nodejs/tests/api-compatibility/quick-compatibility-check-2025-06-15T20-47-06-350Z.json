@@ -1,0 +1,95 @@
+{
+  "timestamp": "2025-06-15T20:47:06.352Z",
+  "user": "Christian",
+  "agent": "Agent 5 - API Compatibility Validation",
+  "results": [
+    {
+      "name": "Spectrum Status Flask",
+      "url": "http://localhost:8092/api/status",
+      "success": true,
+      "status": 200,
+      "responseTime": 65,
+      "contentType": "application/json",
+      "data": "{\"config\":{\"center_freq\":0,\"fft_compression\":\"none\",\"fft_size\":0,\"samp_rate\":0},\"fft_buffer_size\":0,\"last_fft_time\":null,\"mode\":\"DEMO MODE\",\"openwebrx_connected\":false,\"real_data\":false}\n",
+      "issues": [
+        "Missing expected field: connected",
+        "Missing expected field: center_freq"
+      ],
+      "parsedData": {
+        "config": {
+          "center_freq": 0,
+          "fft_compression": "none",
+          "fft_size": 0,
+          "samp_rate": 0
+        },
+        "fft_buffer_size": 0,
+        "last_fft_time": null,
+        "mode": "DEMO MODE",
+        "openwebrx_connected": false,
+        "real_data": false
+      }
+    },
+    {
+      "name": "Spectrum Status Node.js",
+      "url": "http://localhost:3001/api/status",
+      "success": false,
+      "error": "",
+      "responseTime": 9,
+      "issues": [
+        "Request failed: "
+      ]
+    },
+    {
+      "name": "Spectrum Config Flask",
+      "url": "http://localhost:8092/api/config",
+      "success": true,
+      "status": 404,
+      "responseTime": 9,
+      "contentType": "text/html; charset=utf-8",
+      "data": "<!doctype html>\n<html lang=en>\n<title>404 Not Found</title>\n<h1>Not Found</h1>\n<p>The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.</p>\n",
+      "issues": [
+        "Expected status 200, got 404",
+        "Invalid JSON response: Unexpected token '<', \"<!doctype \"... is not valid JSON"
+      ]
+    },
+    {
+      "name": "Spectrum Config Node.js",
+      "url": "http://localhost:3001/api/config",
+      "success": false,
+      "error": "",
+      "responseTime": 6,
+      "issues": [
+        "Request failed: "
+      ]
+    },
+    {
+      "name": "WigleToTAK Status Flask",
+      "url": "http://localhost:8000/api/status",
+      "success": true,
+      "status": 404,
+      "responseTime": 13,
+      "contentType": "text/html; charset=utf-8",
+      "data": "<!doctype html>\n<html lang=en>\n<title>404 Not Found</title>\n<h1>Not Found</h1>\n<p>The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.</p>\n",
+      "issues": [
+        "Expected status 200, got 404",
+        "Invalid JSON response: Unexpected token '<', \"<!doctype \"... is not valid JSON"
+      ]
+    },
+    {
+      "name": "WigleToTAK Status Node.js",
+      "url": "http://localhost:3002/api/status",
+      "success": false,
+      "error": "",
+      "responseTime": 8,
+      "issues": [
+        "Request failed: "
+      ]
+    }
+  ],
+  "summary": {
+    "total": 6,
+    "successful": 3,
+    "compatible": 0,
+    "success_rate": 0
+  }
+}

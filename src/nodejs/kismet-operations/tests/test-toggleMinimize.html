@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test toggleMinimize Function</title>
+    <style>
+        body {
+            margin: 20px;
+            font-family: Arial, sans-serif;
+            background: #030610;
+            color: #d0d8f0;
+        }
+        .test-results {
+            background: rgba(12, 22, 48, 0.85);
+            border: 1px solid rgba(0, 210, 255, 0.3);
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+        }
+        .success {
+            color: #00ff88;
+        }
+        .fail {
+            color: #ff4444;
+        }
+        .test-case {
+            margin: 10px 0;
+            padding: 10px;
+            background: rgba(26, 31, 58, 1);
+            border-radius: 4px;
+        }
+        #demo-container {
+            border: 1px solid #00d2ff;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        .grid-item {
+            background: rgba(12, 22, 48, 0.85);
+            border: 1px solid rgba(0, 210, 255, 0.3);
+            border-radius: 8px;
+            overflow: hidden;
+            margin-bottom: 1rem;
+        }
+        .box-header {
+            background: linear-gradient(90deg, 
+                rgba(0, 210, 255, 0.1) 0%, 
+                rgba(0, 210, 255, 0.2) 50%,
+                rgba(0, 210, 255, 0.1) 100%);
+            border-bottom: 1px solid rgba(0, 210, 255, 0.3);
+            padding: 0.75rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .box-header h2 {
+            color: #00d2ff;
+            margin: 0;
+            font-size: 1rem;
+            font-weight: 600;
+        }
+        .grid-item-content {
+            padding: 1rem;
+        }
+        .hidden {
+            display: none !important;
+        }
+        .grid-item.minimized {
+            display: none !important;
+        }
+        #minimized-tabs {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 40px;
+            background: rgba(12, 22, 48, 0.95);
+            border-bottom: 1px solid rgba(0, 210, 255, 0.35);
+            padding: 0.25rem 0.5rem;
+            display: flex;
+            gap: 0.5rem;
+            z-index: 90;
+        }
+        .nav-tab {
+            background: rgba(0, 50, 80, 0.7);
+            border: 1px solid rgba(0, 210, 255, 0.3);
+            border-radius: 4px;
+            padding: 0.5rem 1rem;
+            color: #b8c5e0;
+            cursor: pointer;
+            font-size: 0.875rem;
+        }
+        .minimized-tab {
+            background: rgba(0, 210, 255, 0.1) !important;
+            border: 1px solid rgba(0, 210, 255, 0.5) !important;
+        }
+    </style>
+</head>
+<body>
+    <h1>toggleMinimize() Function Test Suite</h1>
+    
+    <!-- Demo Container -->
+    <div id="demo-container">
+        <h2>Demo Box</h2>
+        
+        <!-- Minimized Tabs Bar -->
+        <div id="minimized-tabs" class="hidden"></div>
+        
+        <!-- Test Grid Item -->
+        <div class="grid-item" id="test-container">
+            <div class="box-header">
+                <h2>Test Widget</h2>
+                <button onclick="toggleMinimize(this)" style="background: none; border: none; color: #00d2ff; cursor: pointer;">
+                    <svg style="width: 20px; height: 20px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"></path>
+                    </svg>
+                </button>
+            </div>
+            <div class="grid-item-content">
+                <p>This is test content that should be hidden when minimized.</p>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Test Results -->
+    <div class="test-results">
+        <h2>Test Results</h2>
+        <div id="test-output"></div>
+        <button onclick="runTests()" style="margin-top: 10px; padding: 10px 20px; background: #00d2ff; color: #000; border: none; cursor: pointer;">Run Tests</button>
+    </div>
+    
+    <script>
+        // Import the functions from index.html
+        const minimizedContainers = new Map();
+        
+        function toggleMinimize(button) {
+            const gridItem = button.closest('.grid-item');
+            if (!gridItem || !gridItem.id) {
+                console.error('Cannot find grid item or it has no ID');
+                return;
+            }
+            
+            const containerId = gridItem.id;
+            const headerElement = gridItem.querySelector('.box-header h2');
+            const title = headerElement ? headerElement.textContent : 'Untitled';
+            
+            if (minimizedContainers.has(containerId)) {
+                const tabElement = minimizedContainers.get(containerId);
+                restoreFromTab(containerId, tabElement);
+                minimizedContainers.delete(containerId);
+                
+                const svg = button.querySelector('svg path');
+                if (svg) {
+                    svg.setAttribute('d', 'M20 12H4');
+                }
+            } else {
+                const tab = createMinimizedTab(containerId, title);
+                minimizeToTab(containerId, title);
+                minimizedContainers.set(containerId, tab);
+                
+                const svg = button.querySelector('svg path');
+                if (svg) {
+                    svg.setAttribute('d', 'M4 6h16M4 12h16M4 18h16');
+                }
+            }
+        }
+        
+        function createMinimizedTab(containerId, title) {
+            const minimizedTabs = document.getElementById('minimized-tabs');
+            minimizedTabs.classList.remove('hidden');
+            
+            const tab = document.createElement('button');
+            tab.className = 'nav-tab active minimized-tab';
+            tab.style.fontSize = '0.75rem';
+            tab.style.padding = '0.25rem 0.75rem';
+            tab.setAttribute('data-container-id', containerId);
+            tab.textContent = title;
+            tab.onclick = function() {
+                const button = document.querySelector(`#${containerId} .box-header button[onclick*="toggleMinimize"]`);
+                if (button) {
+                    toggleMinimize(button);
+                }
+            };
+            
+            minimizedTabs.appendChild(tab);
+            return tab;
+        }
+        
+        function minimizeToTab(containerId, title) {
+            const container = document.getElementById(containerId);
+            if (!container) {
+                console.error('Container not found:', containerId);
+                return;
+            }
+            
+            container.classList.add('minimized');
+            
+            const minimizedTabs = document.getElementById('minimized-tabs');
+            minimizedTabs.classList.remove('hidden');
+            
+            let tab = minimizedTabs.querySelector(`[data-container-id="${containerId}"]`);
+            if (!tab) {
+                tab = document.createElement('button');
+                tab.className = 'nav-tab active minimized-tab';
+                tab.style.fontSize = '0.75rem';
+                tab.style.padding = '0.25rem 0.75rem';
+                tab.setAttribute('data-container-id', containerId);
+                tab.textContent = title;
+                tab.onclick = function() {
+                    restoreFromTab(containerId, tab);
+                };
+                
+                minimizedTabs.appendChild(tab);
+            }
+            
+            return tab;
+        }
+        
+        function restoreFromTab(containerId, tabElement) {
+            const container = document.getElementById(containerId);
+            if (!container) {
+                console.error('Container not found for restore:', containerId);
+                return;
+            }
+            
+            container.classList.remove('minimized');
+            
+            if (minimizedContainers.has(containerId)) {
+                minimizedContainers.delete(containerId);
+            }
+            
+            const button = container.querySelector('.box-header button[onclick*="toggleMinimize"]');
+            if (button) {
+                const svg = button.querySelector('svg path');
+                if (svg) {
+                    svg.setAttribute('d', 'M20 12H4');
+                }
+            }
+            
+            if (tabElement) {
+                tabElement.remove();
+            }
+            
+            const minimizedTabs = document.getElementById('minimized-tabs');
+            if (minimizedTabs.children.length === 0) {
+                minimizedTabs.classList.add('hidden');
+            }
+        }
+        
+        // Test Suite
+        function runTests() {
+            const output = document.getElementById('test-output');
+            output.innerHTML = '';
+            let passed = 0;
+            let failed = 0;
+            
+            function logTest(name, result, details = '') {
+                const div = document.createElement('div');
+                div.className = 'test-case';
+                div.innerHTML = `
+                    <strong class="${result ? 'success' : 'fail'}">${result ? '✓' : '✗'} ${name}</strong>
+                    ${details ? `<br><small>${details}</small>` : ''}
+                `;
+                output.appendChild(div);
+                
+                if (result) passed++;
+                else failed++;
+            }
+            
+            // Reset state before tests
+            const container = document.getElementById('test-container');
+            const button = container.querySelector('button');
+            const minimizedTabs = document.getElementById('minimized-tabs');
+            
+            // Clear any existing state
+            container.classList.remove('minimized');
+            minimizedTabs.innerHTML = '';
+            minimizedTabs.classList.add('hidden');
+            minimizedContainers.clear();
+            
+            // Test 1: Initial state
+            logTest('Initial state check', 
+                !container.classList.contains('minimized') && 
+                minimizedTabs.classList.contains('hidden') &&
+                minimizedContainers.size === 0,
+                'Container visible, tabs hidden, map empty'
+            );
+            
+            // Test 2: First minimize
+            toggleMinimize(button);
+            logTest('First minimize', 
+                container.classList.contains('minimized') &&
+                !minimizedTabs.classList.contains('hidden') &&
+                minimizedContainers.has('test-container') &&
+                minimizedTabs.children.length === 1,
+                'Container hidden, tab created, state tracked'
+            );
+            
+            // Test 3: Icon change to restore
+            const svg1 = button.querySelector('svg path');
+            logTest('Icon changed to restore state',
+                svg1 && svg1.getAttribute('d') === 'M4 6h16M4 12h16M4 18h16',
+                'Icon shows restore state (three lines)'
+            );
+            
+            // Test 4: Restore via toggle
+            toggleMinimize(button);
+            logTest('Restore via toggle',
+                !container.classList.contains('minimized') &&
+                minimizedTabs.classList.contains('hidden') &&
+                !minimizedContainers.has('test-container') &&
+                minimizedTabs.children.length === 0,
+                'Container visible, tabs hidden, state cleared'
+            );
+            
+            // Test 5: Icon change back to minimize
+            const svg2 = button.querySelector('svg path');
+            logTest('Icon changed back to minimize state',
+                svg2 && svg2.getAttribute('d') === 'M20 12H4',
+                'Icon shows minimize state (single line)'
+            );
+            
+            // Test 6: Tab click restore
+            toggleMinimize(button); // Minimize again
+            const tab = minimizedTabs.querySelector('[data-container-id="test-container"]');
+            if (tab) {
+                tab.click();
+                logTest('Restore via tab click',
+                    !container.classList.contains('minimized') &&
+                    minimizedTabs.classList.contains('hidden'),
+                    'Container restored by clicking tab'
+                );
+            } else {
+                logTest('Restore via tab click', false, 'Tab not found');
+            }
+            
+            // Test 7: State persistence
+            toggleMinimize(button); // Minimize
+            const hasState1 = minimizedContainers.has('test-container');
+            toggleMinimize(button); // Restore
+            const hasState2 = minimizedContainers.has('test-container');
+            logTest('State tracking consistency',
+                hasState1 && !hasState2,
+                'State map properly tracks minimize/restore'
+            );
+            
+            // Summary
+            output.innerHTML += `
+                <div class="test-case" style="margin-top: 20px; border-top: 1px solid #00d2ff; padding-top: 10px;">
+                    <strong>Summary: ${passed} passed, ${failed} failed</strong>
+                </div>
+            `;
+        }
+        
+        // Run tests on load
+        window.addEventListener('DOMContentLoaded', runTests);
+    </script>
+</body>
+</html>

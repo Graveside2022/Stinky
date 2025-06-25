@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wigle to TAK Converter</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="assets/css/styles.css">
+</head>
+<body class="min-h-screen bg-dark-bg text-text-primary font-sans flex flex-col items-center">
+    <!-- Background Effects -->
+    <div class="fixed inset-0 -z-20">
+        <div class="absolute inset-0 bg-gradient-to-br from-dark-bg via-dark-surface to-dark-bg"></div>
+        <div class="absolute inset-0 opacity-40 bg-[url('data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2270%22%20height%3D%2270%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Cdefs%3E%3Cpattern%20id%3D%22grid%22%20width%3D%2270%22%20height%3D%2270%22%20patternUnits%3D%22userSpaceOnUse%22%3E%3Cpath%20d%3D%22M%200%2010%20L%2070%2010%20M%2010%200%20L%2010%2070%22%20stroke%3D%22%2300d2ff%22%20stroke-opacity%3D%220.1%22%20stroke-width%3D%221%22%2F%3E%3C%2Fpattern%3E%3C%2Fdefs%3E%3Crect%20width%3D%22100%25%22%20height%3D%22100%25%22%20fill%3D%22url(%23grid)%22%2F%3E%3C%2Fsvg%3E')] animate-background-pan-slow"></div>
+    </div>
+
+    <!-- Top Banner -->
+    <header class="w-full bg-glass-dark backdrop-blur-sm border-b border-cyber-blue/40 shadow-cyber-glow px-6 py-3 text-center flex-shrink-0 z-10">
+        <h1 class="text-3xl font-bold uppercase tracking-cyber-wide text-cyber-blue animate-pulse-glow">
+            WIGLE TO TAK CONVERTER
+        </h1>
+    </header>
+
+    <!-- Main Content -->
+    <div class="container mx-auto px-4 py-6 flex-1 max-w-6xl w-full">
+        <!-- Status and Controls -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+            <!-- Configuration Panel -->
+            <div class="glass rounded-cyber-lg p-6 shadow-cyber">
+                <h2 class="text-xl font-bold text-cyber-cyan mb-4">Configuration</h2>
+                
+                <form id="config-form" class="space-y-4">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-text-secondary mb-2">TAK Server IP</label>
+                            <input type="text" id="tak-ip" class="input-cyber" value="239.2.3.1" placeholder="239.2.3.1">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-text-secondary mb-2">TAK Port</label>
+                            <input type="number" id="tak-port" class="input-cyber" value="6969" placeholder="6969">
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-text-secondary mb-2">Update Interval (sec)</label>
+                            <input type="number" id="update-interval" class="input-cyber" value="5" min="1" max="60">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-text-secondary mb-2">Source Mode</label>
+                            <select id="source-mode" class="input-cyber">
+                                <option value="realtime">Real-time (Kismet)</option>
+                                <option value="file">File Upload</option>
+                                <option value="demo">Demo Mode</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="pt-4">
+                        <button type="submit" class="btn-cyber bg-cyber-green/20 border border-cyber-green text-cyber-green hover:bg-cyber-green/30 w-full">
+                            Apply Configuration
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Status Panel -->
+            <div class="glass rounded-cyber-lg p-6 shadow-cyber">
+                <h2 class="text-xl font-bold text-cyber-cyan mb-4">Service Status</h2>
+                
+                <div class="space-y-4">
+                    <!-- Service Indicators -->
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="bg-dark-elevated rounded-cyber p-4">
+                            <div class="flex items-center mb-2">
+                                <span class="status-dot inactive mr-2" id="wigle-status"></span>
+                                <span class="text-sm font-medium">WigleToTAK</span>
+                            </div>
+                            <p class="text-xs text-text-tertiary" id="wigle-status-text">Offline</p>
+                        </div>
+                        <div class="bg-dark-elevated rounded-cyber p-4">
+                            <div class="flex items-center mb-2">
+                                <span class="status-dot inactive mr-2" id="tak-status"></span>
+                                <span class="text-sm font-medium">TAK Server</span>
+                            </div>
+                            <p class="text-xs text-text-tertiary" id="tak-status-text">Not Connected</p>
+                        </div>
+                    </div>
+
+                    <!-- Statistics -->
+                    <div class="grid grid-cols-3 gap-2">
+                        <div class="bg-dark-elevated rounded-cyber p-3 text-center">
+                            <p class="text-2xl font-bold text-cyber-green" id="devices-converted">0</p>
+                            <p class="text-xs text-text-tertiary">Devices</p>
+                        </div>
+                        <div class="bg-dark-elevated rounded-cyber p-3 text-center">
+                            <p class="text-2xl font-bold text-cyber-blue" id="packets-sent">0</p>
+                            <p class="text-xs text-text-tertiary">Packets Sent</p>
+                        </div>
+                        <div class="bg-dark-elevated rounded-cyber p-3 text-center">
+                            <p class="text-2xl font-bold text-cyber-yellow" id="conversion-rate">0/s</p>
+                            <p class="text-xs text-text-tertiary">Rate</p>
+                        </div>
+                    </div>
+
+                    <!-- Control Buttons -->
+                    <div class="grid grid-cols-2 gap-4">
+                        <button class="btn-cyber bg-cyber-green/20 border border-cyber-green text-cyber-green hover:bg-cyber-green/30" onclick="startConversion()">
+                            Start Conversion
+                        </button>
+                        <button class="btn-cyber bg-cyber-red/20 border border-cyber-red text-cyber-red hover:bg-cyber-red/30" onclick="stopConversion()">
+                            Stop Conversion
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Device List -->
+        <div class="glass rounded-cyber-lg p-6 shadow-cyber">
+            <div class="flex items-center justify-between mb-4">
+                <h2 class="text-xl font-bold text-cyber-cyan">Active Devices</h2>
+                <div class="flex items-center gap-4">
+                    <input type="text" id="device-filter" class="input-cyber w-64" placeholder="Filter devices...">
+                    <button class="btn-cyber bg-cyber-blue/20 border border-cyber-blue text-cyber-blue hover:bg-cyber-blue/30 px-4 py-2" onclick="exportDevices()">
+                        Export CSV
+                    </button>
+                </div>
+            </div>
+
+            <div class="overflow-x-auto">
+                <table class="w-full">
+                    <thead>
+                        <tr class="border-b border-cyber-blue/30">
+                            <th class="px-4 py-2 text-left text-text-secondary cursor-pointer hover:text-cyber-blue" onclick="sortDevices('mac')">
+                                MAC Address <span class="text-xs">↕</span>
+                            </th>
+                            <th class="px-4 py-2 text-left text-text-secondary cursor-pointer hover:text-cyber-blue" onclick="sortDevices('type')">
+                                Type <span class="text-xs">↕</span>
+                            </th>
+                            <th class="px-4 py-2 text-left text-text-secondary cursor-pointer hover:text-cyber-blue" onclick="sortDevices('ssid')">
+                                SSID <span class="text-xs">↕</span>
+                            </th>
+                            <th class="px-4 py-2 text-left text-text-secondary cursor-pointer hover:text-cyber-blue" onclick="sortDevices('signal')">
+                                Signal <span class="text-xs">↕</span>
+                            </th>
+                            <th class="px-4 py-2 text-left text-text-secondary cursor-pointer hover:text-cyber-blue" onclick="sortDevices('lastseen')">
+                                Last Seen <span class="text-xs">↕</span>
+                            </th>
+                            <th class="px-4 py-2 text-left text-text-secondary">TAK Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="device-list">
+                        <tr>
+                            <td colspan="6" class="px-4 py-8 text-center text-text-tertiary">
+                                No devices detected. Start the conversion service to begin.
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Pagination -->
+            <div class="flex items-center justify-between mt-4">
+                <div class="text-sm text-text-secondary">
+                    Showing <span id="showing-start">0</span>-<span id="showing-end">0</span> of <span id="total-devices">0</span> devices
+                </div>
+                <div class="flex gap-2">
+                    <button class="px-3 py-1 bg-dark-elevated rounded-cyber text-text-secondary hover:text-cyber-blue disabled:opacity-50" onclick="previousPage()" id="prev-page" disabled>
+                        Previous
+                    </button>
+                    <button class="px-3 py-1 bg-dark-elevated rounded-cyber text-text-secondary hover:text-cyber-blue disabled:opacity-50" onclick="nextPage()" id="next-page" disabled>
+                        Next
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Activity Log -->
+        <div class="glass rounded-cyber-lg p-6 shadow-cyber mt-6">
+            <div class="flex items-center justify-between mb-4">
+                <h2 class="text-xl font-bold text-cyber-cyan">Activity Log</h2>
+                <button class="text-sm text-cyber-blue hover:text-cyber-cyan" onclick="clearLog()">
+                    Clear Log
+                </button>
+            </div>
+            
+            <div id="activity-log" class="h-48 overflow-y-auto scrollbar-cyber bg-dark-elevated rounded-cyber p-4 space-y-1 font-mono text-sm">
+                <div class="text-text-tertiary">[System] WigleToTAK converter initialized</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript -->
+    <script src="assets/js/wigle.js"></script>
+</body>
+</html>

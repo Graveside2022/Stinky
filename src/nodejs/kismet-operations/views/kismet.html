@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>Kismet Operations Center</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="assets/css/styles.css">
+    <style>
+        /* Mobile-specific overrides */
+        @media (max-width: 768px) {
+            #kismet-iframe { height: calc(100vh - 320px) !important; min-height: 400px !important; }
+            .container { padding-left: 0.75rem !important; padding-right: 0.75rem !important; }
+            header h1 { font-size: 1.25rem !important; }
+            .btn-cyber { font-size: 0.875rem !important; padding: 0.5rem 0.75rem !important; }
+            .grid-cols-4 { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; }
+            body { overflow-x: hidden !important; }
+            table { font-size: 0.75rem !important; }
+            .overflow-x-auto { -webkit-overflow-scrolling: touch; }
+        }
+        /* Safe area adjustments */
+        @supports (padding: env(safe-area-inset-left)) {
+            .container {
+                padding-left: max(0.75rem, env(safe-area-inset-left));
+                padding-right: max(0.75rem, env(safe-area-inset-right));
+            }
+        }
+        /* Landscape optimization */
+        @media (max-width: 932px) and (orientation: landscape) {
+            header { padding: 0.5rem !important; }
+            #kismet-iframe { height: calc(100vh - 200px) !important; }
+            .glass { padding: 0.75rem !important; }
+        }
+    </style>
+</head>
+<body class="min-h-screen bg-dark-bg text-text-primary font-sans flex flex-col overflow-x-hidden">
+    <!-- Background Effects - Optimized for mobile -->
+    <div class="fixed inset-0 -z-20">
+        <div class="absolute inset-0 bg-gradient-to-br from-dark-bg via-dark-surface to-dark-bg"></div>
+        <div class="absolute inset-0 opacity-20 md:opacity-40 bg-[url('data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2270%22%20height%3D%2270%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Cdefs%3E%3Cpattern%20id%3D%22grid%22%20width%3D%2270%22%20height%3D%2270%22%20patternUnits%3D%22userSpaceOnUse%22%3E%3Cpath%20d%3D%22M%200%2010%20L%2070%2010%20M%2010%200%20L%2010%2070%22%20stroke%3D%22%2300d2ff%22%20stroke-opacity%3D%220.1%22%20stroke-width%3D%221%22%2F%3E%3C%2Fpattern%3E%3C%2Fdefs%3E%3Crect%20width%3D%22100%25%22%20height%3D%22100%25%22%20fill%3D%22url(%23grid)%22%2F%3E%3C%2Fsvg%3E')] animate-background-pan-slow"></div>
+    </div>
+
+    <!-- Top Banner - Smaller on mobile -->
+    <header class="w-full bg-glass-dark backdrop-blur-sm border-b border-cyber-blue/40 shadow-cyber-glow px-4 py-2 md:px-6 md:py-3 text-center flex-shrink-0 z-10">
+        <h1 class="text-xl md:text-3xl font-bold uppercase tracking-wider md:tracking-cyber-wide text-cyber-blue animate-pulse-glow">
+            KISMET OPERATIONS CENTER
+        </h1>
+    </header>
+
+    <!-- Main Container -->
+    <div class="container mx-auto px-3 md:px-4 py-3 md:py-6 flex-1 max-w-7xl w-full">
+        <!-- Control Panel -->
+        <div class="glass rounded-cyber-lg p-3 md:p-6 mb-3 md:mb-6 shadow-cyber">
+            <div class="grid grid-cols-2 lg:grid-cols-4 gap-2 md:gap-4">
+                <!-- Status Panel -->
+                <div class="bg-dark-elevated rounded-cyber p-2.5 md:p-4">
+                    <h3 class="text-xs md:text-sm font-semibold text-cyber-cyan mb-1 md:mb-2 uppercase tracking-wider">Kismet Status</h3>
+                    <div class="flex items-center">
+                        <span class="status-dot inactive mr-2 md:mr-3" id="kismet-status"></span>
+                        <span class="text-sm md:text-lg font-medium" id="kismet-status-text">Offline</span>
+                    </div>
+                </div>
+
+                <!-- Device Count -->
+                <div class="bg-dark-elevated rounded-cyber p-2.5 md:p-4">
+                    <h3 class="text-xs md:text-sm font-semibold text-cyber-cyan mb-1 md:mb-2 uppercase tracking-wider">Devices Found</h3>
+                    <div class="text-lg md:text-2xl font-bold text-cyber-green" id="device-count">0</div>
+                </div>
+
+                <!-- Scan Rate -->
+                <div class="bg-dark-elevated rounded-cyber p-2.5 md:p-4">
+                    <h3 class="text-xs md:text-sm font-semibold text-cyber-cyan mb-1 md:mb-2 uppercase tracking-wider">Scan Rate</h3>
+                    <div class="text-lg md:text-2xl font-bold text-cyber-yellow" id="scan-rate">0/s</div>
+                </div>
+
+                <!-- Uptime -->
+                <div class="bg-dark-elevated rounded-cyber p-2.5 md:p-4">
+                    <h3 class="text-xs md:text-sm font-semibold text-cyber-cyan mb-1 md:mb-2 uppercase tracking-wider">Uptime</h3>
+                    <div class="text-lg md:text-2xl font-bold text-cyber-blue" id="uptime">00:00:00</div>
+                </div>
+            </div>
+
+            <!-- Control Buttons - 2x2 on mobile -->
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-2 md:gap-4 mt-3 md:mt-6">
+                <button class="btn-cyber text-sm md:text-base bg-cyber-green/20 border border-cyber-green text-cyber-green hover:bg-cyber-green/30" onclick="startKismet()">
+                    Start Kismet
+                </button>
+                <button class="btn-cyber text-sm md:text-base bg-cyber-red/20 border border-cyber-red text-cyber-red hover:bg-cyber-red/30" onclick="stopKismet()">
+                    Stop Kismet
+                </button>
+                <button class="btn-cyber text-sm md:text-base bg-cyber-blue/20 border border-cyber-blue text-cyber-blue hover:bg-cyber-blue/30" onclick="refreshStatus()">
+                    Refresh
+                </button>
+                <button class="btn-cyber text-sm md:text-base bg-cyber-yellow/20 border border-cyber-yellow text-cyber-yellow hover:bg-cyber-yellow/30" onclick="openKismetUI()">
+                    Open UI
+                </button>
+            </div>
+        </div>
+
+        <!-- Kismet Interface -->
+        <div class="glass rounded-cyber-lg shadow-cyber relative" id="kismet-container">
+            <div class="flex items-center justify-between p-3 md:p-4 border-b border-cyber-blue/30">
+                <h2 class="text-lg md:text-xl font-bold text-cyber-cyan">Kismet Interface</h2>
+                <div class="flex gap-1 md:gap-2">
+                    <button class="p-1.5 md:p-2 text-cyber-blue hover:text-cyber-cyan transition-colors" onclick="toggleFullscreen()">
+                        <svg class="w-4 h-4 md:w-5 md:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"></path>
+                        </svg>
+                    </button>
+                    <button class="p-1.5 md:p-2 text-cyber-blue hover:text-cyber-cyan transition-colors" onclick="reloadKismet()">
+                        <svg class="w-4 h-4 md:w-5 md:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+            
+            <div class="relative" style="height: 500px;">
+                <iframe 
+                    id="kismet-iframe"
+                    src="http://localhost:2501" 
+                    class="w-full h-full border-0 rounded-b-cyber-lg"
+                    onload="onKismetLoad()"
+                    onerror="onKismetError()">
+                </iframe>
+                
+                <!-- Loading Overlay -->
+                <div id="loading-overlay" class="absolute inset-0 bg-dark-bg/80 flex items-center justify-center rounded-b-cyber-lg">
+                    <div class="text-center">
+                        <div class="w-12 h-12 md:w-16 md:h-16 border-4 border-cyber-blue border-t-transparent rounded-full animate-spin mb-3 md:mb-4 mx-auto"></div>
+                        <p class="text-sm md:text-base text-text-secondary">Connecting to Kismet...</p>
+                    </div>
+                </div>
+                
+                <!-- Error Overlay -->
+                <div id="error-overlay" class="absolute inset-0 bg-dark-bg/80 flex items-center justify-center rounded-b-cyber-lg hidden px-4">
+                    <div class="text-center max-w-md">
+                        <div class="text-4xl md:text-6xl text-cyber-red mb-3 md:mb-4">⚠️</div>
+                        <h3 class="text-lg md:text-xl font-bold text-cyber-red mb-2">Connection Failed</h3>
+                        <p class="text-sm md:text-base text-text-secondary mb-3 md:mb-4">Unable to connect to Kismet. Make sure the service is running.</p>
+                        <button class="btn-cyber text-sm md:text-base bg-cyber-blue/20 border border-cyber-blue text-cyber-blue hover:bg-cyber-blue/30" onclick="retryConnection()">
+                            Retry Connection
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Devices -->
+        <div class="glass rounded-cyber-lg p-3 md:p-6 mt-3 md:mt-6 shadow-cyber">
+            <h2 class="text-lg md:text-xl font-bold text-cyber-cyan mb-3 md:mb-4">Recent Devices</h2>
+            <div class="overflow-x-auto -mx-3 px-3 md:mx-0 md:px-0">
+                <table class="w-full min-w-[600px]">
+                    <thead>
+                        <tr class="border-b border-cyber-blue/30">
+                            <th class="px-2 md:px-4 py-1.5 md:py-2 text-left text-xs md:text-sm text-text-secondary">MAC Address</th>
+                            <th class="px-2 md:px-4 py-1.5 md:py-2 text-left text-xs md:text-sm text-text-secondary">Type</th>
+                            <th class="px-2 md:px-4 py-1.5 md:py-2 text-left text-xs md:text-sm text-text-secondary hidden sm:table-cell">Manufacturer</th>
+                            <th class="px-2 md:px-4 py-1.5 md:py-2 text-left text-xs md:text-sm text-text-secondary">Signal</th>
+                            <th class="px-2 md:px-4 py-1.5 md:py-2 text-left text-xs md:text-sm text-text-secondary">Last Seen</th>
+                        </tr>
+                    </thead>
+                    <tbody id="device-list">
+                        <tr>
+                            <td colspan="5" class="px-2 md:px-4 py-6 md:py-8 text-center text-xs md:text-sm text-text-tertiary">
+                                No devices detected yet. Start Kismet to begin scanning.
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript -->
+    <script src="assets/js/kismet.js"></script>
+    <script>
+        // Mobile viewport height fix
+        function setVH() {
+            let vh = window.innerHeight * 0.01;
+            document.documentElement.style.setProperty('--vh', `${vh}px`);
+        }
+        setVH();
+        window.addEventListener('resize', setVH);
+        window.addEventListener('orientationchange', setVH);
+
+        // Adjust iframe height on mobile
+        if (window.innerWidth <= 768) {
+            const iframe = document.getElementById('kismet-iframe');
+            if (iframe) {
+                iframe.parentElement.style.height = 'calc(100vh - 320px)';
+            }
+        }
+    </script>
+</body>
+</html>

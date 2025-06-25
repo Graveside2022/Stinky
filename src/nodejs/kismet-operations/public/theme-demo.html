@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#030610">
+    <title>Stinkster Theme Demo</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;700;800&display=swap" rel="stylesheet">
+    <style>
+        /* Base styles */
+        *, *::before, *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            background: #030610;
+            color: #d0d8f0;
+            min-height: 100vh;
+            padding: 2rem;
+            transition: all 0.3s ease;
+        }
+        
+        /* Container */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        /* Header */
+        .header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+        
+        .header h1 {
+            font-size: 3rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.2em;
+            margin-bottom: 1rem;
+            color: #fff;
+            text-shadow: 0 0 20px rgba(0, 220, 255, 0.6);
+        }
+        
+        .header p {
+            font-size: 1.2rem;
+            color: #b8c5e0;
+        }
+        
+        /* Demo sections */
+        .section {
+            background: rgba(12, 22, 48, 0.95);
+            border: 1px solid rgba(0, 210, 255, 0.3);
+            border-radius: 8px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+        
+        .section h2 {
+            color: #00d2ff;
+            margin-bottom: 1.5rem;
+            font-size: 1.5rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+        
+        /* Color swatches */
+        .color-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+        
+        .color-swatch {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 4px;
+        }
+        
+        .color-box {
+            width: 50px;
+            height: 50px;
+            border-radius: 4px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+        
+        /* Buttons demo */
+        .button-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+        
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: 1px solid;
+            border-radius: 6px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-align: center;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        
+        .btn-primary {
+            background: rgba(0, 210, 255, 0.2);
+            border-color: #00d2ff;
+            color: #00d2ff;
+        }
+        
+        .btn-success {
+            background: rgba(0, 255, 136, 0.2);
+            border-color: #00ff88;
+            color: #00ff88;
+        }
+        
+        .btn-warning {
+            background: rgba(255, 170, 0, 0.2);
+            border-color: #ffaa00;
+            color: #ffaa00;
+        }
+        
+        .btn-danger {
+            background: rgba(255, 68, 68, 0.2);
+            border-color: #ff4444;
+            color: #ff4444;
+        }
+        
+        /* Form elements */
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #b8c5e0;
+            font-weight: 500;
+        }
+        
+        .form-input {
+            width: 100%;
+            padding: 0.75rem;
+            background: rgba(26, 31, 58, 1);
+            border: 1px solid rgba(0, 210, 255, 0.3);
+            border-radius: 4px;
+            color: #d0d8f0;
+            font-size: 1rem;
+            transition: all 0.2s ease;
+        }
+        
+        .form-input:focus {
+            outline: none;
+            border-color: #00d2ff;
+            box-shadow: 0 0 0 2px rgba(0, 210, 255, 0.2);
+        }
+        
+        /* Status indicators */
+        .status-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+        }
+        
+        .status-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 1rem;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 4px;
+        }
+        
+        .status-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+        
+        .status-online { background: #0f0; box-shadow: 0 0 10px #0f0; }
+        .status-offline { background: #666; }
+        .status-warning { background: #ffaa00; box-shadow: 0 0 10px #ffaa00; }
+        .status-error { background: #ff4444; box-shadow: 0 0 10px #ff4444; }
+        
+        /* Theme info */
+        .theme-info {
+            position: fixed;
+            top: 1rem;
+            left: 1rem;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 1rem;
+            border-radius: 8px;
+            border: 1px solid rgba(0, 210, 255, 0.3);
+        }
+        
+        .theme-info h3 {
+            color: #00d2ff;
+            margin-bottom: 0.5rem;
+        }
+        
+        .theme-info p {
+            color: #b8c5e0;
+            margin: 0;
+        }
+        
+        /* Light theme overrides */
+        [data-theme="light"] body {
+            background: #f5f7fa;
+            color: #1a202c;
+        }
+        
+        [data-theme="light"] .header h1 {
+            color: #0078d4;
+            text-shadow: 0 0 10px rgba(0, 120, 212, 0.3);
+        }
+        
+        [data-theme="light"] .header p {
+            color: #4a5568;
+        }
+        
+        [data-theme="light"] .section {
+            background: rgba(255, 255, 255, 0.95);
+            border-color: rgba(0, 120, 212, 0.3);
+        }
+        
+        [data-theme="light"] .section h2 {
+            color: #0078d4;
+        }
+        
+        [data-theme="light"] .color-swatch {
+            background: rgba(248, 249, 251, 0.5);
+        }
+        
+        [data-theme="light"] .form-label {
+            color: #4a5568;
+        }
+        
+        [data-theme="light"] .form-input {
+            background: #fff;
+            border-color: rgba(0, 120, 212, 0.3);
+            color: #1a202c;
+        }
+        
+        [data-theme="light"] .form-input:focus {
+            border-color: #0078d4;
+            box-shadow: 0 0 0 2px rgba(0, 120, 212, 0.2);
+        }
+        
+        [data-theme="light"] .status-item {
+            background: rgba(248, 249, 251, 0.5);
+        }
+        
+        [data-theme="light"] .theme-info {
+            background: rgba(255, 255, 255, 0.95);
+            border-color: rgba(0, 120, 212, 0.3);
+        }
+        
+        [data-theme="light"] .theme-info h3 {
+            color: #0078d4;
+        }
+        
+        [data-theme="light"] .theme-info p {
+            color: #4a5568;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1>Stinkster Theme Demo</h1>
+            <p>Click the theme toggle button in the bottom right to switch between dark and light themes</p>
+        </header>
+        
+        <div class="theme-info">
+            <h3>Current Theme</h3>
+            <p id="current-theme">Dark</p>
+        </div>
+        
+        <section class="section">
+            <h2>Color Palette</h2>
+            <div class="color-grid">
+                <div class="color-swatch">
+                    <div class="color-box" style="background: #00d2ff;"></div>
+                    <div>
+                        <strong>Primary</strong><br>
+                        <small>#00d2ff</small>
+                    </div>
+                </div>
+                <div class="color-swatch">
+                    <div class="color-box" style="background: #00ff88;"></div>
+                    <div>
+                        <strong>Success</strong><br>
+                        <small>#00ff88</small>
+                    </div>
+                </div>
+                <div class="color-swatch">
+                    <div class="color-box" style="background: #ffaa00;"></div>
+                    <div>
+                        <strong>Warning</strong><br>
+                        <small>#ffaa00</small>
+                    </div>
+                </div>
+                <div class="color-swatch">
+                    <div class="color-box" style="background: #ff4444;"></div>
+                    <div>
+                        <strong>Danger</strong><br>
+                        <small>#ff4444</small>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <section class="section">
+            <h2>Button Styles</h2>
+            <div class="button-grid">
+                <button class="btn btn-primary">Primary</button>
+                <button class="btn btn-success">Success</button>
+                <button class="btn btn-warning">Warning</button>
+                <button class="btn btn-danger">Danger</button>
+            </div>
+        </section>
+        
+        <section class="section">
+            <h2>Form Elements</h2>
+            <div class="form-group">
+                <label class="form-label">Input Field</label>
+                <input type="text" class="form-input" placeholder="Enter text here...">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Select Field</label>
+                <select class="form-input">
+                    <option>Option 1</option>
+                    <option>Option 2</option>
+                    <option>Option 3</option>
+                </select>
+            </div>
+        </section>
+        
+        <section class="section">
+            <h2>Status Indicators</h2>
+            <div class="status-grid">
+                <div class="status-item">
+                    <div class="status-dot status-online"></div>
+                    <span>Online</span>
+                </div>
+                <div class="status-item">
+                    <div class="status-dot status-offline"></div>
+                    <span>Offline</span>
+                </div>
+                <div class="status-item">
+                    <div class="status-dot status-warning"></div>
+                    <span>Warning</span>
+                </div>
+                <div class="status-item">
+                    <div class="status-dot status-error"></div>
+                    <span>Error</span>
+                </div>
+            </div>
+        </section>
+    </div>
+    
+    <!-- Theme Switcher -->
+    <script src="/js/theme.js"></script>
+    
+    <script>
+        // Update theme display
+        window.addEventListener('themeChanged', (e) => {
+            const themeDisplay = document.getElementById('current-theme');
+            themeDisplay.textContent = e.detail.theme.charAt(0).toUpperCase() + e.detail.theme.slice(1);
+        });
+        
+        // Set initial theme display
+        setTimeout(() => {
+            const currentTheme = window.StinksterTheme?.getTheme() || 'dark';
+            document.getElementById('current-theme').textContent = 
+                currentTheme.charAt(0).toUpperCase() + currentTheme.slice(1);
+        }, 100);
+    </script>
+</body>
+</html>

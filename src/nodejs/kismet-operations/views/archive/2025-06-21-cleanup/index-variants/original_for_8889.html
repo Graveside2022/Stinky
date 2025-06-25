@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta http-equiv="cache-control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="pragma" content="no-cache">
+    <meta http-equiv="expires" content="0">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>Kismet Operations Center</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="assets/css/styles.css">
+    <style>
+        /* Mobile-specific overrides for better UX */
+        @media (max-width: 768px) {
+            .resize-handle { display: none !important; }
+            .grid-item { min-height: auto !important; }
+            iframe { height: calc(100vh - 300px) !important; min-height: 400px !important; }
+            .container { padding-left: 0.75rem !important; padding-right: 0.75rem !important; }
+            .nav-tab { font-size: 0.875rem !important; padding: 0.5rem 0.75rem !important; }
+            .feed-container { max-height: 200px !important; }
+            /* Prevent horizontal scroll */
+            body { overflow-x: hidden !important; }
+            .overflow-x-auto { -webkit-overflow-scrolling: touch; }
+        }
+        /* Safe area adjustments for notched phones */
+        @supports (padding: env(safe-area-inset-left)) {
+            .container {
+                padding-left: max(0.75rem, env(safe-area-inset-left));
+                padding-right: max(0.75rem, env(safe-area-inset-right));
+            }
+        }
+        /* Optimize for mobile landscape */
+        @media (max-width: 932px) and (orientation: landscape) {
+            header { padding-top: 0.5rem !important; padding-bottom: 0.5rem !important; }
+            header h1 { font-size: 1.5rem !important; }
+            .nav-tab { padding: 0.375rem 0.5rem !important; }
+            iframe { height: calc(100vh - 180px) !important; }
+        }
+    </style>
+</head>
+<body class="min-h-screen bg-dark-bg text-text-primary font-sans flex flex-col overflow-x-hidden">
+    <!-- Background Effects - Optimized for mobile performance -->
+    <div class="fixed inset-0 -z-20">
+        <div class="absolute inset-0 bg-gradient-to-br from-dark-bg via-dark-surface to-dark-bg"></div>
+        <!-- Simplified pattern for better mobile performance -->
+        <div class="absolute inset-0 opacity-20 md:opacity-40 bg-[url('data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2270%22%20height%3D%2270%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Cdefs%3E%3Cpattern%20id%3D%22grid%22%20width%3D%2270%22%20height%3D%2270%22%20patternUnits%3D%22userSpaceOnUse%22%3E%3Cpath%20d%3D%22M%200%2010%20L%2070%2010%20M%2010%200%20L%2010%2070%22%20stroke%3D%22%2300d2ff%22%20stroke-opacity%3D%220.1%22%20stroke-width%3D%221%22%2F%3E%3C%2Fpattern%3E%3C%2Fdefs%3E%3Crect%20width%3D%22100%25%22%20height%3D%22100%25%22%20fill%3D%22url(%23grid)%22%2F%3E%3C%2Fsvg%3E')]"></div>
+    </div>
+
+    <!-- Top Banner - Reduced height on mobile -->
+    <header class="w-full bg-glass-dark backdrop-blur-md border-b-2 border-cyber-blue/40 shadow-cyber-glow-md px-4 py-3 md:px-6 md:py-4 text-center flex-shrink-0 z-10 relative overflow-hidden">
+        <div class="absolute inset-0 bg-gradient-to-r from-transparent via-cyber-blue/10 to-transparent animate-banner-scan"></div>
+        <h1 class="text-2xl md:text-4xl lg:text-6xl font-extrabold uppercase tracking-wider md:tracking-cyber-widest text-transparent bg-clip-text bg-gradient-to-r from-white via-cyber-blue to-white animate-shine">
+            STINKSTER
+        </h1>
+    </header>
+
+    <!-- Minimized Tabs Bar - Better mobile positioning -->
+    <div id="minimized-tabs" class="hidden fixed top-[60px] md:top-[76px] left-0 right-0 z-[999] h-[40px] bg-glass-dark backdrop-blur-md border-b border-cyber-blue/35 shadow-cyber px-3 md:px-5 py-1 flex gap-2 overflow-x-auto scrollbar-hide">
+        <!-- Minimized tabs will be inserted here dynamically -->
+    </div>
+
+    <!-- Main Container - Full height on mobile -->
+    <div class="flex-1 w-full overflow-y-auto">
+        <div class="container mx-auto px-3 md:px-4 py-4 md:py-6 max-w-7xl">
+            <!-- Navigation Tabs - Horizontal scroll on mobile -->
+            <nav class="mb-4 md:mb-6 -mx-3 md:mx-0">
+                <div class="flex gap-2 justify-start md:justify-center overflow-x-auto scrollbar-hide px-3 md:px-0">
+                    <button class="nav-tab flex-shrink-0 px-4 py-2.5 md:px-6 md:py-3 bg-glass border border-cyber-blue/30 rounded-cyber text-sm md:text-base text-text-secondary hover:text-cyber-blue hover:bg-cyber-blue/10 hover:border-cyber-blue/50 transition-all duration-300 active" data-tab="kismet">
+                        Kismet Tracker
+                    </button>
+                    <button class="nav-tab flex-shrink-0 px-4 py-2.5 md:px-6 md:py-3 bg-glass border border-cyber-blue/30 rounded-cyber text-sm md:text-base text-text-secondary hover:text-cyber-blue hover:bg-cyber-blue/10 hover:border-cyber-blue/50 transition-all duration-300" data-tab="atak">
+                        ATAK Operations
+                    </button>
+                    <button class="nav-tab flex-shrink-0 px-4 py-2.5 md:px-6 md:py-3 bg-glass border border-cyber-blue/30 rounded-cyber text-sm md:text-base text-text-secondary hover:text-cyber-blue hover:bg-cyber-blue/10 hover:border-cyber-blue/50 transition-all duration-300" data-tab="wigle">
+                        Wigle to TAK
+                    </button>
+                </div>
+            </nav>
+
+            <!-- Tab Content -->
+            <div class="tab-content space-y-4 md:space-y-6">
+                <!-- Kismet Tab - Mobile optimized iframe -->
+                <div id="kismet-tab" class="tab-pane active">
+                    <div class="grid-item relative" id="kismet-container">
+                        <div class="flex items-center justify-between mb-3 md:mb-4">
+                            <h2 class="text-xl md:text-2xl font-bold text-cyber-blue">Kismet Operations</h2>
+                            <button class="control-button-small p-1.5 md:p-2 text-cyber-blue hover:text-cyber-cyan transition-colors" onclick="minimizeToTab('kismet-container', 'Kismet')">
+                                <svg class="w-4 h-4 md:w-5 md:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"></path>
+                                </svg>
+                            </button>
+                        </div>
+                        <iframe src="http://localhost:2501" class="w-full h-[500px] md:h-[600px] border border-cyber-blue/30 rounded-cyber"></iframe>
+                        <!-- Resize handles - hidden on mobile via CSS -->
+                        <div class="resize-handle top absolute top-0 left-1/2 transform -translate-x-1/2 w-24 h-1 bg-cyber-blue/30 cursor-ns-resize hover:bg-cyber-blue/50"></div>
+                        <div class="resize-handle bottom absolute bottom-0 left-1/2 transform -translate-x-1/2 w-24 h-1 bg-cyber-blue/30 cursor-ns-resize hover:bg-cyber-blue/50"></div>
+                        <div class="resize-handle left absolute left-0 top-1/2 transform -translate-y-1/2 w-1 h-24 bg-cyber-blue/30 cursor-ew-resize hover:bg-cyber-blue/50"></div>
+                        <div class="resize-handle right absolute right-0 top-1/2 transform -translate-y-1/2 w-1 h-24 bg-cyber-blue/30 cursor-ew-resize hover:bg-cyber-blue/50"></div>
+                    </div>
+                </div>
+
+                <!-- ATAK Tab - Stack vertically on mobile -->
+                <div id="atak-tab" class="tab-pane hidden">
+                    <div class="grid-item">
+                        <h2 class="text-xl md:text-2xl font-bold text-cyber-blue mb-4 md:mb-6">ATAK Operations Center</h2>
+                        
+                        <!-- Service Controls - 2x2 grid on mobile -->
+                        <div class="grid grid-cols-2 md:grid-cols-4 gap-2 md:gap-4 mb-4 md:mb-6">
+                            <button class="btn-cyber text-sm md:text-base px-3 py-2.5 md:px-4 md:py-3 bg-cyber-green/20 border border-cyber-green text-cyber-green hover:bg-cyber-green/30" onclick="startService('gps')">
+                                <span class="status-dot inactive mr-1.5 md:mr-2"></span>
+                                <span class="hidden sm:inline">Start </span>GPS
+                            </button>
+                            <button class="btn-cyber text-sm md:text-base px-3 py-2.5 md:px-4 md:py-3 bg-cyber-blue/20 border border-cyber-blue text-cyber-blue hover:bg-cyber-blue/30" onclick="startService('kismet')">
+                                <span class="status-dot inactive mr-1.5 md:mr-2"></span>
+                                <span class="hidden sm:inline">Start </span>Kismet
+                            </button>
+                            <button class="btn-cyber text-sm md:text-base px-3 py-2.5 md:px-4 md:py-3 bg-cyber-orange/20 border border-cyber-orange text-cyber-orange hover:bg-cyber-orange/30" onclick="startService('wigle')">
+                                <span class="status-dot inactive mr-1.5 md:mr-2"></span>
+                                <span class="hidden sm:inline">Start </span>Wigle
+                            </button>
+                            <button class="btn-cyber text-sm md:text-base px-3 py-2.5 md:px-4 md:py-3 bg-cyber-red/20 border border-cyber-red text-cyber-red hover:bg-cyber-red/30" onclick="stopAllServices()">
+                                Stop All
+                            </button>
+                        </div>
+
+                        <!-- Status Panels - Stack on mobile -->
+                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
+                            <!-- Service Status -->
+                            <div class="glass rounded-cyber-lg p-4 md:p-6">
+                                <h3 class="text-lg md:text-xl font-semibold text-cyber-cyan mb-3 md:mb-4">Service Status</h3>
+                                <div class="space-y-2 md:space-y-3">
+                                    <div class="flex items-center justify-between p-2.5 md:p-3 bg-dark-elevated rounded-cyber">
+                                        <span class="text-sm md:text-base text-text-secondary">GPS Service</span>
+                                        <span class="text-sm md:text-base text-status-error">Offline</span>
+                                    </div>
+                                    <div class="flex items-center justify-between p-2.5 md:p-3 bg-dark-elevated rounded-cyber">
+                                        <span class="text-sm md:text-base text-text-secondary">Kismet Scanner</span>
+                                        <span class="text-sm md:text-base text-status-error">Offline</span>
+                                    </div>
+                                    <div class="flex items-center justify-between p-2.5 md:p-3 bg-dark-elevated rounded-cyber">
+                                        <span class="text-sm md:text-base text-text-secondary">WigleToTAK</span>
+                                        <span class="text-sm md:text-base text-status-error">Offline</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Activity Feed - Reduced height on mobile -->
+                            <div class="glass rounded-cyber-lg p-4 md:p-6">
+                                <h3 class="text-lg md:text-xl font-semibold text-cyber-cyan mb-3 md:mb-4">Activity Feed</h3>
+                                <div class="feed-container h-40 md:h-64 overflow-y-auto scrollbar-cyber space-y-2">
+                                    <div class="feed-item p-2 bg-dark-elevated rounded-cyber text-xs md:text-sm text-text-tertiary">
+                                        System initialized
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Wigle Tab - Mobile optimized forms -->
+                <div id="wigle-tab" class="tab-pane hidden">
+                    <div class="grid-item">
+                        <h2 class="text-xl md:text-2xl font-bold text-cyber-blue mb-4 md:mb-6">Wigle to TAK Converter</h2>
+                        
+                        <!-- Control Panel - Stack on mobile -->
+                        <div class="bg-glass-light rounded-cyber-lg p-4 md:p-6 mb-4 md:mb-6">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+                                <!-- Configuration -->
+                                <div>
+                                    <h3 class="text-base md:text-lg font-semibold text-cyber-cyan mb-3 md:mb-4">Configuration</h3>
+                                    <form class="space-y-3 md:space-y-4">
+                                        <div>
+                                            <label class="block text-sm md:text-base text-text-secondary mb-1.5 md:mb-2">TAK Server IP</label>
+                                            <input type="text" class="input-cyber text-sm md:text-base" placeholder="239.2.3.1" value="239.2.3.1">
+                                        </div>
+                                        <div>
+                                            <label class="block text-sm md:text-base text-text-secondary mb-1.5 md:mb-2">TAK Port</label>
+                                            <input type="text" class="input-cyber text-sm md:text-base" placeholder="6969" value="6969">
+                                        </div>
+                                        <div>
+                                            <label class="block text-sm md:text-base text-text-secondary mb-1.5 md:mb-2">Update Interval (s)</label>
+                                            <input type="number" class="input-cyber text-sm md:text-base" placeholder="5" value="5">
+                                        </div>
+                                    </form>
+                                </div>
+                                
+                                <!-- Status -->
+                                <div>
+                                    <h3 class="text-base md:text-lg font-semibold text-cyber-cyan mb-3 md:mb-4 mt-4 md:mt-0">Status</h3>
+                                    <div class="space-y-2.5 md:space-y-3">
+                                        <div class="flex items-center">
+                                            <span class="status-dot inactive mr-2.5 md:mr-3"></span>
+                                            <span class="text-sm md:text-base text-text-secondary">WigleToTAK Service</span>
+                                        </div>
+                                        <div class="flex items-center">
+                                            <span class="status-dot inactive mr-2.5 md:mr-3"></span>
+                                            <span class="text-sm md:text-base text-text-secondary">TAK Connection</span>
+                                        </div>
+                                        <div class="flex items-center">
+                                            <span class="status-dot inactive mr-2.5 md:mr-3"></span>
+                                            <span class="text-sm md:text-base text-text-secondary">Kismet Feed</span>
+                                        </div>
+                                    </div>
+                                    <button class="btn-cyber text-sm md:text-base bg-cyber-green/20 border border-cyber-green text-cyber-green hover:bg-cyber-green/30 mt-4 md:mt-6 w-full">
+                                        Start Conversion
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Device List - Scrollable table on mobile -->
+                        <div class="bg-glass-light rounded-cyber-lg p-4 md:p-6">
+                            <h3 class="text-base md:text-lg font-semibold text-cyber-cyan mb-3 md:mb-4">Detected Devices</h3>
+                            <div class="overflow-x-auto -mx-4 px-4 md:mx-0 md:px-0">
+                                <table class="w-full min-w-[500px]">
+                                    <thead>
+                                        <tr class="border-b border-cyber-blue/30">
+                                            <th class="px-2 md:px-4 py-2 text-left text-xs md:text-sm text-text-secondary">Device</th>
+                                            <th class="px-2 md:px-4 py-2 text-left text-xs md:text-sm text-text-secondary">Type</th>
+                                            <th class="px-2 md:px-4 py-2 text-left text-xs md:text-sm text-text-secondary">Signal</th>
+                                            <th class="px-2 md:px-4 py-2 text-left text-xs md:text-sm text-text-secondary">Last Seen</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="device-list">
+                                        <tr>
+                                            <td colspan="4" class="px-2 md:px-4 py-6 md:py-8 text-center text-xs md:text-sm text-text-tertiary">
+                                                No devices detected. Start the service to begin scanning.
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Global notification (hidden by default) -->
+    <div id="notification" class="notification fixed bottom-4 right-4 max-w-[calc(100%-2rem)] md:max-w-md z-[1000]">
+        <div class="bg-dark-elevated border border-cyber-blue rounded-cyber p-3 md:p-4 shadow-cyber-glow">
+            <p id="notification-message" class="text-sm md:text-base text-cyber-blue"></p>
+        </div>
+    </div>
+
+    <!-- Status message overlay (hidden by default) -->
+    <div id="status-message" class="status-message hidden fixed inset-0 bg-dark-bg/80 backdrop-blur-sm z-[1001] flex items-center justify-center px-4">
+        <div class="bg-dark-elevated border-2 border-cyber-blue rounded-cyber-lg p-6 md:p-8 max-w-sm md:max-w-md w-full shadow-cyber-glow-lg">
+            <h3 class="text-lg md:text-xl font-bold text-cyber-blue mb-3 md:mb-4">System Status</h3>
+            <p id="status-content" class="text-sm md:text-base text-text-primary"></p>
+            <button onclick="hideStatus()" class="btn-cyber bg-cyber-blue/20 border border-cyber-blue text-cyber-blue hover:bg-cyber-blue/30 mt-4 md:mt-6 w-full">
+                Close
+            </button>
+        </div>
+    </div>
+
+    <!-- Loading overlay -->
+    <div id="loading" class="loading hidden fixed inset-0 bg-dark-bg/90 backdrop-blur-sm z-[1002] flex items-center justify-center">
+        <div class="text-center">
+            <div class="inline-block animate-spin rounded-full h-12 w-12 md:h-16 md:w-16 border-4 border-cyber-blue border-t-transparent"></div>
+            <p class="mt-4 text-sm md:text-base text-cyber-blue">Loading...</p>
+        </div>
+    </div>
+
+    <!-- Include original JavaScript files -->
+    <script src="assets/js/app.js"></script>
+    <script>
+        // Mobile viewport height fix for iOS
+        function setVH() {
+            let vh = window.innerHeight * 0.01;
+            document.documentElement.style.setProperty('--vh', `${vh}px`);
+        }
+        setVH();
+        window.addEventListener('resize', setVH);
+        window.addEventListener('orientationchange', setVH);
+
+        // Hide scrollbar on mobile for better UX
+        if (window.innerWidth <= 768) {
+            document.documentElement.style.scrollbarWidth = 'none';
+            document.documentElement.style.webkitScrollbar = 'none';
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Client IP Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        pre { background: #f0f0f0; padding: 10px; border-radius: 5px; }
+        .highlight { color: green; font-weight: bold; }
+        .error { color: red; }
+    </style>
+</head>
+<body>
+    <h1>Client IP Detection Test</h1>
+    
+    <h2>1. Debug Endpoint Results</h2>
+    <pre id="debug-result">Loading...</pre>
+    
+    <h2>2. Info Endpoint Results</h2>
+    <pre id="info-result">Loading...</pre>
+    
+    <h2>3. Your Detected IP</h2>
+    <p class="highlight" id="your-ip">Detecting...</p>
+    
+    <h2>4. Instructions</h2>
+    <p>If your IP is showing as 127.0.0.1, ::1, or the server's IP (10.42.0.1), try:</p>
+    <ul>
+        <li>Access this page from: http://[raspberry-pi-ip]:8002/test-ip.html</li>
+        <li>Make sure you're not using localhost or 127.0.0.1 in the URL</li>
+        <li>Check if there's a firewall or Docker network in between</li>
+    </ul>
+    
+    <script>
+        // Test debug endpoint
+        fetch('/debug-ip')
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('debug-result').textContent = JSON.stringify(data, null, 2);
+                
+                // Extract the detected IP
+                const detectedIp = data['req.ip'] || data['connection.remoteAddress'] || 'Unknown';
+                document.getElementById('your-ip').textContent = `Your IP is detected as: ${detectedIp}`;
+            })
+            .catch(error => {
+                document.getElementById('debug-result').textContent = `Error: ${error}`;
+                document.getElementById('debug-result').className = 'error';
+            });
+            
+        // Test info endpoint
+        fetch('/info')
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('info-result').textContent = JSON.stringify(data, null, 2);
+            })
+            .catch(error => {
+                document.getElementById('info-result').textContent = `Error: ${error}`;
+                document.getElementById('info-result').className = 'error';
+            });
+    </script>
+</body>
+</html>

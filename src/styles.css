@@ -1,0 +1,115 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Custom utility classes for cyber theme */
+@layer utilities {
+  /* Glassmorphism effects */
+  .glass {
+    @apply bg-glass-dark backdrop-blur-md border border-cyber-blue/30;
+  }
+  
+  .glass-light {
+    @apply bg-glass-medium backdrop-blur-sm border border-cyber-blue/20;
+  }
+  
+  /* Text gradient effect */
+  .text-gradient {
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-image: linear-gradient(135deg, #00d2ff 0%, #00ff88 100%);
+  }
+  
+  /* Custom scrollbar */
+  .scrollbar-cyber::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  
+  .scrollbar-cyber::-webkit-scrollbar-track {
+    background-color: rgba(10, 15, 30, 0.6);
+  }
+  
+  .scrollbar-cyber::-webkit-scrollbar-thumb {
+    background-color: #00d2ff;
+    border-radius: 3px;
+  }
+  
+  .scrollbar-cyber::-webkit-scrollbar-thumb:hover {
+    background-color: #00f2ff;
+  }
+}
+
+/* Component classes */
+@layer components {
+  /* Cyber button */
+  .btn-cyber {
+    @apply px-6 py-2 rounded-cyber font-medium uppercase tracking-cyber 
+           transition-all duration-300 relative overflow-hidden;
+  }
+  
+  .btn-cyber::before {
+    content: "";
+    @apply absolute top-0 left-[-100%] w-full h-full 
+           bg-gradient-to-r from-transparent via-white/20 to-transparent
+           transition-all duration-500;
+  }
+  
+  .btn-cyber:hover::before {
+    left: 100%;
+  }
+  
+  /* Status dots */
+  .status-dot {
+    @apply w-2 h-2 rounded-full inline-block;
+  }
+  
+  .status-dot.active {
+    @apply bg-status-success shadow-neon-green;
+  }
+  
+  .status-dot.inactive {
+    @apply bg-gray-600;
+  }
+  
+  /* Grid item for dashboards */
+  .grid-item {
+    @apply glass rounded-cyber-lg p-4 shadow-cyber transition-all duration-300;
+  }
+  
+  .grid-item:hover {
+    @apply shadow-cyber-glow transform scale-[1.02];
+  }
+  
+  /* Form inputs */
+  .input-cyber {
+    @apply w-full px-3 py-2 bg-dark-elevated border border-cyber-blue/30 
+           rounded-cyber text-text-primary placeholder-text-tertiary
+           focus:ring-2 focus:ring-cyber-blue focus:border-transparent
+           transition-all duration-300;
+  }
+  
+  /* Navigation items */
+  .nav-item {
+    @apply px-4 py-2 text-text-secondary hover:text-cyber-blue 
+           transition-colors duration-200 cursor-pointer;
+  }
+  
+  .nav-item.active {
+    @apply text-cyber-blue border-b-2 border-cyber-blue;
+  }
+}
+
+/* Preserve critical animations */
+@layer base {
+  /* Blink animation for notifications */
+  @keyframes blink-animation {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.3; }
+  }
+  
+  .feed-item-blink {
+    animation: blink-animation 1.5s infinite ease-in-out;
+  }
+}

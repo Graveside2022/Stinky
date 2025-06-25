@@ -1,0 +1,17 @@
+blank_issues_enabled: false
+contact_links:
+  - name: 🤔 General Questions & Discussions
+    url: https://github.com/username/stinkster/discussions
+    about: Ask questions, share ideas, and discuss the project with the community
+  - name: 🛡️ Security Vulnerability Report
+    url: https://github.com/username/stinkster/security/advisories/new
+    about: Report security vulnerabilities privately through GitHub Security Advisories
+  - name: 📖 Documentation & Wiki
+    url: https://github.com/username/stinkster/wiki
+    about: Browse documentation, guides, and community-contributed content
+  - name: ⚖️ Legal & Compliance Questions
+    url: https://github.com/username/stinkster/discussions/categories/legal-compliance
+    about: Discuss legal and regulatory compliance questions with the community
+  - name: 🔧 Hardware Compatibility Database
+    url: https://github.com/username/stinkster/wiki/Hardware-Compatibility
+    about: Check hardware compatibility or contribute compatibility information

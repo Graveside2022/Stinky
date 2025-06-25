@@ -1,0 +1,592 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta http-equiv="cache-control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="pragma" content="no-cache">
+    <meta http-equiv="expires" content="0">
+    <title>Kismet Operations Center</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;700;800&display=swap" rel="stylesheet">
+    <style>
+        /* Mobile-First CSS Reset */
+        *, *::before, *::after {
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+            margin: 0;
+            padding: 0;
+        }
+        
+        html {
+            font-size: 16px;
+            -webkit-text-size-adjust: 100%;
+            touch-action: manipulation;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background: #030610;
+            color: #d0d8f0;
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* Main Container - Mobile First */
+        .app-container {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Top Banner - Mobile First */
+        .top-banner {
+            background: rgba(12, 22, 48, 0.95);
+            backdrop-filter: blur(12px);
+            border-bottom: 2px solid rgba(0, 210, 255, 0.4);
+            padding: 0.75rem;
+            text-align: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .top-banner h1 {
+            color: #fff;
+            text-transform: uppercase;
+            letter-spacing: 0.2em;
+            font-size: 1.5rem;
+            font-weight: 800;
+            margin: 0;
+            text-shadow: 0 0 20px rgba(0, 220, 255, 0.6);
+        }
+
+        /* Navigation Tabs - Mobile First */
+        .nav-tabs {
+            display: flex;
+            gap: 0.5rem;
+            padding: 0.5rem;
+            background: rgba(10, 15, 30, 0.9);
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: none;
+        }
+
+        .nav-tabs::-webkit-scrollbar {
+            display: none;
+        }
+
+        .nav-tab {
+            background: rgba(0, 50, 80, 0.7);
+            border: 1px solid rgba(0, 210, 255, 0.3);
+            border-radius: 4px;
+            padding: 0.75rem 1rem;
+            color: #b8c5e0;
+            cursor: pointer;
+            white-space: nowrap;
+            font-size: 0.875rem;
+            min-height: 44px;
+            display: flex;
+            align-items: center;
+            transition: all 0.2s ease;
+            flex-shrink: 0;
+        }
+
+        .nav-tab.active {
+            background: rgba(0, 210, 255, 0.2);
+            border-color: #00d2ff;
+            color: #00d2ff;
+        }
+
+        /* Content Area - Mobile First */
+        .content-area {
+            flex: 1;
+            padding: 0.5rem;
+        }
+
+        /* Tab Panes - Mobile First */
+        .tab-pane {
+            display: none;
+        }
+
+        .tab-pane.active {
+            display: block;
+        }
+
+        /* Grid Item - Mobile First */
+        .grid-item {
+            background: rgba(12, 22, 48, 0.85);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(0, 210, 255, 0.3);
+            border-radius: 8px;
+            overflow: hidden;
+            margin-bottom: 1rem;
+            width: 100%;
+        }
+
+        .box-header {
+            background: linear-gradient(90deg, 
+                rgba(0, 210, 255, 0.1) 0%, 
+                rgba(0, 210, 255, 0.2) 50%,
+                rgba(0, 210, 255, 0.1) 100%);
+            border-bottom: 1px solid rgba(0, 210, 255, 0.3);
+            padding: 0.75rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .box-header h2 {
+            color: #00d2ff;
+            margin: 0;
+            font-size: 1rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .grid-item-content {
+            padding: 1rem;
+        }
+
+        /* Buttons - Mobile First */
+        .btn-cyber {
+            width: 100%;
+            background: linear-gradient(135deg, rgba(0, 210, 255, 0.2) 0%, rgba(0, 210, 255, 0.1) 100%);
+            color: #fff;
+            border: 1px solid rgba(0, 210, 255, 0.4);
+            border-radius: 6px;
+            padding: 0.875rem;
+            font-size: 0.875rem;
+            font-weight: 500;
+            cursor: pointer;
+            min-height: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            transition: all 0.2s ease;
+            text-transform: uppercase;
+            margin-bottom: 0.75rem;
+        }
+
+        .btn-cyber:last-child {
+            margin-bottom: 0;
+        }
+
+        .btn-cyber.btn-green {
+            background: rgba(0, 255, 136, 0.2);
+            border-color: #00ff88;
+            color: #00ff88;
+        }
+
+        .btn-cyber.btn-blue {
+            background: rgba(0, 210, 255, 0.2);
+            border-color: #00d2ff;
+            color: #00d2ff;
+        }
+
+        .btn-cyber.btn-orange {
+            background: rgba(255, 170, 0, 0.2);
+            border-color: #ffaa00;
+            color: #ffaa00;
+        }
+
+        .btn-cyber.btn-red {
+            background: rgba(255, 68, 68, 0.2);
+            border-color: #ff4444;
+            color: #ff4444;
+        }
+
+        /* Status Indicators */
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #666;
+            display: inline-block;
+        }
+
+        .status-dot.active {
+            background: #0f0;
+            box-shadow: 0 0 10px #0f0;
+        }
+
+        .status-dot.inactive {
+            background: #666;
+        }
+
+        /* Form Elements - Mobile First */
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 0.875rem;
+            color: #b8c5e0;
+            margin-bottom: 0.5rem;
+        }
+
+        .input-cyber {
+            width: 100%;
+            padding: 0.75rem;
+            background: rgba(26, 31, 58, 1);
+            border: 1px solid rgba(0, 210, 255, 0.3);
+            border-radius: 4px;
+            color: #d0d8f0;
+            font-size: 16px; /* Prevents zoom on iOS */
+        }
+
+        .input-cyber:focus {
+            outline: none;
+            border-color: #00d2ff;
+            box-shadow: 0 0 0 2px rgba(0, 210, 255, 0.2);
+        }
+
+        /* Stats Grid - Mobile First */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+
+        .stat-item {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 0.5rem;
+            border-radius: 4px;
+        }
+
+        .stat-value {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: #00ff88;
+        }
+
+        .stat-label {
+            font-size: 0.625rem;
+            color: #b8c5e0;
+            text-transform: uppercase;
+        }
+
+        /* Feed Container - Mobile First */
+        .feed-container {
+            max-height: 150px;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .feed-item {
+            padding: 0.5rem;
+            background: rgba(26, 31, 58, 1);
+            border-radius: 4px;
+            font-size: 0.75rem;
+            color: #7a8a9a;
+            margin-bottom: 0.5rem;
+        }
+
+        /* Service Status - Mobile First */
+        .status-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem;
+            background: rgba(26, 31, 58, 1);
+            border-radius: 4px;
+            margin-bottom: 0.5rem;
+            font-size: 0.875rem;
+        }
+
+        /* Hide elements */
+        .desktop-only {
+            display: none;
+        }
+
+        /* Tablet Styles */
+        @media (min-width: 768px) {
+            .top-banner h1 {
+                font-size: 2rem;
+            }
+
+            .nav-tabs {
+                padding: 0.75rem;
+            }
+
+            .content-area {
+                padding: 1rem;
+            }
+
+            .grid-item {
+                margin-bottom: 1.5rem;
+            }
+
+            .box-header h2 {
+                font-size: 1.125rem;
+            }
+
+            .btn-cyber {
+                font-size: 0.9375rem;
+            }
+
+            .stats-grid {
+                gap: 0.75rem;
+            }
+
+            .stat-value {
+                font-size: 1.5rem;
+            }
+
+            .stat-label {
+                font-size: 0.75rem;
+            }
+        }
+
+        /* Desktop Styles */
+        @media (min-width: 1024px) {
+            .top-banner h1 {
+                font-size: 3rem;
+                letter-spacing: 0.3em;
+            }
+
+            /* Hide mobile navigation on desktop */
+            .nav-tabs {
+                display: none;
+            }
+
+            /* Show desktop-only elements */
+            .desktop-only {
+                display: block;
+            }
+
+            /* Desktop 3-column layout */
+            .content-area {
+                max-width: 1400px;
+                margin: 0 auto;
+                padding: 2rem;
+                display: grid;
+                grid-template-columns: 1fr 2fr 1fr;
+                gap: 2rem;
+            }
+
+            /* Show all panes on desktop */
+            .tab-pane {
+                display: block !important;
+            }
+
+            /* Desktop grid adjustments */
+            .grid-item {
+                margin-bottom: 1.5rem;
+            }
+
+            .btn-cyber {
+                font-size: 1rem;
+            }
+
+            /* Button grid on desktop */
+            .button-grid {
+                display: grid;
+                grid-template-columns: repeat(2, 1fr);
+                gap: 0.75rem;
+            }
+
+            .button-grid .btn-cyber {
+                margin-bottom: 0;
+            }
+
+            .stat-value {
+                font-size: 2rem;
+            }
+
+            .stat-label {
+                font-size: 0.875rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <header class="top-banner">
+            <h1>STINKSTER</h1>
+        </header>
+
+        <!-- Mobile Navigation -->
+        <nav class="nav-tabs">
+            <button class="nav-tab active" data-tab="kismet">Kismet</button>
+            <button class="nav-tab" data-tab="controls">Controls</button>
+            <button class="nav-tab" data-tab="config">Config</button>
+        </nav>
+
+        <div class="content-area">
+            <!-- Kismet Tab -->
+            <div class="tab-pane active" id="kismet-tab">
+                <div class="grid-item">
+                    <div class="box-header">
+                        <h2>Kismet Operations</h2>
+                    </div>
+                    <div class="grid-item-content" style="padding: 0;">
+                        <iframe src="http://localhost:2501" style="width: 100%; height: 400px; border: none;"></iframe>
+                    </div>
+                </div>
+
+                <div class="grid-item">
+                    <div class="box-header">
+                        <h2>Kismet Data Feed</h2>
+                    </div>
+                    <div class="grid-item-content">
+                        <div class="stats-grid">
+                            <div class="stat-item">
+                                <div class="stat-value" id="devices-count">0</div>
+                                <div class="stat-label">Devices</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-value" id="networks-count">0</div>
+                                <div class="stat-label">Networks</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-value" id="last-update">--</div>
+                                <div class="stat-label">Update</div>
+                            </div>
+                        </div>
+
+                        <h3 style="color: #00d2ff; margin: 0 0 0.5rem 0; font-size: 0.875rem;">Activity Feed</h3>
+                        <div class="feed-container">
+                            <div class="feed-item">Waiting for activity...</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Controls Tab -->
+            <div class="tab-pane" id="controls-tab">
+                <div class="grid-item">
+                    <div class="box-header">
+                        <h2>Service Controls</h2>
+                    </div>
+                    <div class="grid-item-content">
+                        <button class="btn-cyber btn-green" onclick="startService('gps')">
+                            <span class="status-dot inactive"></span>
+                            Start GPS
+                        </button>
+                        <button class="btn-cyber btn-blue" onclick="startService('kismet')">
+                            <span class="status-dot inactive"></span>
+                            Start Kismet
+                        </button>
+                        <button class="btn-cyber btn-orange" onclick="startService('wigle')">
+                            <span class="status-dot inactive"></span>
+                            Start Wigle
+                        </button>
+                        <button class="btn-cyber btn-red" onclick="stopAllServices()">
+                            Stop All
+                        </button>
+                    </div>
+                </div>
+
+                <div class="grid-item">
+                    <div class="box-header">
+                        <h2>Service Status</h2>
+                    </div>
+                    <div class="grid-item-content">
+                        <div class="status-item">
+                            <span>GPS Service</span>
+                            <span style="color: #dc3545;">Offline</span>
+                        </div>
+                        <div class="status-item">
+                            <span>Kismet Scanner</span>
+                            <span style="color: #dc3545;">Offline</span>
+                        </div>
+                        <div class="status-item">
+                            <span>WigleToTAK</span>
+                            <span style="color: #dc3545;">Offline</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid-item">
+                    <div class="box-header">
+                        <h2>Activity Feed</h2>
+                    </div>
+                    <div class="grid-item-content">
+                        <div class="feed-container">
+                            <div class="feed-item">System initialized</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Config Tab -->
+            <div class="tab-pane" id="config-tab">
+                <div class="grid-item">
+                    <div class="box-header">
+                        <h2>Configuration</h2>
+                    </div>
+                    <div class="grid-item-content">
+                        <div class="form-group">
+                            <label class="form-label">TAK Server IP</label>
+                            <input type="text" class="input-cyber" value="239.2.3.1">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">TAK Port</label>
+                            <input type="number" class="input-cyber" value="6969">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Update Interval (s)</label>
+                            <input type="number" class="input-cyber" value="5">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid-item">
+                    <div class="box-header">
+                        <h2>Detected Devices</h2>
+                    </div>
+                    <div class="grid-item-content">
+                        <div style="text-align: center; padding: 2rem; color: #7a8a9a; font-size: 0.875rem;">
+                            No devices detected. Start the service to begin scanning.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        // Tab switching
+        document.querySelectorAll('.nav-tab').forEach(tab => {
+            tab.addEventListener('click', function() {
+                // Remove active from all
+                document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+                document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+                
+                // Add active to clicked
+                this.classList.add('active');
+                const tabName = this.getAttribute('data-tab');
+                document.getElementById(`${tabName}-tab`).classList.add('active');
+            });
+        });
+
+        // Socket.io connection
+        const socket = io();
+
+        // Service functions
+        function startService(service) {
+            socket.emit('start-service', service);
+        }
+
+        function stopAllServices() {
+            socket.emit('stop-all-services');
+        }
+
+        // Desktop view adjustments
+        if (window.innerWidth >= 1024) {
+            document.querySelectorAll('.tab-pane').forEach(pane => {
+                pane.classList.add('active');
+            });
+        }
+    </script>
+</body>
+</html>
